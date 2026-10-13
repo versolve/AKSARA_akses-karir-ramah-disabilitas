@@ -59,7 +59,8 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard'));
+        // Default factory role is 'pelamar', so login redirects to the pelamar dashboard.
+        $response->assertRedirect('/app/dashboard');
     }
 
     /* @chisel-passkeys */

@@ -28,14 +28,19 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
+            'role' => ['required', 'string', 'in:pelamar,perusahaan'],
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return DB::transaction(function () use ($input) {
+        return DB::transaction(function () use ($input): User {
+            $role = $input['role'];
+
             $user = User::create([
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password' => $input['password'],
+                'role' => $role,
+                'is_verified' => $role === 'pelamar',
             ]);
 
             $this->createTeam->handle($user, $user->name."'s Team", isPersonal: true);

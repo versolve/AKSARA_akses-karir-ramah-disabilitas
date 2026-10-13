@@ -34,7 +34,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
  */
-#[Fillable(['name', 'email', 'password', 'current_team_id'])]
+#[Fillable(['name', 'email', 'password', 'current_team_id', 'role', 'is_verified'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
@@ -51,9 +51,67 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',
             /* @chisel-2fa */
             'two_factor_confirmed_at' => 'datetime',
             /* @end-chisel-2fa */
         ];
+    }
+
+    /**
+     * Check if user is a job seeker (pelamar)
+     */
+    public function isPelamar(): bool
+    {
+        return $this->role === 'pelamar';
+    }
+
+    /**
+     * Check if user is a company representative (perusahaan/HR)
+     */
+    public function isPerusahaan(): bool
+    {
+        return $this->role === 'perusahaan';
+    }
+
+    /**
+     * Check if user is an administrator
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Get appropriate dashboard route based on role
+     */
+    public function getDashboardRoute(): string
+    {
+        return match ($this->role) {
+            'pelamar' => '/app/dashboard',
+            'perusahaan' => '/company/dashboard',
+            'admin' => '/admin/dashboard',
+            default => '/',
+        };
+    }
+
+    public function jobSeekerProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(JobSeekerProfile::class);
+    }
+
+    public function companyProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(CompanyProfile::class);
+    }
+
+    public function accessibilityProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SeekerAccessibilityProfile::class);
+    }
+
+    public function preference(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(UserPreference::class);
     }
 }

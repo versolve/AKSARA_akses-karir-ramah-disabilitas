@@ -5,7 +5,35 @@ use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::inertia('/', 'welcome')
+    ->middleware(['role.redirect'])
+    ->name('home');
+
+// Role-scoped dashboard routes — must be registered BEFORE the {current_team}
+// catch-all below, otherwise /app/dashboard is captured as team "app".
+Route::prefix('app')
+    ->middleware(['auth', 'role:pelamar'])
+    ->group(function () {
+        Route::get('/dashboard', DashboardController::class)->name('app.dashboard');
+        Route::get('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'edit'])->name('app.profile.edit');
+        Route::post('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'update'])->name('app.profile.update');
+        Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
+        Route::post('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'update'])->name('app.accessibility-profile.update');
+    });
+
+Route::prefix('company')
+    ->middleware(['auth', 'role:perusahaan'])
+    ->group(function () {
+        Route::get('/dashboard', DashboardController::class)->name('company.dashboard');
+        Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'edit'])->name('company.profile.edit');
+        Route::post('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('company.profile.update');
+    });
+
+Route::prefix('admin')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
+        Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
+    });
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])

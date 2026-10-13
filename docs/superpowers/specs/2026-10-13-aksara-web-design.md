@@ -163,7 +163,36 @@ AKSARA adalah platform pencarian kerja inklusif yang menghubungkan penyandang di
 
 ---
 
-## 7. Rencana Tahapan Eksekusi (Roadmap)
+## 7. Desain Responsif & Adaptif Per Device
+
+Menggunakan pendekatan **Mobile-First** dengan Tailwind CSS breakpoints (`sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`).
+
+### 7.1 Mobile (< 768px)
+- **Layout**: Single column vertikal penuh, padding layar `px-4`.
+- **Navigasi**: Hamburger menu dengan sheet/drawer penuh ramah screen reader dan satu tangan.
+- **Filter Aksesibilitas & Lowongan**: Ditampilkan via bottom sheet / drawer modal (bukan sidebar yang menekan ruang baca).
+- **Toolbar Aksesibilitas**: Ciut menjadi floating action button (FAB) bulat di sudut kanan-bawah. Saat ditekan, membuka modal preferensi.
+- **Tabel Data (Lamaran / Pelamar)**: Diubah dari format tabel menjadi format kartu (card-based list) untuk mencegah horizontal scroll.
+- **Touch Target**: Seluruh tombol, link, dan kontrol form minimal `44x44px` sesuai standar WCAG 2.5.5 Target Size.
+
+### 7.2 Tablet (768px - 1023px)
+- **Layout**: 2 kolom grid (mis. daftar kartu lowongan `grid-cols-2`).
+- **Sidebar**: Collapsible sidebar untuk dashboard HR dan Admin; overlay backdrop saat dibuka.
+- **Detail Lowongan**: Tampilan split-screen atau tumpuk tergantung lebar viewport, tetap mengutamakan kenyamanan baca.
+
+### 7.3 Desktop (≥ 1024px)
+- **Layout**: Multi-kolom (Sidebar tetap + area konten utama + panel ringkasan).
+- **Pencarian Lowongan**: Filter filter kategori & aksesibilitas sticky di sisi kiri (lebar `w-72`), daftar lowongan di kanan (`col-span-3`).
+- **Toolbar Aksesibilitas**: Widget floating di kanan-bawah dengan opsi cepat (zoom, TTS toggle, contrast toggle) tanpa harus membuka dialog penuh.
+- **Dashboard Metrik**: Grid 3 hingga 4 kolom untuk KPI card.
+
+### 7.4 Aturan Reflow & Zoom Aksesibilitas (WCAG 1.4.10)
+- Konten wajib bisa di-zoom hingga 200% (atau font-scale 125%) tanpa memicu horizontal scrolling pada teks utama.
+- Hindari penetapan tinggi fix (`h-[xxx]`) pada kontainer teks; gunakan `min-h-*` agar layout mengalir fleksibel saat ukuran font dinaikkan.
+
+---
+
+## 8. Rencana Tahapan Eksekusi (Roadmap)
 
 ### Fase 1: Fondasi, Database Multi-Role, & Toolbar Aksesibilitas
 1. Konfigurasi MySQL Laragon di `.env`.
