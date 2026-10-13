@@ -3,6 +3,7 @@
 - **Tanggal**: 2026-10-13
 - **Status**: Disetujui
 - **Tech Stack**: Laravel 11/12, Inertia.js, React 19 (TypeScript), Tailwind CSS v4, MySQL (Laragon).
+Claude Code Dilarang melakukan commit/push ke github.
 
 ---
 
