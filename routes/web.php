@@ -9,6 +9,9 @@ Route::inertia('/', 'welcome')
     ->middleware(['role.redirect'])
     ->name('home');
 
+Route::get('/jobs', [\App\Http\Controllers\JobListingController::class, 'index'])->name('jobs.index');
+Route::get('/jobs/{slug}', [\App\Http\Controllers\JobListingController::class, 'show'])->name('jobs.show');
+
 // Role-scoped dashboard routes — must be registered BEFORE the {current_team}
 // catch-all below, otherwise /app/dashboard is captured as team "app".
 Route::prefix('app')
@@ -19,6 +22,8 @@ Route::prefix('app')
         Route::post('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'update'])->name('app.profile.update');
         Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
         Route::post('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'update'])->name('app.accessibility-profile.update');
+        Route::get('/applications', [\App\Http\Controllers\Seeker\ApplicationController::class, 'index'])->name('app.applications.index');
+        Route::post('/vacancies/{vacancy}/apply', [\App\Http\Controllers\Seeker\ApplicationController::class, 'apply'])->name('app.vacancies.apply');
     });
 
 Route::prefix('company')
@@ -27,6 +32,11 @@ Route::prefix('company')
         Route::get('/dashboard', DashboardController::class)->name('company.dashboard');
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'edit'])->name('company.profile.edit');
         Route::post('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('company.profile.update');
+        Route::resource('vacancies', \App\Http\Controllers\Company\VacancyController::class, [
+            'as' => 'company'
+        ]);
+        Route::get('/applications', [\App\Http\Controllers\Company\ApplicationReviewController::class, 'index'])->name('company.applications.index');
+        Route::patch('/applications/{application}/status', [\App\Http\Controllers\Company\ApplicationReviewController::class, 'updateStatus'])->name('company.applications.updateStatus');
     });
 
 Route::prefix('admin')

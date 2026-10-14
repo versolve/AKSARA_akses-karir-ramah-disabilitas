@@ -215,3 +215,11 @@ Menggunakan pendekatan **Mobile-First** dengan Tailwind CSS breakpoints (`sm: 64
 1. Fitur pesan antar Pelamar dan Perusahaan.
 2. Notifikasi in-app.
 3. Panel Admin (verifikasi perusahaan, moderasi lowongan, statistik laporan).
+
+### Fase 5: Polish & Visual Design System.
+Konsolidasi color scheme & palette (placeholder vs brand kamu).
+Typography scale & spacing system (seragam semua halaman).
+Component library kustom: button, card, input, badge dengan style konsisten.
+Micro-interactions & transitions (hover states, loading spinners, toast notifikasi).
+Responsive polish untuk mobile/tablet/desktop.
+Animasi halus tanpa mengganggu aksesibilitas.

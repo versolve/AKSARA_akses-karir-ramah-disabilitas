@@ -29,4 +29,9 @@ class JobSeekerProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function applications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
 }
