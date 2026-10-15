@@ -49,7 +49,13 @@ Route::prefix('company')
 Route::prefix('admin')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
-        Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
+        Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)->name('admin.dashboard');
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+        Route::post('/companies/{company}/verify', [\App\Http\Controllers\Admin\UserController::class, 'toggleCompanyVerification'])->name('admin.companies.verify');
+        Route::get('/vacancies', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'index'])->name('admin.vacancies.index');
+        Route::patch('/vacancies/{vacancy}/status', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'updateStatus'])->name('admin.vacancies.updateStatus');
+        Route::delete('/vacancies/{vacancy}', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'destroy'])->name('admin.vacancies.destroy');
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
     });
 
 Route::prefix('{current_team}')

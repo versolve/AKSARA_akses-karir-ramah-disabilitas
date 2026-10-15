@@ -4,12 +4,14 @@ import {
     BookOpen,
     Briefcase,
     Building2,
+    ChartBar,
     FileText,
     FolderGit2,
     HeartHandshake,
     LayoutGrid,
     Search,
     Shield,
+    ShieldCheck,
     Sparkles,
     User,
     Users,
@@ -98,6 +100,30 @@ export function AppSidebar() {
                 title: 'Profil Perusahaan',
                 href: '/company/profile',
                 icon: Building2,
+            },
+        ];
+    } else if (userRole === 'admin') {
+        dashboardUrl = '/admin/dashboard';
+        mainNavItems = [
+            {
+                title: 'Dashboard',
+                href: '/admin/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Kelola Pengguna',
+                href: '/admin/users',
+                icon: Users,
+            },
+            {
+                title: 'Moderasi Lowongan',
+                href: '/admin/vacancies',
+                icon: ShieldCheck,
+            },
+            {
+                title: 'Laporan & Statistik',
+                href: '/admin/reports',
+                icon: ChartBar,
             },
         ];
     } else {
