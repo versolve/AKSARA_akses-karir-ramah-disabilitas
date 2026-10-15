@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
+  AlertCircle,
   Building2,
   Calendar,
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   DollarSign,
   FileText,
   MapPin,
+  Sparkles,
   Volume2,
   X,
 } from 'lucide-react';
@@ -71,7 +73,14 @@ const ACCESSIBILITY_LABELS: Record<string, string> = {
 };
 
 export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElement {
+  const page = usePage();
+  const userRole = (page.props.auth as any)?.user?.role;
+  const isPelamar = userRole === 'pelamar';
+
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [aiMatch, setAiMatch] = useState<any>(null);
+  const [isMatchingAi, setIsMatchingAi] = useState(false);
+  const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
 
   const { data, setData, post, processing, errors, reset } = useForm<{
     cover_letter: string;
@@ -80,6 +89,29 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
     cover_letter: '',
     cv: null,
   });
+
+  const handleRunAiMatch = async (): Promise<void> => {
+    setIsMatchingAi(true);
+    setIsMatchModalOpen(true);
+    try {
+      const res = await fetch(`/app/ai/match/${vacancy.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAiMatch(data);
+      }
+    } catch (e) {
+      console.error('AI Match error', e);
+    } finally {
+      setIsMatchingAi(false);
+    }
+  };
 
   const handleSpeak = (): void => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -138,16 +170,30 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
             </div>
 
             <div className="flex flex-col gap-2 sm:items-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSpeak}
-                className="flex items-center gap-2 min-h-[44px]"
-                aria-label="Bacakan seluruh detail lowongan"
-              >
-                <Volume2 className="h-4 w-4 text-teal-600" />
-                Bacakan Lowongan
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSpeak}
+                  className="flex items-center gap-2 min-h-[44px]"
+                  aria-label="Bacakan seluruh detail lowongan"
+                >
+                  <Volume2 className="h-4 w-4 text-teal-600" />
+                  Bacakan Lowongan
+                </Button>
+
+                {isPelamar && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleRunAiMatch}
+                    className="flex items-center gap-2 border-teal-300 bg-teal-50/50 text-teal-800 hover:bg-teal-100 min-h-[44px]"
+                  >
+                    <Sparkles className="h-4 w-4 text-teal-600" />
+                    Cek Kecocokan AI
+                  </Button>
+                )}
+              </div>
 
               {alreadyApplied ? (
                 <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-800">
@@ -341,6 +387,98 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* AI Match Modal */}
+        {isMatchModalOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-match-headline"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          >
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-teal-600" />
+                  <h3 id="ai-match-headline" className="text-base font-bold text-slate-900">
+                    Analisis Kecocokan AI: {vacancy.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMatchModalOpen(false)}
+                  className="rounded-full p-2 text-slate-400 hover:bg-slate-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Tutup modal analisis"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {isMatchingAi ? (
+                <div className="py-12 text-center text-sm text-slate-500">
+                  <Sparkles className="mx-auto h-8 w-8 text-teal-600 animate-spin mb-3" />
+                  <p>Sedang mengevaluasi kecocokan kompetensi dan aksesibilitas...</p>
+                </div>
+              ) : aiMatch ? (
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center justify-between rounded-xl bg-teal-50 p-4 border border-teal-200">
+                    <div>
+                      <span className="text-xs font-semibold text-teal-700 uppercase">Skor Kecocokan</span>
+                      <p className="text-2xl font-black text-teal-950">{aiMatch.match_percentage}%</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-teal-100">
+                        <span className="block text-[10px] text-slate-400">Kompetensi</span>
+                        <span className="text-xs font-bold text-slate-800">{aiMatch.competency_score}%</span>
+                      </div>
+                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-teal-100">
+                        <span className="block text-[10px] text-slate-400">Aksesibilitas</span>
+                        <span className="text-xs font-bold text-teal-700">{aiMatch.accessibility_score}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-700 leading-relaxed">{aiMatch.summary}</p>
+
+                  {aiMatch.matching_points?.length > 0 && (
+                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
+                      <span className="text-xs font-bold text-emerald-800 block mb-1">Poin Kecocokan:</span>
+                      <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        {aiMatch.matching_points.map((p: string, idx: number) => (
+                          <li key={idx}>{p}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {aiMatch.gaps?.length > 0 && (
+                    <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-3">
+                      <span className="text-xs font-bold text-amber-800 block mb-1">Area Pengembangan:</span>
+                      <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        {aiMatch.gaps.map((g: string, idx: number) => (
+                          <li key={idx}>{g}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-slate-100 flex justify-end">
+                    <Button
+                      onClick={() => setIsMatchModalOpen(false)}
+                      className="bg-teal-600 hover:bg-teal-700 text-xs min-h-[44px]"
+                    >
+                      Mengerti
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-6 text-center text-xs text-slate-500">
+                  Gagal memuat analisis. Silakan coba kembali.
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -53,6 +53,18 @@ class ApplicationReviewController extends Controller
 
         $application->update($validated);
 
+        // Notify job seeker if user account exists
+        $applicantUser = $application->jobSeekerProfile?->user;
+        if ($applicantUser) {
+            $applicantUser->notify(
+                new \App\Notifications\ApplicationStatusChanged(
+                    $application,
+                    $validated['status'],
+                    $validated['status_notes'] ?? null
+                )
+            );
+        }
+
         return back()->with('status', 'Status lamaran berhasil diperbarui.');
     }
 }

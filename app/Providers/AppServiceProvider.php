@@ -15,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\Ai\AiManager::class, function ($app) {
+            return new \App\Services\Ai\AiManager($app);
+        });
+
+        $this->app->bind(\App\Contracts\AiProviderInterface::class, function ($app) {
+            return $app->make(\App\Services\Ai\AiManager::class)->driver();
+        });
     }
 
     /**

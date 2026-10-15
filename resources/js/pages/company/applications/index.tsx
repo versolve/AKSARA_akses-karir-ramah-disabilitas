@@ -1,7 +1,8 @@
+import { ApplicationChatModal } from '@/components/chat/ApplicationChatModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { Calendar, CheckCircle2, FileText, UserCheck, Users, X } from 'lucide-react';
+import { Calendar, CheckCircle2, FileText, MessageSquare, UserCheck, Users, X } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 
 interface AccessibilityProfileItem {
@@ -81,6 +82,7 @@ const ACCESSIBILITY_LABELS: Record<string, string> = {
 };
 
 export default function CompanyApplicationsIndex({ applications }: Props): ReactElement {
+  const [activeChat, setActiveChat] = useState<{ id: number; name: string } | null>(null);
   const [selectedApp, setSelectedApp] = useState<ApplicationItem | null>(null);
   const [newStatus, setNewStatus] = useState<string>('');
   const [statusNotes, setStatusNotes] = useState<string>('');
@@ -210,20 +212,44 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
 
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
                     <span className="text-slate-500">Email: {user.email}</span>
-                    <a
-                      href={`/storage/${app.cv_path}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-semibold text-teal-600 hover:underline min-h-[44px]"
-                    >
-                      <FileText className="h-4 w-4" />
-                      Unduh / Lihat CV
-                    </a>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveChat({
+                            id: app.id,
+                            name: user.name,
+                          })
+                        }
+                        className="inline-flex items-center gap-1 font-semibold text-teal-600 hover:text-teal-700 hover:underline min-h-[44px]"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Pesan Kandidat
+                      </button>
+                      <a
+                        href={`/storage/${app.cv_path}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-slate-600 hover:underline min-h-[44px]"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Lihat CV
+                      </a>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
+        )}
+
+        {activeChat && (
+          <ApplicationChatModal
+            applicationId={activeChat.id}
+            recipientName={activeChat.name}
+            isOpen={true}
+            onClose={() => setActiveChat(null)}
+          />
         )}
 
         {/* Update Status Modal */}

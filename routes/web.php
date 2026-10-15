@@ -17,19 +17,26 @@ Route::get('/jobs/{slug}', [\App\Http\Controllers\JobListingController::class, '
 Route::prefix('app')
     ->middleware(['auth', 'role:pelamar'])
     ->group(function () {
-        Route::get('/dashboard', DashboardController::class)->name('app.dashboard');
+        Route::get('/dashboard', \App\Http\Controllers\Seeker\DashboardController::class)->name('app.dashboard');
         Route::get('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'edit'])->name('app.profile.edit');
         Route::post('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'update'])->name('app.profile.update');
         Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
         Route::post('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'update'])->name('app.accessibility-profile.update');
         Route::get('/applications', [\App\Http\Controllers\Seeker\ApplicationController::class, 'index'])->name('app.applications.index');
         Route::post('/vacancies/{vacancy}/apply', [\App\Http\Controllers\Seeker\ApplicationController::class, 'apply'])->name('app.vacancies.apply');
+        Route::get('/notifications', [\App\Http\Controllers\Seeker\NotificationController::class, 'index'])->name('app.notifications.index');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Seeker\NotificationController::class, 'markAsRead'])->name('app.notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\Seeker\NotificationController::class, 'markAllAsRead'])->name('app.notifications.readAll');
+        Route::get('/ai-assistant', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'index'])->name('app.ai-assistant.index');
+        Route::post('/ai/match/{vacancy}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'matchVacancy'])->name('app.ai.match');
+        Route::post('/ai/skill-gap', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'skillGap'])->name('app.ai.skill-gap');
+        Route::post('/ai/cv-review', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'cvReview'])->name('app.ai.cv-review');
     });
 
 Route::prefix('company')
     ->middleware(['auth', 'role:perusahaan'])
     ->group(function () {
-        Route::get('/dashboard', DashboardController::class)->name('company.dashboard');
+        Route::get('/dashboard', \App\Http\Controllers\Company\DashboardController::class)->name('company.dashboard');
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'edit'])->name('company.profile.edit');
         Route::post('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('company.profile.update');
         Route::resource('vacancies', \App\Http\Controllers\Company\VacancyController::class, [
@@ -52,6 +59,8 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'index'])->name('applications.messages.index');
+    Route::post('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'store'])->name('applications.messages.store');
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
     Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
 });

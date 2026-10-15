@@ -34,4 +34,9 @@ class JobSeekerProfile extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    public function aiMatches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AiJobMatch::class);
+    }
 }

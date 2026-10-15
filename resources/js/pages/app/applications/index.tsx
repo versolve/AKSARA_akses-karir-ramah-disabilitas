@@ -1,7 +1,8 @@
+import { ApplicationChatModal } from '@/components/chat/ApplicationChatModal';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
-import { Building2, Calendar, CheckCircle2, Clock, FileText, XCircle } from 'lucide-react';
-import type { ReactElement } from 'react';
+import { Building2, Calendar, CheckCircle2, Clock, FileText, MessageSquare, XCircle } from 'lucide-react';
+import { useState, type ReactElement } from 'react';
 
 interface CompanyItem {
   id: number;
@@ -41,6 +42,8 @@ const STEPS = [
 ];
 
 export default function ApplicationsIndex({ applications }: Props): ReactElement {
+  const [activeChat, setActiveChat] = useState<{ id: number; name: string } | null>(null);
+
   const getStepIndex = (status: ApplicationItem['status']): number => {
     switch (status) {
       case 'submitted':
@@ -172,20 +175,44 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
                     <span className="text-slate-500">
                       Status Terakhir: <strong className="text-slate-800 uppercase">{app.status}</strong>
                     </span>
-                    <a
-                      href={`/storage/${app.cv_path}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-medium text-teal-600 hover:underline min-h-[44px]"
-                    >
-                      <FileText className="h-4 w-4" />
-                      Lihat CV Terkirim
-                    </a>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveChat({
+                            id: app.id,
+                            name: `HR ${app.vacancy.company_profile.company_name}`,
+                          })
+                        }
+                        className="inline-flex items-center gap-1 font-semibold text-teal-600 hover:text-teal-700 hover:underline min-h-[44px]"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Pesan HR
+                      </button>
+                      <a
+                        href={`/storage/${app.cv_path}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-slate-600 hover:underline min-h-[44px]"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Lihat CV
+                      </a>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
+        )}
+
+        {activeChat && (
+          <ApplicationChatModal
+            applicationId={activeChat.id}
+            recipientName={activeChat.name}
+            isOpen={true}
+            onClose={() => setActiveChat(null)}
+          />
         )}
       </div>
     </AppLayout>

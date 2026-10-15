@@ -67,6 +67,11 @@ class Vacancy extends Model
         return $this->hasMany(Application::class);
     }
 
+    public function aiMatches(): HasMany
+    {
+        return $this->hasMany(AiJobMatch::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');

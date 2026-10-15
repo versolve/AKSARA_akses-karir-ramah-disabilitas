@@ -1,5 +1,19 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    Bell,
+    BookOpen,
+    Briefcase,
+    Building2,
+    FileText,
+    FolderGit2,
+    HeartHandshake,
+    LayoutGrid,
+    Search,
+    Shield,
+    Sparkles,
+    User,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,22 +28,88 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const page = usePage();
-    const dashboardUrl = page.props.currentTeam
-        ? dashboard(page.props.currentTeam.slug)
-        : '/';
+    const userRole = (page.props.auth as any)?.user?.role;
 
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboardUrl,
-            icon: LayoutGrid,
-        },
-    ];
+    let dashboardUrl = '/';
+    let mainNavItems: NavItem[] = [];
+
+    if (userRole === 'pelamar') {
+        dashboardUrl = '/app/dashboard';
+        mainNavItems = [
+            {
+                title: 'Beranda',
+                href: '/app/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'AI Career Assistant',
+                href: '/app/ai-assistant',
+                icon: Sparkles,
+            },
+            {
+                title: 'Cari Lowongan',
+                href: '/jobs',
+                icon: Search,
+            },
+            {
+                title: 'Lamaran Saya',
+                href: '/app/applications',
+                icon: FileText,
+            },
+            {
+                title: 'Profil Saya',
+                href: '/app/profile',
+                icon: User,
+            },
+            {
+                title: 'Kebutuhan Aksesibilitas',
+                href: '/app/accessibility-profile',
+                icon: HeartHandshake,
+            },
+            {
+                title: 'Notifikasi',
+                href: '/app/notifications',
+                icon: Bell,
+            },
+        ];
+    } else if (userRole === 'perusahaan') {
+        dashboardUrl = '/company/dashboard';
+        mainNavItems = [
+            {
+                title: 'Beranda',
+                href: '/company/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Kelola Lowongan',
+                href: '/company/vacancies',
+                icon: Briefcase,
+            },
+            {
+                title: 'Pelamar Masuk',
+                href: '/company/applications',
+                icon: Users,
+            },
+            {
+                title: 'Profil Perusahaan',
+                href: '/company/profile',
+                icon: Building2,
+            },
+        ];
+    } else {
+        dashboardUrl = '/';
+        mainNavItems = [
+            {
+                title: 'Cari Lowongan',
+                href: '/jobs',
+                icon: Search,
+            },
+        ];
+    }
 
     const footerNavItems: NavItem[] = [
         {
