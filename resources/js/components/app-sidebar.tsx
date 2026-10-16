@@ -1,16 +1,14 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
-    BookOpen,
     Briefcase,
     Building2,
     ChartBar,
     FileText,
-    FolderGit2,
+    Globe,
     HeartHandshake,
     LayoutGrid,
     Search,
-    Shield,
     ShieldCheck,
     Sparkles,
     User,
@@ -20,7 +18,6 @@ import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { TeamSwitcher } from '@/components/team-switcher';
 import {
     Sidebar,
     SidebarContent,
@@ -101,6 +98,11 @@ export function AppSidebar() {
                 href: '/company/profile',
                 icon: Building2,
             },
+            {
+                title: 'Katalog Lowongan',
+                href: '/jobs',
+                icon: Search,
+            },
         ];
     } else if (userRole === 'admin') {
         dashboardUrl = '/admin/dashboard';
@@ -125,6 +127,11 @@ export function AppSidebar() {
                 href: '/admin/reports',
                 icon: ChartBar,
             },
+            {
+                title: 'Katalog Publik',
+                href: '/jobs',
+                icon: Search,
+            },
         ];
     } else {
         dashboardUrl = '/';
@@ -139,14 +146,9 @@ export function AppSidebar() {
 
     const footerNavItems: NavItem[] = [
         {
-            title: 'Repository',
-            href: 'https://github.com/laravel/react-starter-kit',
-            icon: FolderGit2,
-        },
-        {
-            title: 'Documentation',
-            href: 'https://laravel.com/docs/starter-kits#react',
-            icon: BookOpen,
+            title: 'Beranda Publik',
+            href: '/',
+            icon: Globe,
         },
     ];
 
@@ -160,11 +162,6 @@ export function AppSidebar() {
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <TeamSwitcher />
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

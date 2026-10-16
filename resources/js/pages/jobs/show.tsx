@@ -139,7 +139,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Back Link */}
         <div className="mb-6">
-          <Link href="/jobs" className="text-sm font-medium text-teal-600 hover:underline">
+          <Link href="/jobs" className="text-sm font-medium text-emerald-700 hover:underline">
             ← Kembali ke Katalog Lowongan
           </Link>
         </div>
@@ -149,7 +149,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
           <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
                   {vacancy.work_model.toUpperCase()}
                 </span>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -178,7 +178,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                   className="flex items-center gap-2 min-h-[44px]"
                   aria-label="Bacakan seluruh detail lowongan"
                 >
-                  <Volume2 className="h-4 w-4 text-teal-600" />
+                  <Volume2 className="h-4 w-4 text-emerald-700" />
                   Bacakan Lowongan
                 </Button>
 
@@ -187,9 +187,9 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                     type="button"
                     variant="outline"
                     onClick={handleRunAiMatch}
-                    className="flex items-center gap-2 border-teal-300 bg-teal-50/50 text-teal-800 hover:bg-teal-100 min-h-[44px]"
+                    className="flex items-center gap-2 border-emerald-300 bg-emerald-50/50 text-emerald-900 hover:bg-emerald-100 min-h-[44px]"
                   >
-                    <Sparkles className="h-4 w-4 text-teal-600" />
+                    <Sparkles className="h-4 w-4 text-emerald-700" />
                     Cek Kecocokan AI
                   </Button>
                 )}
@@ -203,7 +203,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
               ) : (
                 <Button
                   onClick={() => setIsApplyModalOpen(true)}
-                  className="bg-teal-600 hover:bg-teal-700 min-h-[44px]"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px]"
                 >
                   Lamar Sekarang
                 </Button>
@@ -235,7 +235,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
             </div>
             <div>
               <span className="text-slate-500 block">Fasilitas Aksesibilitas</span>
-              <span className="font-semibold text-teal-700">
+              <span className="font-semibold text-emerald-800">
                 {vacancy.accessibilities.length} Fasilitas Tersedia
               </span>
             </div>
@@ -282,11 +282,11 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
           )}
 
           {/* Workplace Accessibility Facilities (Core Feature) */}
-          <div className="mt-6 rounded-2xl border border-teal-200 bg-teal-50/40 p-6">
-            <h2 className="text-lg font-bold text-teal-950 mb-2">
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-6">
+            <h2 className="text-lg font-bold text-emerald-950 mb-2">
               Fasilitas & Dukungan Aksesibilitas Tempat Kerja
             </h2>
-            <p className="text-xs text-teal-800 mb-4">
+            <p className="text-xs text-emerald-800 mb-4">
               Perusahaan ini telah menyatakan komitmen dan kesiapan infrastruktur untuk akomodasi berikut:
             </p>
 
@@ -299,9 +299,9 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                 {vacancy.accessibilities.map((acc) => (
                   <div
                     key={acc.id}
-                    className="flex items-start gap-3 rounded-xl border border-teal-200 bg-white p-3.5 shadow-sm"
+                    className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-white p-3.5 shadow-sm"
                   >
-                    <CheckCircle2 className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" />
                     <div>
                       <h3 className="text-sm font-semibold text-slate-900">
                         {ACCESSIBILITY_LABELS[acc.accommodation_type] ?? acc.accommodation_type}
@@ -362,7 +362,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                     value={data.cover_letter}
                     onChange={(e) => setData('cover_letter', e.target.value)}
                     placeholder="Ceritakan secara singkat keahlian dan kebutuhan aksesibilitas Anda..."
-                    className="mt-2 block w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-teal-500 focus:ring-teal-500"
+                    className="mt-2 block w-full rounded-xl border border-slate-300 p-3 text-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                   />
                   {errors.cover_letter && (
                     <p className="mt-1 text-sm text-red-600">{errors.cover_letter}</p>
@@ -381,7 +381,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                   <Button
                     type="submit"
                     disabled={processing}
-                    className="bg-teal-600 hover:bg-teal-700 min-h-[44px]"
+                    className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] px-6"
                   >
                     Kirim Lamaran Sekarang
                   </Button>
@@ -402,7 +402,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
             <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-teal-600" />
+                  <Sparkles className="h-5 w-5 text-emerald-700" />
                   <h3 id="ai-match-headline" className="text-base font-bold text-slate-900">
                     Analisis Kecocokan AI: {vacancy.title}
                   </h3>
@@ -419,24 +419,24 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
 
               {isMatchingAi ? (
                 <div className="py-12 text-center text-sm text-slate-500">
-                  <Sparkles className="mx-auto h-8 w-8 text-teal-600 animate-spin mb-3" />
+                  <Sparkles className="mx-auto h-8 w-8 text-emerald-700 animate-spin mb-3" />
                   <p>Sedang mengevaluasi kecocokan kompetensi dan aksesibilitas...</p>
                 </div>
               ) : aiMatch ? (
                 <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between rounded-xl bg-teal-50 p-4 border border-teal-200">
+                  <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-4 border border-emerald-200">
                     <div>
-                      <span className="text-xs font-semibold text-teal-700 uppercase">Skor Kecocokan</span>
-                      <p className="text-2xl font-black text-teal-950">{aiMatch.match_percentage}%</p>
+                      <span className="text-xs font-semibold text-emerald-800 uppercase">Skor Kecocokan</span>
+                      <p className="text-2xl font-black text-emerald-950">{aiMatch.match_percentage}%</p>
                     </div>
                     <div className="flex gap-2">
-                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-teal-100">
+                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-emerald-100">
                         <span className="block text-[10px] text-slate-400">Kompetensi</span>
                         <span className="text-xs font-bold text-slate-800">{aiMatch.competency_score}%</span>
                       </div>
-                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-teal-100">
+                      <div className="rounded-lg bg-white px-2.5 py-1 text-center border border-emerald-100">
                         <span className="block text-[10px] text-slate-400">Aksesibilitas</span>
-                        <span className="text-xs font-bold text-teal-700">{aiMatch.accessibility_score}%</span>
+                        <span className="text-xs font-bold text-emerald-700">{aiMatch.accessibility_score}%</span>
                       </div>
                     </div>
                   </div>
@@ -468,7 +468,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                   <div className="pt-3 border-t border-slate-100 flex justify-end">
                     <Button
                       onClick={() => setIsMatchModalOpen(false)}
-                      className="bg-teal-600 hover:bg-teal-700 text-xs min-h-[44px]"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs min-h-[44px]"
                     >
                       Mengerti
                     </Button>

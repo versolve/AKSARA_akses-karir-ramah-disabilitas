@@ -41,6 +41,7 @@ class CreateNewUser implements CreatesNewUsers
                 'password' => $input['password'],
                 'role' => $role,
                 'is_verified' => $role === 'pelamar',
+                'email_verified_at' => now(),
             ]);
 
             $this->createTeam->handle($user, $user->name."'s Team", isPersonal: true);

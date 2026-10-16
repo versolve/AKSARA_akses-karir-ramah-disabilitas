@@ -83,7 +83,7 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
             <div className="mt-6">
               <Link
                 href="/jobs"
-                className="inline-flex items-center rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 min-h-[44px]"
+                className="inline-flex items-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-800 min-h-[44px]"
               >
                 Cari Lowongan Sekarang
               </Link>
@@ -103,7 +103,7 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
                   <div className="flex flex-col justify-between gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
                     <div>
                       <h2 className="text-lg font-bold text-slate-900">
-                        <Link href={`/jobs/${app.vacancy.slug}`} className="hover:text-teal-600">
+                        <Link href={`/jobs/${app.vacancy.slug}`} className="hover:text-emerald-700">
                           {app.vacancy.title}
                         </Link>
                       </h2>
@@ -139,7 +139,7 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
                               <div
                                 className={`z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition ${
                                   isDone
-                                    ? 'border-teal-600 bg-teal-600 text-white'
+                                    ? 'border-emerald-700 bg-emerald-700 text-white'
                                     : 'border-slate-300 bg-white text-slate-400'
                                 }`}
                               >
@@ -148,7 +148,7 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
                               <span
                                 className={`mt-2 text-xs font-semibold ${
                                   isCurrent
-                                    ? 'text-teal-700 font-bold'
+                                    ? 'text-emerald-800 font-bold'
                                     : isDone
                                     ? 'text-slate-800'
                                     : 'text-slate-400'
@@ -184,7 +184,7 @@ export default function ApplicationsIndex({ applications }: Props): ReactElement
                             name: `HR ${app.vacancy.company_profile.company_name}`,
                           })
                         }
-                        className="inline-flex items-center gap-1 font-semibold text-teal-600 hover:text-teal-700 hover:underline min-h-[44px]"
+                        className="inline-flex items-center gap-1 font-semibold text-emerald-700 hover:text-emerald-800 hover:underline min-h-[44px]"
                       >
                         <MessageSquare className="h-4 w-4" />
                         Pesan HR

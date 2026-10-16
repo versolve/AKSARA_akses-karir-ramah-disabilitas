@@ -180,21 +180,21 @@ export default function JobsIndex({ vacancies, filters }: Props): ReactElement {
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <span className="inline-block rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700">
+                    <span className="inline-block rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
                       {job.work_model.toUpperCase()}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleSpeak(`${job.title} di ${job.company_profile.company_name}, lokasi ${job.location}`)}
                       aria-label={`Bacakan detail lowongan ${job.title}`}
-                      className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-teal-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-emerald-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
                     >
                       <Volume2 className="h-4 w-4" />
                     </button>
                   </div>
 
                   <h2 className="mt-3 text-lg font-bold text-slate-900">
-                    <Link href={`/jobs/${job.slug}`} className="hover:text-teal-600">
+                    <Link href={`/jobs/${job.slug}`} className="hover:text-emerald-700">
                       {job.title}
                     </Link>
                   </h2>
@@ -232,7 +232,7 @@ export default function JobsIndex({ vacancies, filters }: Props): ReactElement {
                 <div className="mt-6 pt-4 border-t border-slate-100">
                   <Link
                     href={`/jobs/${job.slug}`}
-                    className="flex w-full items-center justify-center rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 min-h-[44px]"
+                    className="flex w-full items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-800 min-h-[44px]"
                   >
                     Lihat Detail Lowongan
                   </Link>

@@ -104,7 +104,7 @@ export function ApplicationChatModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 p-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 text-teal-800">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
               <MessageSquare className="h-5 w-5" />
             </div>
             <div>
@@ -150,7 +150,7 @@ export function ApplicationChatModal({
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                       isMine
-                        ? 'bg-teal-600 text-white rounded-br-none'
+                        ? 'bg-emerald-700 text-white rounded-br-none'
                         : 'bg-slate-100 text-slate-800 rounded-bl-none'
                     }`}
                   >
@@ -176,13 +176,13 @@ export function ApplicationChatModal({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Tulis pesan..."
-            className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px]"
+            className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 min-h-[44px]"
             disabled={isSending}
           />
           <Button
             type="submit"
             disabled={isSending || !newMessage.trim()}
-            className="bg-teal-600 hover:bg-teal-700 min-h-[44px] min-w-[44px] flex items-center justify-center px-4"
+            className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] min-w-[44px] flex items-center justify-center px-4"
           >
             <Send className="h-4 w-4" />
           </Button>

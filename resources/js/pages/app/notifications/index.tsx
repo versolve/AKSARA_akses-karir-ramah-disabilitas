@@ -52,9 +52,9 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
             <Button
               variant="outline"
               onClick={markAllAsRead}
-              className="flex items-center gap-1.5 text-xs text-teal-700 hover:bg-teal-50 min-h-[44px]"
+              className="flex items-center gap-1.5 text-xs text-emerald-800 border-emerald-300 hover:bg-emerald-50 min-h-[44px]"
             >
-              <CheckCheck className="h-4 w-4" />
+              <CheckCheck className="h-4 w-4 text-emerald-700" />
               Tandai Semua Dibaca ({unreadCount})
             </Button>
           )}
@@ -78,14 +78,14 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                   key={item.id}
                   className={`flex flex-col justify-between gap-4 rounded-xl border p-5 transition sm:flex-row sm:items-center ${
                     isUnread
-                      ? 'border-teal-300 bg-teal-50/40 shadow-sm'
+                      ? 'border-emerald-300 bg-emerald-50/40 shadow-sm'
                       : 'border-slate-200 bg-white'
                   }`}
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       {isUnread && (
-                        <span className="h-2 w-2 rounded-full bg-teal-600 shrink-0" aria-label="Belum dibaca" />
+                        <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0" aria-label="Belum dibaca" />
                       )}
                       <h2 className="text-base font-bold text-slate-900">
                         {item.data.vacancy_title}
@@ -96,7 +96,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                     </div>
 
                     <p className="text-sm text-slate-700">
-                      Perusahaan <strong className="text-slate-900">{item.data.company_name}</strong> telah memperbarui status lamaran Anda menjadi: <span className="font-semibold text-teal-800">{item.data.status}</span>.
+                      Perusahaan <strong className="text-slate-900">{item.data.company_name}</strong> telah memperbarui status lamaran Anda menjadi: <span className="font-semibold text-emerald-800">{item.data.status}</span>.
                     </p>
 
                     {item.data.notes && (
@@ -114,7 +114,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                   <div className="flex items-center gap-2">
                     <Link
                       href={item.data.link || '/app/applications'}
-                      className="inline-flex items-center gap-1 rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700 min-h-[44px]"
+                      className="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-800 min-h-[44px]"
                     >
                       <FileText className="h-3.5 w-3.5" />
                       Buka Lamaran

@@ -315,8 +315,12 @@ export default function VacancyCreate(): ReactElement {
             >
               Batal
             </Link>
-            <Button disabled={processing} type="submit" className="min-h-[44px]">
-              Simpan & Publikasikan
+            <Button
+              disabled={processing}
+              type="submit"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] px-6"
+            >
+              {processing ? 'Menyimpan...' : 'Simpan & Publikasikan'}
             </Button>
           </div>
         </form>

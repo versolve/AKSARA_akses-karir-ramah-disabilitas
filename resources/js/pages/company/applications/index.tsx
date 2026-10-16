@@ -1,7 +1,7 @@
 import { ApplicationChatModal } from '@/components/chat/ApplicationChatModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, CheckCircle2, FileText, MessageSquare, UserCheck, Users, X } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 
@@ -172,7 +172,7 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
                     <div className="flex items-center gap-2">
                       <Button
                         onClick={() => openStatusModal(app)}
-                        className="bg-teal-600 hover:bg-teal-700 text-xs min-h-[44px]"
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs min-h-[44px]"
                       >
                         Ubah Status Lamaran
                       </Button>
@@ -181,18 +181,18 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
 
                   {/* Accessibility Profile Highlights */}
                   {accProfile && (
-                    <div className="mt-4 rounded-xl border border-teal-100 bg-teal-50/40 p-4 text-xs">
-                      <span className="font-semibold text-teal-950 block mb-1">
+                    <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/40 p-4 text-xs">
+                      <span className="font-semibold text-emerald-950 block mb-1">
                         Profil & Kebutuhan Aksesibilitas Kandidat:
                       </span>
                       <div className="flex flex-wrap gap-1.5 mt-1">
                         {accProfile.disability_types && accProfile.disability_types.map((d, i) => (
-                          <span key={i} className="rounded bg-teal-100 px-2 py-0.5 text-teal-800 font-medium">
+                          <span key={i} className="rounded bg-emerald-100 px-2 py-0.5 text-emerald-800 font-medium">
                             {ACCESSIBILITY_LABELS[d] ?? d}
                           </span>
                         ))}
                         {accProfile.accommodations_needed && accProfile.accommodations_needed.map((a, i) => (
-                          <span key={i} className="rounded bg-white border border-teal-200 px-2 py-0.5 text-slate-700">
+                          <span key={i} className="rounded bg-white border border-emerald-200 px-2 py-0.5 text-slate-700">
                             Akomodasi: {ACCESSIBILITY_LABELS[a] ?? a}
                           </span>
                         ))}
@@ -221,7 +221,7 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
                             name: user.name,
                           })
                         }
-                        className="inline-flex items-center gap-1 font-semibold text-teal-600 hover:text-teal-700 hover:underline min-h-[44px]"
+                        className="inline-flex items-center gap-1 font-semibold text-emerald-700 hover:text-emerald-800 hover:underline min-h-[44px]"
                       >
                         <MessageSquare className="h-4 w-4" />
                         Pesan Kandidat
@@ -240,6 +240,26 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Links */}
+        {applications.links && applications.links.length > 3 && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-1.5">
+            {applications.links.map((link, i) => (
+              <Link
+                key={i}
+                href={link.url ?? '#'}
+                dangerouslySetInnerHTML={{ __html: link.label }}
+                className={`rounded-lg px-3.5 py-2 text-xs font-semibold min-h-[44px] min-w-[44px] flex items-center justify-center transition ${
+                  link.active
+                    ? 'bg-slate-900 text-white'
+                    : link.url
+                    ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                }`}
+              />
+            ))}
           </div>
         )}
 
@@ -303,7 +323,7 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
                     value={statusNotes}
                     onChange={(e) => setStatusNotes(e.target.value)}
                     placeholder="Contoh: Jadwal wawancara online via Google Meet pada hari Kamis..."
-                    className="mt-2 block w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-teal-500 focus:ring-teal-500"
+                    className="mt-2 block w-full rounded-xl border border-slate-300 p-3 text-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                   />
                 </div>
 
@@ -319,7 +339,7 @@ export default function CompanyApplicationsIndex({ applications }: Props): React
                   <Button
                     type="submit"
                     disabled={isUpdating}
-                    className="bg-teal-600 hover:bg-teal-700 min-h-[44px]"
+                    className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] px-5"
                   >
                     Simpan Perubahan
                   </Button>

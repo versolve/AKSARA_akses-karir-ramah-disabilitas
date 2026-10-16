@@ -70,7 +70,7 @@ export function TextToSpeechButton({
       onClick={handleClick}
       aria-label={isReading ? 'Berhenti membaca' : 'Baca teks'}
       aria-pressed={isReading || enabled}
-      className="flex items-center justify-center rounded-lg bg-teal-600 p-3 text-white hover:bg-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-teal-500"
+      className="flex items-center justify-center rounded-lg bg-emerald-700 p-3 text-white hover:bg-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
       style={{ minWidth: '44px', minHeight: '44px' }}
     >
       <Volume2

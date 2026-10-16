@@ -74,7 +74,7 @@ export function AccessibilityToolbar(): ReactElement {
           type="button"
           onClick={() => setShowSettings(true)}
           aria-label="Buka preferensi aksesibilitas"
-          className="flex items-center justify-center rounded-full bg-teal-600 text-white shadow-lg transition hover:bg-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="flex items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition hover:bg-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           style={{ width: '56px', height: '56px' }}
         >
           <Settings className="h-6 w-6" aria-hidden="true" />
@@ -91,7 +91,7 @@ export function AccessibilityToolbar(): ReactElement {
               type="button"
               onClick={() => setShowSettings(false)}
               aria-label="Tutup preferensi"
-              className="flex items-center justify-center rounded-full hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="flex items-center justify-center rounded-full hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
               style={{ minWidth: '44px', minHeight: '44px' }}
             >
               <X className="h-5 w-5" aria-hidden="true" />

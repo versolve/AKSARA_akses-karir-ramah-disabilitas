@@ -349,7 +349,11 @@ export default function VacancyEdit({ vacancy }: Props): ReactElement {
             >
               Batal
             </Link>
-            <Button disabled={processing} type="submit" className="min-h-[44px]">
+            <Button
+              disabled={processing}
+              type="submit"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] px-6"
+            >
               {processing ? 'Menyimpan...' : 'Perbarui Lowongan'}
             </Button>
           </div>

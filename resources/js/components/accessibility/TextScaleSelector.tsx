@@ -30,7 +30,7 @@ export function TextScaleSelector({ currentScale, onUpdate }: TextScaleSelectorP
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label="Ubah ukuran teks"
-        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
         style={{ minWidth: '44px' }}
       >
         <span className="text-sm font-medium">{currentScale}%</span>
@@ -52,10 +52,10 @@ export function TextScaleSelector({ currentScale, onUpdate }: TextScaleSelectorP
               role="option"
               aria-selected={currentScale === option.value}
               onClick={() => handleSelect(option.value)}
-              className={`flex w-full px-4 py-3 text-left hover:bg-slate-50 ${currentScale === option.value ? 'bg-teal-50' : ''}`}
+              className={`flex w-full px-4 py-3 text-left hover:bg-slate-50 ${currentScale === option.value ? 'bg-emerald-50' : ''}`}
               style={{ minHeight: '44px' }}
             >
-              <span className={`${currentScale === option.value ? 'text-teal-700' : 'text-slate-700'}`}>
+              <span className={`${currentScale === option.value ? 'text-emerald-800 font-bold' : 'text-slate-700'}`}>
                 {option.label}
               </span>
             </button>

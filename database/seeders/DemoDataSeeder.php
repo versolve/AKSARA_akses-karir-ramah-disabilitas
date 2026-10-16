@@ -29,6 +29,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'admin',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -40,6 +41,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'perusahaan',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -62,6 +64,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'perusahaan',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -86,6 +89,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'pelamar',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -118,6 +122,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'pelamar',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -150,6 +155,7 @@ class DemoDataSeeder extends Seeder
                 'password' => $password,
                 'role' => 'pelamar',
                 'is_verified' => true,
+                'email_verified_at' => now(),
             ]
         );
 
