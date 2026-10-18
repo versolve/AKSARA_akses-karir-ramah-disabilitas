@@ -1,256 +1,279 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
-import AppLogo from '@/components/app-logo';
-import AppLogoIcon from '@/components/app-logo-icon';
-import { Breadcrumbs } from '@/components/breadcrumbs';
-import { TeamSwitcher } from '@/components/team-switcher';
+import {
+    Bell,
+    Briefcase,
+    Building2,
+    Calendar,
+    ChartBar,
+    ChevronDown,
+    FileText,
+    HeartHandshake,
+    LayoutGrid,
+    LogOut,
+    Mail,
+    Menu,
+    Search,
+    Settings,
+    ShieldCheck,
+    Sparkles,
+    User,
+    Users,
+    X,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-    navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { UserMenuContent } from '@/components/user-menu-content';
-import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
-import { cn, toUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
-import type { BreadcrumbItem, NavItem } from '@/types';
+import { useState, type ReactElement } from 'react';
 
-type Props = {
-    breadcrumbs?: BreadcrumbItem[];
-};
-
-const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
-
-const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
-
-export function AppHeader({ breadcrumbs = [] }: Props) {
+export function AppHeader(): ReactElement {
     const page = usePage();
-    const { auth, currentTeam } = page.props;
+    const { auth } = page.props as any;
+    const user = auth?.user;
+    const userRole = user?.role;
+    const currentUrl = page.url;
     const getInitials = useInitials();
-    const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
-    const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
 
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboardUrl,
-            icon: LayoutGrid,
-        },
-    ];
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Navigation links per role
+    let navLinks: Array<{ title: string; href: string; icon?: any }> = [];
+
+    if (userRole === 'pelamar') {
+        navLinks = [
+            { title: 'Beranda', href: '/app/dashboard', icon: LayoutGrid },
+            { title: 'Cari Kerja', href: '/jobs', icon: Search },
+            { title: 'AI Career Assistant', href: '/app/ai-assistant', icon: Sparkles },
+            { title: 'Lamaran Saya', href: '/app/applications', icon: FileText },
+        ];
+    } else if (userRole === 'perusahaan') {
+        navLinks = [
+            { title: 'Beranda', href: '/company/dashboard', icon: LayoutGrid },
+            { title: 'Cari Kerja', href: '/jobs', icon: Search },
+            { title: 'Kelola Lowongan', href: '/company/vacancies', icon: Briefcase },
+            { title: 'Pelamar Masuk', href: '/company/applications', icon: Users },
+            { title: 'Profil Perusahaan', href: '/company/profile', icon: Building2 },
+        ];
+    } else if (userRole === 'admin') {
+        navLinks = [
+            { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
+            { title: 'Kelola Pengguna', href: '/admin/users', icon: Users },
+            { title: 'Moderasi Lowongan', href: '/admin/vacancies', icon: ShieldCheck },
+            { title: 'Laporan & Statistik', href: '/admin/reports', icon: ChartBar },
+            { title: 'Katalog Lowongan', href: '/jobs', icon: Search },
+        ];
+    } else {
+        navLinks = [
+            { title: 'Beranda', href: '/', icon: LayoutGrid },
+            { title: 'Cari Kerja', href: '/jobs', icon: Search },
+        ];
+    }
+
+    const isActive = (href: string): boolean => {
+        if (href === '/') return currentUrl === '/';
+        return currentUrl.startsWith(href);
+    };
 
     return (
-        <>
-            <div className="border-b border-sidebar-border/80">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
-                    {/* Mobile Menu */}
-                    <div className="lg:hidden">
-                        <Sheet>
-                            <SheetTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="mr-2 h-[34px] w-[34px]"
-                                >
-                                    <Menu className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent
-                                side="left"
-                                className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
-                            >
-                                <SheetTitle className="sr-only">
-                                    Navigation menu
-                                </SheetTitle>
-                                <SheetHeader className="flex justify-start text-left">
-                                    <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
-                                </SheetHeader>
-                                <div className="flex h-full flex-1 flex-col space-y-4 p-4">
-                                    <div className="flex h-full flex-col justify-between text-sm">
-                                        <div className="flex flex-col space-y-4">
-                                            {mainNavItems.map((item) => (
-                                                <Link
-                                                    key={item.title}
-                                                    href={item.href}
-                                                    className="flex items-center space-x-2 font-medium"
-                                                >
-                                                    {item.icon && (
-                                                        <item.icon className="h-5 w-5" />
-                                                    )}
-                                                    <span>{item.title}</span>
-                                                </Link>
-                                            ))}
-                                        </div>
-
-                                        <div className="flex flex-col space-y-4">
-                                            {rightNavItems.map((item) => (
-                                                <a
-                                                    key={item.title}
-                                                    href={toUrl(item.href)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center space-x-2 font-medium"
-                                                >
-                                                    {item.icon && (
-                                                        <item.icon className="h-5 w-5" />
-                                                    )}
-                                                    <span>{item.title}</span>
-                                                </a>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-                    </div>
-
-                    <Link
-                        href={dashboardUrl}
-                        prefetch
-                        className="flex items-center space-x-2"
-                    >
-                        <AppLogo />
+        <header className="sticky top-0 z-40 w-full border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md">
+            <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                {/* Left: Logo */}
+                <div className="flex items-center gap-6">
+                    <Link href="/" className="flex items-center gap-2">
+                        <img
+                            src="/images/logos/logo_biru.svg"
+                            alt="AKSARA - Akses Karier Ramah Disabilitas"
+                            className="h-8 sm:h-9 w-auto object-contain"
+                        />
                     </Link>
+                </div>
 
-                    {/* Desktop Navigation */}
-                    <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
-                        <NavigationMenu className="flex h-full items-stretch">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2">
-                                {mainNavItems.map((item, index) => (
-                                    <NavigationMenuItem
-                                        key={index}
-                                        className="relative flex h-full items-center"
-                                    >
-                                        <Link
-                                            href={item.href}
-                                            className={cn(
-                                                navigationMenuTriggerStyle(),
-                                                whenCurrentUrl(
-                                                    item.href,
-                                                    activeItemStyles,
-                                                ),
-                                                'h-9 cursor-pointer px-3',
-                                            )}
-                                        >
-                                            {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
-                                            )}
-                                            {item.title}
-                                        </Link>
-                                        {isCurrentUrl(item.href) && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
-                                        )}
-                                    </NavigationMenuItem>
-                                ))}
-                            </NavigationMenuList>
-                        </NavigationMenu>
-                    </div>
-
-                    <div className="ml-auto flex items-center space-x-2">
-                        <div className="relative flex items-center space-x-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="group h-9 w-9 cursor-pointer"
+                {/* Middle: Desktop Navigation Links */}
+                <nav className="hidden md:flex items-center gap-8 h-16">
+                    {navLinks.map((link) => {
+                        const active = isActive(link.href);
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={`inline-flex items-center text-sm transition select-none ${
+                                    active
+                                        ? 'font-bold text-[#123B5D] border-b-2 border-[#123B5D] h-16 pt-0.5'
+                                        : 'font-medium text-[#64748B] hover:text-[#123B5D] h-16 pt-0.5'
+                                }`}
                             >
-                                <Search className="size-5! opacity-80 group-hover:opacity-100" />
-                            </Button>
-                            <div className="ml-1 hidden gap-1 lg:flex">
-                                {rightNavItems.map((item) => (
-                                    <TooltipProvider
-                                        key={item.title}
-                                        delayDuration={0}
-                                    >
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <a
-                                                    href={toUrl(item.href)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="group inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                                                >
-                                                    <span className="sr-only">
-                                                        {item.title}
-                                                    </span>
-                                                    {item.icon && (
-                                                        <item.icon className="size-5 opacity-80 group-hover:opacity-100" />
-                                                    )}
-                                                </a>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{item.title}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                ))}
-                            </div>
-                        </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    className="size-10 rounded-full p-1"
-                                >
-                                    <Avatar className="size-8 overflow-hidden rounded-full">
-                                        <AvatarImage
-                                            src={auth.user.avatar}
-                                            alt={auth.user.name}
-                                        />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                            {getInitials(auth.user.name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end">
-                                <UserMenuContent user={auth.user} />
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                {link.title}
+                            </Link>
+                        );
+                    })}
+                </nav>
 
-                        <TeamSwitcher inHeader />
-                    </div>
+                {/* Right: User Profile & Quick Actions */}
+                <div className="flex items-center gap-3">
+                    {user ? (
+                        <>
+                            {/* Notification Bell */}
+                            <Link
+                                href="/app/notifications"
+                                className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#64748B] hover:bg-slate-100 hover:text-[#123B5D] transition"
+                                aria-label="Buka notifikasi"
+                            >
+                                <Bell className="h-5 w-5" />
+                                {userRole === 'pelamar' && (
+                                    <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500" />
+                                )}
+                            </Link>
+
+                            {/* Messages Icon */}
+                            <Link
+                                href={userRole === 'perusahaan' ? '/company/applications' : '/app/applications'}
+                                className="flex h-10 w-10 items-center justify-center rounded-full text-[#64748B] hover:bg-slate-100 hover:text-[#123B5D] transition"
+                                aria-label="Buka percakapan pesan"
+                            >
+                                <Mail className="h-5 w-5" />
+                            </Link>
+
+                            {/* User Avatar & Info Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="flex items-center gap-2.5 p-1 pl-2 pr-2.5 rounded-full hover:bg-slate-50 transition border border-transparent hover:border-[#E2E8F0] min-h-[44px]"
+                                    >
+                                        <Avatar className="h-8 w-8 overflow-hidden rounded-full border border-slate-200">
+                                            {user.avatar ? (
+                                                <AvatarImage src={user.avatar} alt={user.name} />
+                                            ) : null}
+                                            <AvatarFallback className="bg-[#123B5D] text-white text-xs font-bold">
+                                                {getInitials(user.name)}
+                                            </AvatarFallback>
+                                        </Avatar>
+
+                                        <div className="hidden sm:flex flex-col text-left">
+                                            <span className="text-xs font-bold text-[#102B4B] leading-tight">
+                                                {user.name}
+                                            </span>
+                                            <span className="text-[10px] text-[#64748B] capitalize leading-tight">
+                                                {userRole === 'pelamar' ? 'Pelamar' : userRole === 'perusahaan' ? 'Perusahaan' : 'Admin'}
+                                            </span>
+                                        </div>
+
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56 rounded-xl shadow-lg border border-[#E2E8F0] p-1.5" align="end">
+                                    <DropdownMenuLabel className="p-2">
+                                        <div className="font-bold text-xs text-[#102B4B]">{user.name}</div>
+                                        <div className="text-[11px] text-slate-500">{user.email}</div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        {userRole === 'pelamar' && (
+                                            <>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/app/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                        <User className="h-4 w-4 text-slate-500" />
+                                                        Profil Saya
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/app/accessibility-profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                        <HeartHandshake className="h-4 w-4 text-slate-500" />
+                                                        Kebutuhan Aksesibilitas
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            </>
+                                        )}
+                                        {userRole === 'perusahaan' && (
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/company/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                    <Building2 className="h-4 w-4 text-slate-500" />
+                                                    Profil Perusahaan
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/settings/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                <Settings className="h-4 w-4 text-slate-500" />
+                                                Pengaturan Akun
+                                            </Link>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/logout"
+                                            method="post"
+                                            as="button"
+                                            className="w-full cursor-pointer text-xs flex items-center gap-2 py-2 text-rose-600 hover:text-rose-700"
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            Keluar (Logout)
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href="/login"
+                                className="rounded-xl border border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#102B4B] hover:bg-slate-50 min-h-[44px] flex items-center"
+                            >
+                                Masuk
+                            </Link>
+                            <Link
+                                href="/register"
+                                className="rounded-xl bg-[#123B5D] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#0C2742] min-h-[44px] flex items-center"
+                            >
+                                Daftar
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* Mobile Hamburger Button */}
+                    <button
+                        type="button"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="flex md:hidden h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100"
+                        aria-label="Buka menu navigasi"
+                    >
+                        {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                    </button>
                 </div>
             </div>
-            {breadcrumbs.length > 1 && (
-                <div className="flex w-full border-b border-sidebar-border/70">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
-                        <Breadcrumbs breadcrumbs={breadcrumbs} />
-                    </div>
+
+            {/* Mobile Drawer Navigation */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden border-t border-[#E2E8F0] bg-white px-4 py-4 space-y-2">
+                    {navLinks.map((link) => {
+                        const active = isActive(link.href);
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition ${
+                                    active
+                                        ? 'bg-[#EBF5FA] text-[#123B5D]'
+                                        : 'text-[#64748B] hover:bg-slate-50 hover:text-[#102B4B]'
+                                }`}
+                            >
+                                {link.icon && <link.icon className="h-4 w-4" />}
+                                <span>{link.title}</span>
+                            </Link>
+                        );
+                    })}
                 </div>
             )}
-        </>
+        </header>
     );
 }

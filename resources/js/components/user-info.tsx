@@ -7,11 +7,20 @@ export function UserInfo({
     showEmail = false,
     team = null,
 }: {
-    user: User;
+    user?: User | null;
     showEmail?: boolean;
     team?: Team | null;
 }) {
     const getInitials = useInitials();
+
+    if (!user) {
+        return (
+            <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium text-slate-700">Tamu</span>
+            </div>
+        );
+    }
+
     const showAvatar = Boolean(user.avatar && user.avatar !== '');
 
     return (

@@ -5,9 +5,7 @@ use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')
-    ->middleware(['role.redirect'])
-    ->name('home');
+Route::inertia('/', 'welcome')->name('home');
 
 Route::get('/jobs', [\App\Http\Controllers\JobListingController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{slug}', [\App\Http\Controllers\JobListingController::class, 'show'])->name('jobs.show');
@@ -65,6 +63,8 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'update'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
     Route::get('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'index'])->name('applications.messages.index');
     Route::post('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'store'])->name('applications.messages.store');
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');

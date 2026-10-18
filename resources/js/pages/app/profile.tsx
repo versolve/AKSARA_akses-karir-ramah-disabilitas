@@ -2,17 +2,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
   Briefcase,
+  Camera,
   GraduationCap,
   HeartHandshake,
+  Image,
   Phone,
   Save,
   Sparkles,
+  Trash2,
+  Upload,
   User,
 } from 'lucide-react';
-import type { FormEvent, ReactElement } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent, type ReactElement } from 'react';
 
 interface ProfileData {
   phone: string;
@@ -27,6 +31,37 @@ interface Props {
 }
 
 export default function PelamarProfile({ profile }: Props): ReactElement {
+  const page = usePage();
+  const auth = (page.props as any).auth;
+  const user = auth?.user;
+  const userName = user?.name || 'Pelamar';
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAvatarUpload = (e: ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    router.post('/profile/avatar', formData, {
+      preserveScroll: true,
+      onFinish: () => {
+        setIsUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      },
+    });
+  };
+
+  const handleAvatarDelete = (): void => {
+    if (confirm('Yakin ingin menghapus foto profil?')) {
+      router.delete('/profile/avatar', { preserveScroll: true });
+    }
+  };
+
   const { data, setData, post, processing, errors } = useForm<ProfileData>({
     phone: profile.phone ?? '',
     bio: profile.bio ?? '',
@@ -43,9 +78,9 @@ export default function PelamarProfile({ profile }: Props): ReactElement {
   return (
     <AppLayout>
       <Head title="Profil Saya - Pelamar AKSARA" />
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         {/* Header with quick link to accessibility profile */}
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-black text-slate-900 sm:text-3xl">Kelola Profil Pelamar</h1>
             <p className="mt-1 text-sm text-slate-600">
@@ -59,6 +94,65 @@ export default function PelamarProfile({ profile }: Props): ReactElement {
             <HeartHandshake className="h-4 w-4 text-emerald-700" />
             Atur Kebutuhan Aksesibilitas →
           </Link>
+        </div>
+
+        {/* Dedicated Profile Picture Upload Card */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+          <h2 className="text-base font-bold text-[#102B4B] mb-1">Foto Profil</h2>
+          <p className="text-xs text-[#64748B] mb-5">
+            Foto profil resmi Anda. Foto akan otomatis dipotong persegi (300×300 px) dan dikompresi ke format WebP agar berukuran sangat ringan (~20-40 KB) namun tetap tajam.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="relative shrink-0">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#123B5D] text-white font-extrabold text-2xl border-4 border-slate-100 shadow-sm overflow-hidden">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={userName} className="h-full w-full object-cover" />
+                ) : (
+                  userName.substring(0, 2).toUpperCase()
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2.5 text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                <Button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="bg-[#123B5D] hover:bg-[#0C2742] text-white font-bold text-xs min-h-[42px] px-4 flex items-center gap-2"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {isUploading ? 'Mengompres & Mengunggah...' : 'Unggah Foto Baru'}
+                </Button>
+
+                {user?.avatar && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAvatarDelete}
+                    disabled={isUploading}
+                    className="border-rose-200 text-rose-600 hover:bg-rose-50 text-xs min-h-[42px] px-3.5 flex items-center gap-1.5"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Hapus Foto
+                  </Button>
+                )}
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+
+              <p className="text-[11px] text-[#64748B]">
+                Mendukung JPG, PNG, atau WebP. Maksimal 10MB.
+              </p>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">

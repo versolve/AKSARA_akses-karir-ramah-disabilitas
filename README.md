@@ -30,6 +30,11 @@ Dibuat untuk tugas mata kuliah **Pemrograman Web Enterprise (PWE)** dan mendukun
 - **Pesan Dua Arah (In-App Messaging)**: Percakapan internal terisolasi antara Pelamar dan HR untuk koordinasi jadwal wawancara atau berkas tambahan.
 - **Notifikasi Status**: Pemberitahuan otomatis di akun pelamar setiap kali HR memperbarui status lamaran kerja.
 
+### 5. Pengelolaan Profil & Kompresi Foto Otomatis
+- **Standarisasi Dimensi**: Foto profil yang diunggah pengguna (JPG, PNG, WebP) otomatis dipotong persegi tengah (*center crop*) dan di-resize ke ukuran standar 300×300 piksel.
+- **Konversi WebP Ringan**: Gambar dikonversi ke format WebP berkualitas tinggi dengan kompresi teroptimasi (~20–40 KB) sehingga tidak membebani server dan cepat dimuat di koneksi internet lambat.
+- **Pembersihan Otomatis**: Foto lama otomatis dihapus dari penyimpanan saat foto baru diunggah.
+
 ---
 
 ## 🔑 Kredensial Akun Demo
@@ -124,8 +129,8 @@ Seluruh alur bisnis telah diverifikasi menggunakan pengujian unit dan fitur (TDD
 ```
 
 **Hasil Pengujian:**
-- Total **185 Tests**
-- Total **617 Assertions**
+- Total **187 Tests**
+- Total **624 Assertions**
 - **100% Passed (0 Failures, 0 Errors)**
 
 ---

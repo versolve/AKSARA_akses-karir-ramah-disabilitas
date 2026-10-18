@@ -37,24 +37,14 @@ class RoleTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_logged_in_pelamar_redirects_to_their_dashboard_on_home(): void
+    public function test_logged_in_users_can_access_home_page(): void
     {
         $pelamar = User::factory()->create(['role' => 'pelamar']);
         $this->actingAs($pelamar);
 
         $response = $this->get('/');
 
-        $response->assertRedirect('/app/dashboard');
-    }
-
-    public function test_logged_in_perusahaan_redirects_to_their_dashboard_on_home(): void
-    {
-        $perusahaan = User::factory()->create(['role' => 'perusahaan']);
-        $this->actingAs($perusahaan);
-
-        $response = $this->get('/');
-
-        $response->assertRedirect('/company/dashboard');
+        $response->assertOk();
     }
 
     public function test_admin_can_access_admin_dashboard(): void
