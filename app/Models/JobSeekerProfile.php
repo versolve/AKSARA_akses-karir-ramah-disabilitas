@@ -13,15 +13,21 @@ class JobSeekerProfile extends Model
     protected $fillable = [
         'user_id',
         'phone',
+        'birth_date',
+        'domicile',
+        'gender',
         'bio',
         'education',
         'experience',
         'current_job_title',
         'cv_path',
+        'linkedin_url',
+        'portfolio_url',
         'profile_completed_percentage',
     ];
 
     protected $casts = [
+        'birth_date' => 'date',
         'profile_completed_percentage' => 'integer',
     ];
 

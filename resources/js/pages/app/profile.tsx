@@ -4,11 +4,15 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
-  Briefcase,
-  Camera,
-  GraduationCap,
-  HeartHandshake,
-  Image,
+  Calendar,
+  Download,
+  Eye,
+  FileText,
+  Info,
+  Link2,
+  Lock,
+  Mail,
+  MapPin,
   Phone,
   Save,
   Sparkles,
@@ -19,237 +23,312 @@ import {
 import { useRef, useState, type ChangeEvent, type FormEvent, type ReactElement } from 'react';
 
 interface ProfileData {
+  name: string;
+  email: string;
   phone: string;
+  birth_date: string;
+  domicile: string;
+  gender: string;
   bio: string;
   education: string;
   experience: string;
   current_job_title: string;
+  linkedin_url: string;
+  portfolio_url: string;
+}
+
+interface AccessibilityData {
+  disability_types: string[];
+  accommodations_needed: string[];
+  notes: string;
 }
 
 interface Props {
-  profile: Partial<ProfileData>;
+  user?: { name?: string; email?: string };
+  profile: Partial<ProfileData> & {
+    cv_url?: string | null;
+    cv_name?: string | null;
+    cv_updated_at?: string | null;
+  };
+  accessibility?: Partial<AccessibilityData>;
 }
 
-export default function PelamarProfile({ profile }: Props): ReactElement {
+export default function PelamarProfile({
+  user: profileUser = {},
+  profile,
+  accessibility = {},
+}: Props): ReactElement {
   const page = usePage();
   const auth = (page.props as any).auth;
   const user = auth?.user;
-  const userName = user?.name || 'Pelamar';
+  const userName = user?.name || profileUser.name || 'Pelamar';
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const cvInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingCv, setIsUploadingCv] = useState(false);
 
-  const handleAvatarUpload = (e: ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    router.post('/profile/avatar', formData, {
-      preserveScroll: true,
-      onFinish: () => {
-        setIsUploading(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      },
-    });
-  };
-
-  const handleAvatarDelete = (): void => {
-    if (confirm('Yakin ingin menghapus foto profil?')) {
-      router.delete('/profile/avatar', { preserveScroll: true });
-    }
-  };
-
-  const { data, setData, post, processing, errors } = useForm<ProfileData>({
+  const profileForm = useForm<ProfileData>({
+    name: profileUser.name ?? user?.name ?? '',
+    email: profileUser.email ?? user?.email ?? '',
     phone: profile.phone ?? '',
+    birth_date: profile.birth_date ?? '',
+    domicile: profile.domicile ?? '',
+    gender: profile.gender ?? '',
     bio: profile.bio ?? '',
     education: profile.education ?? '',
     experience: profile.experience ?? '',
     current_job_title: profile.current_job_title ?? '',
+    linkedin_url: profile.linkedin_url ?? '',
+    portfolio_url: profile.portfolio_url ?? '',
   });
 
-  const handleSubmit = (e: FormEvent): void => {
-    e.preventDefault();
-    post('/app/profile');
+  const accessibilityForm = useForm<AccessibilityData>({
+    disability_types: accessibility.disability_types ?? [],
+    accommodations_needed: accessibility.accommodations_needed ?? [],
+    notes: accessibility.notes ?? '',
+  });
+
+  const handleAvatarUpload = (event: ChangeEvent<HTMLInputElement>): void => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    setIsUploadingAvatar(true);
+
+    router.post('/profile/avatar', formData, {
+      preserveScroll: true,
+      onFinish: () => {
+        setIsUploadingAvatar(false);
+        if (avatarInputRef.current) avatarInputRef.current.value = '';
+      },
+    });
   };
+
+  const handleCvUpload = (event: ChangeEvent<HTMLInputElement>): void => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('cv', file);
+    setIsUploadingCv(true);
+
+    router.post('/app/profile/cv', formData, {
+      preserveScroll: true,
+      onFinish: () => {
+        setIsUploadingCv(false);
+        if (cvInputRef.current) cvInputRef.current.value = '';
+      },
+    });
+  };
+
+  const toggleAccommodation = (key: string): void => {
+    const current = accessibilityForm.data.accommodations_needed;
+    accessibilityForm.setData(
+      'accommodations_needed',
+      current.includes(key) ? current.filter((item) => item !== key) : [...current, key]
+    );
+  };
+
+  const formatBirthDate = (value: string): string => {
+    if (!value) return '-';
+    return new Date(`${value}T00:00:00`).toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  const accommodations = [
+    ['komunikasi_tertulis', 'Komunikasi tertulis lebih disukai'],
+    ['remote_work', 'Kerja remote'],
+    ['screen_reader', 'Screen reader'],
+    ['flexible_hours', 'Jadwal kerja fleksibel'],
+    ['ramp', 'Akses fisik tertentu'],
+  ] as const;
 
   return (
     <AppLayout>
-      <Head title="Profil Saya - Pelamar AKSARA" />
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-        {/* Header with quick link to accessibility profile */}
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 sm:text-3xl">Kelola Profil Pelamar</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Lengkapi data kompetensi dan riwayat pengalaman untuk meningkatkan akurasi rekomendasi AI.
-            </p>
-          </div>
-          <Link
-            href="/app/accessibility-profile"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-2.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 min-h-[44px]"
-          >
-            <HeartHandshake className="h-4 w-4 text-emerald-700" />
-            Atur Kebutuhan Aksesibilitas →
-          </Link>
-        </div>
+      <Head title="Profil Saya - AKSARA" />
 
-        {/* Dedicated Profile Picture Upload Card */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-          <h2 className="text-base font-bold text-[#102B4B] mb-1">Foto Profil</h2>
-          <p className="text-xs text-[#64748B] mb-5">
-            Foto profil resmi Anda. Foto akan otomatis dipotong persegi (300×300 px) dan dikompresi ke format WebP agar berukuran sangat ringan (~20-40 KB) namun tetap tajam.
+      <div className="py-6 sm:py-8 space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102B4B] tracking-tight">Profil Saya</h1>
+          <p className="mt-1 text-xs sm:text-sm text-[#64748B]">
+            Kelola informasi pribadi, CV, dan preferensi aksesibilitas untuk pengalaman melamar yang baik.
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="relative shrink-0">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#123B5D] text-white font-extrabold text-2xl border-4 border-slate-100 shadow-sm overflow-hidden">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={userName} className="h-full w-full object-cover" />
-                ) : (
-                  userName.substring(0, 2).toUpperCase()
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2.5 text-center sm:text-left">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                <Button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="bg-[#123B5D] hover:bg-[#0C2742] text-white font-bold text-xs min-h-[42px] px-4 flex items-center gap-2"
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  {isUploading ? 'Mengompres & Mengunggah...' : 'Unggah Foto Baru'}
-                </Button>
-
-                {user?.avatar && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAvatarDelete}
-                    disabled={isUploading}
-                    className="border-rose-200 text-rose-600 hover:bg-rose-50 text-xs min-h-[42px] px-3.5 flex items-center gap-1.5"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Hapus Foto
-                  </Button>
-                )}
-              </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/jpg,image/webp"
-                className="hidden"
-                onChange={handleAvatarUpload}
-              />
-
-              <p className="text-[11px] text-[#64748B]">
-                Mendukung JPG, PNG, atau WebP. Maksimal 10MB.
-              </p>
-            </div>
-          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-          <div>
-            <Label htmlFor="current_job_title" className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-              <Briefcase className="h-4 w-4 text-slate-400" />
-              Pekerjaan / Posisi Terakhir
-            </Label>
-            <Input
-              id="current_job_title"
-              value={data.current_job_title}
-              onChange={(e) => setData('current_job_title', e.target.value)}
-              placeholder="Contoh: Frontend Developer / Staf Administrasi"
-              className="mt-1.5 block w-full min-h-[44px]"
-              autoFocus
-            />
-            {errors.current_job_title && (
-              <p className="mt-1 text-xs text-rose-600">{errors.current_job_title}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="phone" className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-              <Phone className="h-4 w-4 text-slate-400" />
-              Nomor Telepon / WhatsApp
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={data.phone}
-              onChange={(e) => setData('phone', e.target.value)}
-              placeholder="Contoh: 081234567890"
-              className="mt-1.5 block w-full min-h-[44px]"
-              autoComplete="tel"
-            />
-            {errors.phone && <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor="education" className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-              <GraduationCap className="h-4 w-4 text-slate-400" />
-              Pendidikan Terakhir
-            </Label>
-            <Input
-              id="education"
-              value={data.education}
-              onChange={(e) => setData('education', e.target.value)}
-              placeholder="Contoh: S1 Teknik Informatika / SMK Administrasi Perkantoran"
-              className="mt-1.5 block w-full min-h-[44px]"
-            />
-            {errors.education && <p className="mt-1 text-xs text-rose-600">{errors.education}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor="experience" className="text-sm font-semibold text-slate-800">
-              Ringkasan Pengalaman Kerja
-            </Label>
-            <textarea
-              id="experience"
-              value={data.experience}
-              onChange={(e) => setData('experience', e.target.value)}
-              rows={3}
-              placeholder="Jelaskan peran kerja sebelumnya, lama bekerja, atau proyek yang pernah Anda selesaikan..."
-              className="mt-1.5 block w-full rounded-xl border border-slate-300 p-3 text-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-            />
-            {errors.experience && (
-              <p className="mt-1 text-xs text-rose-600">{errors.experience}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="bio" className="text-sm font-semibold text-slate-800">
-              Tentang Saya (Bio & Keahlian Utama)
-            </Label>
-            <textarea
-              id="bio"
-              value={data.bio}
-              onChange={(e) => setData('bio', e.target.value)}
-              rows={4}
-              placeholder="Ceritakan tentang diri Anda, motivasi bekerja, keahlian khusus, dan cara kerja yang nyaman untuk Anda..."
-              className="mt-1.5 block w-full rounded-xl border border-slate-300 p-3 text-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-            />
-            {errors.bio && <p className="mt-1 text-xs text-rose-600">{errors.bio}</p>}
-          </div>
-
-          <div className="flex justify-end pt-2 border-t border-slate-100">
-            <Button
-              disabled={processing}
-              type="submit"
-              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold min-h-[44px] px-6 flex items-center gap-2"
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+          {/* Left column */}
+          <div className="lg:col-span-8 space-y-6">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                profileForm.post('/app/profile', { preserveScroll: true });
+              }}
+              className="space-y-5 rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8 shadow-xs"
             >
-              <Save className="h-4 w-4" />
-              {processing ? 'Menyimpan...' : 'Simpan Profil'}
-            </Button>
+              <div>
+                <h2 className="text-xl font-extrabold text-[#102B4B]">Informasi Pelamar</h2>
+                <p className="mt-1 text-xs text-[#64748B]">Isi dan lengkapi informasi diri kamu.</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <ProfileField label="Nama Lengkap" error={profileForm.errors.name}>
+                  <Input value={profileForm.data.name} onChange={(event) => profileForm.setData('name', event.target.value)} />
+                </ProfileField>
+                <ProfileField label="Email" error={profileForm.errors.email}>
+                  <Input type="email" value={profileForm.data.email} onChange={(event) => profileForm.setData('email', event.target.value)} />
+                </ProfileField>
+                <ProfileField label="Nomor Telepon" error={profileForm.errors.phone} icon={<Phone className="h-4 w-4" />}>
+                  <Input value={profileForm.data.phone} onChange={(event) => profileForm.setData('phone', event.target.value)} placeholder="0812 3456 7890" />
+                </ProfileField>
+                <ProfileField label="Tanggal Lahir" error={profileForm.errors.birth_date} icon={<Calendar className="h-4 w-4" />}>
+                  <Input type="date" value={profileForm.data.birth_date} onChange={(event) => profileForm.setData('birth_date', event.target.value)} />
+                </ProfileField>
+                <ProfileField label="Domisili" error={profileForm.errors.domicile} icon={<MapPin className="h-4 w-4" />}>
+                  <Input value={profileForm.data.domicile} onChange={(event) => profileForm.setData('domicile', event.target.value)} placeholder="Jakarta, Indonesia" />
+                </ProfileField>
+                <ProfileField label="Jenis Kelamin" error={profileForm.errors.gender} icon={<User className="h-4 w-4" />}>
+                  <select value={profileForm.data.gender} onChange={(event) => profileForm.setData('gender', event.target.value)} className="w-full rounded-xl border border-[#E2E8F0] bg-[#F7FAFD] px-3 py-2.5 text-sm text-[#102B4B] min-h-[44px]">
+                    <option value="">Pilih jenis kelamin</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                    <option value="Tidak ingin menyebutkan">Tidak ingin menyebutkan</option>
+                  </select>
+                </ProfileField>
+              </div>
+
+              <ProfileField label="Tentang Saya" error={profileForm.errors.bio}>
+                <textarea value={profileForm.data.bio} onChange={(event) => profileForm.setData('bio', event.target.value)} rows={3} maxLength={500} className="w-full rounded-xl border border-[#E2E8F0] bg-[#F7FAFD] p-3 text-sm text-[#102B4B] focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none" placeholder="Ceritakan tentang diri kamu..." />
+                <div className="mt-1 text-right text-[10px] text-[#94A3B8]">{profileForm.data.bio.length}/500</div>
+              </ProfileField>
+
+              <ProfileField label="Pekerjaan / Posisi Terakhir" error={profileForm.errors.current_job_title}>
+                <Input value={profileForm.data.current_job_title} onChange={(event) => profileForm.setData('current_job_title', event.target.value)} />
+              </ProfileField>
+
+              <ProfileField label="Pendidikan Terakhir" error={profileForm.errors.education}>
+                <Input value={profileForm.data.education} onChange={(event) => profileForm.setData('education', event.target.value)} />
+              </ProfileField>
+
+              <ProfileField label="Pengalaman Kerja" error={profileForm.errors.experience}>
+                <textarea value={profileForm.data.experience} onChange={(event) => profileForm.setData('experience', event.target.value)} rows={3} className="w-full rounded-xl border border-[#E2E8F0] bg-[#F7FAFD] p-3 text-sm text-[#102B4B] focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none" />
+              </ProfileField>
+
+              <div className="border-t border-[#F1F5F9] pt-5">
+                <h3 className="text-sm font-bold text-[#102B4B]">Link Profesional <span className="font-normal text-[#64748B]">(Opsional)</span></h3>
+                <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <ProfileField label="LinkedIn" error={profileForm.errors.linkedin_url} icon={<Link2 className="h-4 w-4" />}>
+                    <Input type="url" value={profileForm.data.linkedin_url} onChange={(event) => profileForm.setData('linkedin_url', event.target.value)} placeholder="https://linkedin.com/in/nama" />
+                  </ProfileField>
+                  <ProfileField label="Portofolio" error={profileForm.errors.portfolio_url} icon={<Link2 className="h-4 w-4" />}>
+                    <Input type="url" value={profileForm.data.portfolio_url} onChange={(event) => profileForm.setData('portfolio_url', event.target.value)} placeholder="https://behance.net/nama" />
+                  </ProfileField>
+                </div>
+              </div>
+
+              <div className="flex justify-end border-t border-[#F1F5F9] pt-4">
+                <Button type="submit" disabled={profileForm.processing} className="bg-[#123B5D] hover:bg-[#0C2742] text-white font-bold min-h-[44px] px-6">
+                  {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </Button>
+              </div>
+            </form>
+
+            <section className="rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8 shadow-xs">
+              <h2 className="text-xl font-extrabold text-[#102B4B]">CV Saya</h2>
+              <p className="mt-1 text-sm text-[#64748B]">Unggah dan kelola CV kamu untuk digunakan saat melamar pekerjaan.</p>
+              <input ref={cvInputRef} type="file" accept=".pdf,.doc,.docx" onChange={handleCvUpload} className="hidden" />
+              <button type="button" onClick={() => cvInputRef.current?.click()} className="mt-5 w-full rounded-2xl border-2 border-dashed border-[#D0E5F0] bg-[#F7FAFD] p-8 text-center hover:bg-[#EBF5FA] transition">
+                <FileText className="mx-auto h-12 w-12 text-[#1674D1]" />
+                <span className="mt-2 block text-lg font-extrabold text-[#102B4B]">Unggah CV</span>
+                <span className="mt-1 block text-xs text-[#64748B]">Format PDF, DOC, DOCX — maksimal 5 MB</span>
+                <span className="mt-4 inline-flex rounded-xl bg-[#123B5D] px-5 py-2.5 text-xs font-bold text-white">{isUploadingCv ? 'Mengunggah...' : 'Pilih File'}</span>
+              </button>
+            </section>
+
+            <form onSubmit={(event) => { event.preventDefault(); accessibilityForm.post('/app/accessibility-profile', { preserveScroll: true }); }} className="space-y-5 rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8 shadow-xs">
+              <div>
+                <h2 className="text-xl font-extrabold text-[#102B4B]">Preferensi Aksesibilitas</h2>
+                <p className="mt-1 text-sm text-[#64748B]">Atur kebutuhan aksesibilitas agar perusahaan dapat memberi pengalaman melamar yang inklusif.</p>
+              </div>
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                {accommodations.map(([key, label]) => (
+                  <label key={key} className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl border border-[#E2E8F0] p-3 text-sm text-[#102B4B] hover:bg-[#F7FAFD]">
+                    <input type="checkbox" checked={accessibilityForm.data.accommodations_needed.includes(key)} onChange={() => toggleAccommodation(key)} className="h-4 w-4 rounded text-[#123B5D]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <textarea value={accessibilityForm.data.notes} onChange={(event) => accessibilityForm.setData('notes', event.target.value)} rows={3} placeholder="Informasi tambahan terkait kebutuhan aksesibilitas kamu..." className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none" />
+              <div className="flex justify-end"><Button type="submit" disabled={accessibilityForm.processing} className="bg-[#123B5D] hover:bg-[#0C2742] text-white font-bold min-h-[44px] px-6">Simpan Preferensi</Button></div>
+            </form>
           </div>
-        </form>
+
+          {/* Right column */}
+          <aside className="lg:col-span-4 space-y-6">
+            <section className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs">
+              <h2 className="text-xl font-extrabold text-[#102B4B]">Foto Profil</h2>
+              <div className="mt-5 flex items-center gap-5">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#123B5D] text-2xl font-bold text-white">
+                  {user?.avatar ? <img src={user.avatar} alt={userName} className="h-full w-full object-cover" /> : userName.substring(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarUpload} className="hidden" />
+                  <Button type="button" variant="outline" onClick={() => avatarInputRef.current?.click()} disabled={isUploadingAvatar} className="border-[#1674D1] text-[#1674D1] min-h-[42px]"><Upload className="mr-2 h-4 w-4" />{isUploadingAvatar ? 'Mengunggah...' : 'Ubah Foto'}</Button>
+                  <p className="mt-2 text-[10px] text-[#94A3B8]">JPG, PNG, WebP — otomatis dikompresi 300×300</p>
+                  {user?.avatar && <button type="button" onClick={() => router.delete('/profile/avatar')} className="mt-2 text-xs text-rose-600 hover:underline">Hapus foto</button>}
+                </div>
+              </div>
+              <div className="mt-5 flex gap-2 rounded-xl border border-[#D0E5F0] bg-[#F7FAFD] p-3 text-xs text-[#64748B]"><Info className="h-4 w-4 shrink-0 text-[#1674D1]" />Gunakan foto profesional untuk meningkatkan peluang dilirik rekruter.</div>
+            </section>
+
+            <section className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs">
+              <h2 className="text-xl font-extrabold text-[#102B4B]">Informasi Singkat</h2>
+              <div className="mt-5 space-y-4 text-sm text-[#102B4B]">
+                <SummaryRow icon={<User />} label="Nama" value={profileForm.data.name || '-'} />
+                <SummaryRow icon={<Mail />} label="Email" value={profileForm.data.email || '-'} />
+                <SummaryRow icon={<Phone />} label="Telepon" value={profileForm.data.phone || '-'} />
+                <SummaryRow icon={<MapPin />} label="Domisili" value={profileForm.data.domicile || '-'} />
+                <SummaryRow icon={<Calendar />} label="Tanggal Lahir" value={formatBirthDate(profileForm.data.birth_date)} />
+                <SummaryRow icon={<User />} label="Jenis Kelamin" value={profileForm.data.gender || '-'} />
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs">
+              <h2 className="text-xl font-extrabold text-[#102B4B]">CV yang Tersimpan</h2>
+              {profile.cv_url ? (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center gap-3 rounded-xl bg-[#EBF5FA] p-4"><FileText className="h-6 w-6 text-rose-500" /><div><p className="text-sm font-bold text-[#102B4B]">{profile.cv_name ?? 'CV Tersimpan'}</p><p className="text-[10px] text-[#64748B]">Siap digunakan saat melamar</p></div></div>
+                  <div className="grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center justify-center gap-1 rounded-xl border border-[#1674D1] text-xs font-bold text-[#1674D1]"><Eye className="h-4 w-4" />Lihat CV</a><Link href="/app/ai-assistant" className="inline-flex min-h-[40px] items-center justify-center gap-1 rounded-xl border border-[#1674D1] text-xs font-bold text-[#1674D1]"><Sparkles className="h-4 w-4" />Cek dengan AI</Link></div>
+                </div>
+              ) : <p className="mt-4 text-xs text-[#64748B]">Belum ada CV tersimpan.</p>}
+            </section>
+
+            <section className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs">
+              <h2 className="text-base font-extrabold text-[#102B4B]">Contoh Tampilan ke Perusahaan</h2>
+              <p className="mt-1 text-xs text-[#64748B]">Informasi kebutuhan aksesibilitas ini hanya terlihat setelah kamu melamar.</p>
+              <div className="mt-4 rounded-xl bg-[#EBF5FA] p-4">
+                <p className="text-xs font-bold text-[#102B4B]">Kebutuhan Aksesibilitas</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">{accessibilityForm.data.accommodations_needed.map((item) => <span key={item} className="rounded-md bg-white px-2 py-1 text-[10px] text-[#1674D1]">{item.replaceAll('_', ' ')}</span>)}</div>
+                <p className="mt-3 text-[11px] text-[#64748B]">Catatan dari Pelamar</p>
+                <p className="text-xs text-[#102B4B]">{accessibilityForm.data.notes || '-'}</p>
+              </div>
+              <div className="mt-3 flex gap-2 rounded-xl bg-[#F7FAFD] p-3 text-[11px] text-[#64748B]"><Lock className="h-4 w-4 shrink-0 text-[#1674D1]" />Kamu dapat mengubah atau menyembunyikan informasi ini kapan saja.</div>
+            </section>
+          </aside>
+        </div>
       </div>
     </AppLayout>
   );
+}
+
+function ProfileField({ label, error, icon, children }: { label: string; error?: string; icon?: ReactElement; children: ReactElement | ReactElement[] }) {
+  return <div><Label className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">{icon}{label}</Label><div className="mt-1.5">{children}</div>{error && <p className="mt-1 text-xs text-rose-600">{error}</p>}</div>;
+}
+
+function SummaryRow({ icon, label, value }: { icon: ReactElement; label: string; value: string }) {
+  return <div className="flex items-start gap-3"><span className="mt-0.5 [&>svg]:h-5 [&>svg]:w-5 text-[#64748B]">{icon}</span><div><p className="text-xs text-[#64748B]">{label}</p><p className="font-semibold">{value}</p></div></div>;
 }

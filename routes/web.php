@@ -18,9 +18,12 @@ Route::prefix('app')
         Route::get('/dashboard', \App\Http\Controllers\Seeker\DashboardController::class)->name('app.dashboard');
         Route::get('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'edit'])->name('app.profile.edit');
         Route::post('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'update'])->name('app.profile.update');
+        Route::post('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'update'])->name('app.profile.cv.update');
+        Route::delete('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'destroy'])->name('app.profile.cv.destroy');
         Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
         Route::post('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'update'])->name('app.accessibility-profile.update');
         Route::get('/applications', [\App\Http\Controllers\Seeker\ApplicationController::class, 'index'])->name('app.applications.index');
+        Route::get('/applications/{application}', [\App\Http\Controllers\Seeker\ApplicationController::class, 'show'])->name('app.applications.show');
         Route::post('/vacancies/{vacancy}/apply', [\App\Http\Controllers\Seeker\ApplicationController::class, 'apply'])->name('app.vacancies.apply');
         Route::get('/notifications', [\App\Http\Controllers\Seeker\NotificationController::class, 'index'])->name('app.notifications.index');
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\Seeker\NotificationController::class, 'markAsRead'])->name('app.notifications.read');
@@ -65,6 +68,7 @@ Route::prefix('{current_team}')
 Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'update'])->name('profile.avatar.update');
     Route::delete('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
+    Route::get('/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'inbox'])->name('messages.inbox');
     Route::get('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'index'])->name('applications.messages.index');
     Route::post('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'store'])->name('applications.messages.store');
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');

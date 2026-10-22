@@ -65,13 +65,64 @@ class ApplicationController extends Controller
     public function index(Request $request): Response
     {
         $seeker = $this->getSeekerProfile($request);
-        $applications = $seeker->applications()
-            ->with(['vacancy.companyProfile', 'vacancy.accessibilities'])
-            ->latest('applied_at')
-            ->paginate(10);
+
+        $baseQuery = $seeker->applications();
+
+        $totalCount = (clone $baseQuery)->count();
+        $inProgressCount = (clone $baseQuery)->whereIn('status', ['submitted', 'reviewed', 'interview'])->count();
+        $hiredCount = (clone $baseQuery)->where('status', 'hired')->count();
+        $rejectedCount = (clone $baseQuery)->where('status', 'rejected')->count();
+
+        $query = $seeker->applications()
+            ->with(['vacancy.companyProfile', 'vacancy.accessibilities']);
+
+        if ($search = $request->input('search')) {
+            $query->whereHas('vacancy', function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhereHas('companyProfile', function ($cq) use ($search) {
+                      $cq->where('company_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        $sort = $request->input('sort', 'newest');
+        if ($sort === 'oldest') {
+            $query->oldest('applied_at');
+        } else {
+            $query->latest('applied_at');
+        }
+
+        $applications = $query->paginate(10)->withQueryString();
 
         return Inertia::render('app/applications/index', [
             'applications' => $applications,
+            'stats' => [
+                'total' => $totalCount,
+                'in_progress' => $inProgressCount,
+                'hired' => $hiredCount,
+                'rejected' => $rejectedCount,
+            ],
+            'filters' => [
+                'search' => $request->input('search'),
+                'status' => $request->input('status'),
+                'sort' => $request->input('sort', 'newest'),
+            ],
+        ]);
+    }
+
+    public function show(Request $request, Application $application): Response
+    {
+        $seeker = $this->getSeekerProfile($request);
+        abort_unless($application->job_seeker_profile_id === $seeker->id, 403, 'Akses ditolak.');
+
+        $application->load(['vacancy.companyProfile', 'vacancy.accessibilities']);
+
+        return Inertia::render('app/applications/show', [
+            'application' => $application,
         ]);
     }
 }

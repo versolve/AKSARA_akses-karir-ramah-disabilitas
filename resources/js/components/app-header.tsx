@@ -134,7 +134,7 @@ export function AppHeader(): ReactElement {
 
                             {/* Messages Icon */}
                             <Link
-                                href={userRole === 'perusahaan' ? '/company/applications' : '/app/applications'}
+                                href="/messages"
                                 className="flex h-10 w-10 items-center justify-center rounded-full text-[#64748B] hover:bg-slate-100 hover:text-[#123B5D] transition"
                                 aria-label="Buka percakapan pesan"
                             >
