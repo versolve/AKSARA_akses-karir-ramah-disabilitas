@@ -58,11 +58,11 @@ export default function AdminReports({
 }: Props): ReactElement {
   return (
     <AppLayout>
-      <Head title="Laporan & Statistik - Admin AKSARA" />
+      <Head title="Laporan & Statistik - Admin Profabel" />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 text-white shadow-lg sm:p-8">
-          <h1 className="text-2xl font-black sm:text-3xl">Laporan Platform AKSARA</h1>
+          <h1 className="text-2xl font-black sm:text-3xl">Laporan Platform Profabel</h1>
           <p className="mt-1 text-sm text-slate-300">
             Ringkasan statistik seluruh aktivitas platform: pengguna, lowongan, dan serapan kerja penyandang disabilitas.
           </p>

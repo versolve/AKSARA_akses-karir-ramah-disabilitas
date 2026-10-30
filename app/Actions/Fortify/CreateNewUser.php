@@ -30,6 +30,10 @@ class CreateNewUser implements CreatesNewUsers
             ...$this->profileRules(),
             'role' => ['required', 'string', 'in:pelamar,perusahaan'],
             'password' => $this->passwordRules(),
+        ], [
+            'email.email' => 'Format email belum valid.',
+            'email.unique' => 'Email ini sudah digunakan. Silakan masuk atau gunakan email lain.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ])->validate();
 
         return DB::transaction(function () use ($input): User {

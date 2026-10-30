@@ -71,7 +71,7 @@ export default function Welcome(): ReactElement {
 
   return (
     <>
-      <Head title="AKSARA - Portal Akses Karier Ramah Disabilitas" />
+      <Head title="Profabel - Portal Akses Karier Ramah Disabilitas" />
       <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
         {/* Top Navbar */}
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
@@ -138,7 +138,7 @@ export default function Welcome(): ReactElement {
                 Karier Inklusif Dimulai dari Sini.
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
-                AKSARA mempertemukan pencari kerja penyandang disabilitas dengan mitra perusahaan yang telah menyediakan akomodasi dan fasilitas kerja aksesibel.
+                Profabel mempertemukan pencari kerja penyandang disabilitas dengan mitra perusahaan yang telah menyediakan akomodasi dan fasilitas kerja aksesibel.
               </p>
 
               {/* Quick Search Bar */}
@@ -204,7 +204,7 @@ export default function Welcome(): ReactElement {
                   Prinsip Desain Inklusif
                 </span>
                 <h2 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
-                  Tiga Pilar Ekosistem AKSARA
+                  Tiga Pilar Ekosistem Profabel
                 </h2>
                 <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">
                   Dirancang dari awal untuk menghilangkan hambatan pencarian kerja bagi kawan disabilitas.
@@ -306,7 +306,7 @@ export default function Welcome(): ReactElement {
                 Buka Peluang Kerja Tanpa Batas Hari Ini
               </h2>
               <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300">
-                Apakah Anda pencari kerja penyandang disabilitas atau perusahaan yang siap membuka kesempatan inklusif, AKSARA siap mendampingi setiap langkah Anda.
+                Apakah Anda pencari kerja penyandang disabilitas atau perusahaan yang siap membuka kesempatan inklusif, Profabel siap mendampingi setiap langkah Anda.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -331,7 +331,7 @@ export default function Welcome(): ReactElement {
         <footer className="border-t border-slate-200 bg-white py-8 text-xs text-slate-500">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-800">AKSARA</span>
+              <span className="font-bold text-slate-800">Profabel</span>
               <span>• Akses Karier Ramah Disabilitas</span>
             </div>
 
@@ -347,7 +347,7 @@ export default function Welcome(): ReactElement {
               </Link>
             </div>
 
-            <p>© 2026 AKSARA. Pemrograman Web Enterprise.</p>
+            <p>© 2026 Profabel. Pemrograman Web Enterprise.</p>
           </div>
         </footer>
 

@@ -1,4 +1,12 @@
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
@@ -10,6 +18,8 @@ import {
   User,
   Users,
   XCircle,
+  AlertTriangle,
+  KeyRound,
 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 
@@ -32,6 +42,9 @@ interface UserItem {
   email: string;
   role: 'admin' | 'perusahaan' | 'pelamar';
   is_verified: boolean;
+  is_disabled: boolean;
+  disabled_at?: string | null;
+  scheduled_deletion_at?: string | null;
   created_at: string;
   company_profile?: CompanyInfo;
   job_seeker_profile?: SeekerInfo;
@@ -51,6 +64,47 @@ interface Props {
 export default function AdminUsersIndex({ users, filters }: Props): ReactElement {
   const [role, setRole] = useState(filters.role ?? '');
   const [search, setSearch] = useState(filters.search ?? '');
+  const [action, setAction] = useState<'deactivate' | 'activate' | 'destroy' | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorBag, setErrorBag] = useState<Record<string, string>>({});
+
+  const openAction = (nextAction: 'deactivate' | 'activate' | 'destroy', user: UserItem): void => {
+    setAction(nextAction);
+    setSelectedUser(user);
+    setErrorBag({});
+    setCurrentPassword('');
+  };
+
+  const closeAction = (): void => {
+    setAction(null);
+    setSelectedUser(null);
+    setCurrentPassword('');
+    setErrorBag({});
+  };
+
+  const submitAction = (): void => {
+    if (!selectedUser || !action || !currentPassword) return;
+
+    setIsSubmitting(true);
+    setErrorBag({});
+    const url = `/admin/users/${selectedUser.id}`;
+    const data = { current_password: currentPassword };
+    const options = {
+      preserveScroll: true,
+      onSuccess: closeAction,
+      onError: (errors: Record<string, string>) => setErrorBag(errors),
+      onFinish: () => setIsSubmitting(false),
+    };
+
+    if (action === 'destroy') {
+      router.delete(url, { ...options, data });
+      return;
+    }
+
+    router.post(`${url}/${action}`, data, options);
+  };
 
   const applyFilters = (): void => {
     router.get(
@@ -74,7 +128,7 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
 
   return (
     <AppLayout>
-      <Head title="Kelola Pengguna & Verifikasi - Admin AKSARA" />
+      <Head title="Kelola Pengguna & Verifikasi - Admin Profabel" />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
@@ -170,7 +224,19 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
                       {u.role === 'admin' && <span className="text-slate-400">Pengelola Platform</span>}
                     </td>
                     <td className="px-6 py-4">
-                      {u.role === 'perusahaan' && u.company_profile ? (
+                      {u.is_disabled ? (
+                        <div className="space-y-1">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700">
+                            <XCircle className="h-4 w-4" />
+                            Dinonaktifkan
+                          </span>
+                          {u.scheduled_deletion_at && (
+                            <div className="text-xs text-slate-500">
+                              Dihapus {new Date(u.scheduled_deletion_at).toLocaleDateString('id-ID')}
+                            </div>
+                          )}
+                        </div>
+                      ) : u.role === 'perusahaan' && u.company_profile ? (
                         u.company_profile.is_approved ? (
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
                             <CheckCircle2 className="h-4 w-4" />
@@ -189,20 +255,46 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      {u.role === 'perusahaan' && u.company_profile && (
-                        <Button
-                          variant={u.company_profile.is_approved ? 'outline' : 'default'}
-                          onClick={() => handleToggleVerify(u.company_profile!.id, u.company_profile!.is_approved)}
-                          className={`text-xs min-h-[44px] ${
-                            u.company_profile.is_approved
-                              ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
-                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                          }`}
-                        >
-                          {u.company_profile.is_approved ? 'Cabut Verifikasi' : 'Verifikasi Akun'}
-                        </Button>
-                      )}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {u.role === 'perusahaan' && u.company_profile && (
+                          <Button
+                            variant={u.company_profile.is_approved ? 'outline' : 'default'}
+                            onClick={() => handleToggleVerify(u.company_profile!.id, u.company_profile!.is_approved)}
+                            className={`text-xs min-h-[44px] ${
+                              u.company_profile.is_approved
+                                ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
+                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            }`}
+                          >
+                            {u.company_profile.is_approved ? 'Cabut Verifikasi' : 'Verifikasi Akun'}
+                          </Button>
+                        )}
+                        {u.role !== 'admin' && (
+                          <>
+                            <Button
+                              variant="outline"
+                              onClick={() => openAction(u.is_disabled ? 'activate' : 'deactivate', u)}
+                              className={`min-h-[44px] text-xs ${
+                                u.is_disabled
+                                  ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                                  : 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                              }`}
+                            >
+                              {u.is_disabled ? 'Aktifkan' : 'Nonaktifkan'}
+                            </Button>
+                            {u.is_disabled && (
+                              <Button
+                                variant="destructive"
+                                onClick={() => openAction('destroy', u)}
+                                className="min-h-[44px] text-xs"
+                              >
+                                Hapus sekarang
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -210,6 +302,76 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
             </tbody>
           </table>
         </div>
+
+        <Dialog open={Boolean(action && selectedUser)} onOpenChange={(open) => !open && closeAction()}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {action === 'destroy'
+                  ? 'Hapus akun secara permanen?'
+                  : action === 'activate'
+                    ? 'Aktifkan akun pengguna?'
+                    : 'Nonaktifkan akun pengguna?'}
+              </DialogTitle>
+              <DialogDescription>
+                {action === 'destroy'
+                  ? `Akun ${selectedUser?.name} dan seluruh datanya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`
+                  : action === 'activate'
+                    ? `Akun ${selectedUser?.name} akan dapat digunakan kembali.`
+                    : `Akun ${selectedUser?.name} akan dinonaktifkan selama 30 hari sebelum dihapus otomatis.`}
+              </DialogDescription>
+            </DialogHeader>
+
+            {action === 'destroy' && (
+              <div className="flex gap-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+                <span>Pastikan akun ini memang harus dihapus sekarang.</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="admin-current-password" className="text-sm font-medium text-slate-900">
+                Password admin
+              </label>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <Input
+                  id="admin-current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  placeholder="Masukkan password akun admin"
+                  autoComplete="current-password"
+                  className="pl-9"
+                  disabled={isSubmitting}
+                />
+              </div>
+              {errorBag.current_password && (
+                <p className="text-sm text-rose-600">{errorBag.current_password}</p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={closeAction} disabled={isSubmitting}>
+                Batal
+              </Button>
+              <Button
+                type="button"
+                variant={action === 'destroy' ? 'destructive' : 'default'}
+                onClick={submitAction}
+                disabled={!currentPassword || isSubmitting}
+              >
+                {isSubmitting
+                  ? 'Memproses...'
+                  : action === 'destroy'
+                    ? 'Hapus permanen'
+                    : action === 'activate'
+                      ? 'Aktifkan akun'
+                      : 'Nonaktifkan akun'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Pagination Links */}
         {users.links && users.links.length > 3 && (

@@ -127,7 +127,7 @@ export default function ApplicationMessages({
 
   return (
     <AppLayout>
-      <Head title="Pesan - AKSARA" />
+      <Head title="Pesan - Profabel" />
 
       <div className="py-6 sm:py-8 space-y-6">
         {/* Title Header */}

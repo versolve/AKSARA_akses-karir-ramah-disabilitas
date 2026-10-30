@@ -39,7 +39,7 @@ export default function VacanciesIndex({ vacancies }: Props): ReactElement {
 
   return (
     <AppLayout>
-      <Head title="Kelola Lowongan - Mitra Perusahaan AKSARA" />
+      <Head title="Kelola Lowongan - Mitra Perusahaan Profabel" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

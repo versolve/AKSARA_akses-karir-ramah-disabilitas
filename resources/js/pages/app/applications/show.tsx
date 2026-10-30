@@ -396,7 +396,7 @@ export default function ApplicationShow({ application }: Props): ReactElement {
                     <FileText className="h-4 w-4 text-slate-400" />
                     Sumber Lowongan
                   </span>
-                  <strong className="text-[#102B4B] text-right">AKSARA</strong>
+                  <strong className="text-[#102B4B] text-right">Profabel</strong>
                 </div>
               </div>
             </div>

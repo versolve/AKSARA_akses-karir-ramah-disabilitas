@@ -7,7 +7,6 @@ import {
     ChartBar,
     ChevronDown,
     FileText,
-    HeartHandshake,
     LayoutGrid,
     LogOut,
     Mail,
@@ -90,7 +89,7 @@ export function AppHeader(): ReactElement {
                     <Link href="/" className="flex items-center gap-2">
                         <img
                             src="/images/logos/logo_biru.svg"
-                            alt="AKSARA - Akses Karier Ramah Disabilitas"
+                            alt="Profabel - Akses Karier Ramah Disabilitas"
                             className="h-8 sm:h-9 w-auto object-contain"
                         />
                     </Link>
@@ -177,20 +176,12 @@ export function AppHeader(): ReactElement {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuGroup>
                                         {userRole === 'pelamar' && (
-                                            <>
-                                                <DropdownMenuItem asChild>
-                                                    <Link href="/app/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
-                                                        <User className="h-4 w-4 text-slate-500" />
-                                                        Profil Saya
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem asChild>
-                                                    <Link href="/app/accessibility-profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
-                                                        <HeartHandshake className="h-4 w-4 text-slate-500" />
-                                                        Kebutuhan Aksesibilitas
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                            </>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/app/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                    <User className="h-4 w-4 text-slate-500" />
+                                                    Profil Saya
+                                                </Link>
+                                            </DropdownMenuItem>
                                         )}
                                         {userRole === 'perusahaan' && (
                                             <DropdownMenuItem asChild>

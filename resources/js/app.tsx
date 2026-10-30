@@ -20,7 +20,7 @@ void createInertiaApp({
             case name.startsWith('teams/'):
                 return [AppLayout, SettingsLayout];
             default:
-                // Pages in AKSARA explicitly declare <AppLayout> in their JSX,
+                // Pages in Profabel explicitly declare <AppLayout> in their JSX,
                 // so we return null here to prevent duplicate nested sidebars.
                 return null;
         }

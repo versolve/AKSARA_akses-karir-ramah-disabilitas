@@ -380,7 +380,7 @@ export default function JobShow({ vacancy, alreadyApplied }: Props): ReactElemen
                   <div className="space-y-4 text-xs sm:text-sm text-[#475569]">
                     <h3 className="font-extrabold text-sm text-[#102B4B]">Alur & Tahapan Rekrutmen</h3>
                     <ol className="space-y-2 list-decimal list-inside leading-relaxed">
-                      <li><strong>Pengiriman Berkas:</strong> Unggah CV dan surat pengantar melalui portal AKSARA.</li>
+                      <li><strong>Pengiriman Berkas:</strong> Unggah CV dan surat pengantar melalui portal Profabel.</li>
                       <li><strong>Peninjauan Kualifikasi:</strong> Tim HR meninjau berkas dan kesesuaian fasilitas aksesibilitas (1-3 hari kerja).</li>
                       <li><strong>Sesi Wawancara:</strong> Wawancara kerja dengan akomodasi yang disesuaikan (Google Meet dengan teks otomatis / juru bahasa isyarat).</li>
                       <li><strong>Penerimaan / Offering:</strong> Pengumuman hasil seleksi disampaikan langsung melalui dashboard dan notifikasi.</li>

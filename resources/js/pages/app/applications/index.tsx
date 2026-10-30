@@ -107,7 +107,7 @@ export default function ApplicationsIndex({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `riwayat_lamaran_aksara_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `riwayat_lamaran_profabel_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -142,7 +142,7 @@ export default function ApplicationsIndex({
 
   return (
     <AppLayout>
-      <Head title="Lamaran Saya - AKSARA" />
+      <Head title="Lamaran Saya - Profabel" />
 
       <div className="py-6 sm:py-8 space-y-6">
         {/* Title Header */}

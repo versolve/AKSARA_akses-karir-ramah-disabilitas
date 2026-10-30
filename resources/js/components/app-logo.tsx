@@ -9,7 +9,7 @@ export default function AppLogo() {
             </div>
             <div className="flex flex-col text-left">
                 <span className="font-extrabold tracking-tight text-slate-900 text-sm leading-none">
-                    AKSARA
+                    Profabel
                 </span>
                 <span className="text-[10px] text-slate-500 font-medium tracking-wide">
                     Akses Karier Inklusif

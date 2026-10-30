@@ -13,6 +13,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 /* @chisel-passkeys */
 use Laravel\Passkeys\Contracts\PasskeyLoginResponse;
+use Laravel\Passkeys\Passkeys;
 /* @end-chisel-passkeys */
 use Tests\TestCase;
 
@@ -63,6 +64,15 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect('/app/dashboard');
     }
 
+    public function test_authenticated_users_visiting_login_are_redirected_to_role_dashboard(): void
+    {
+        $user = User::factory()->create(['role' => 'pelamar']);
+
+        $response = $this->actingAs($user)->get(route('login'));
+
+        $response->assertRedirect('/app/dashboard');
+    }
+
     /* @chisel-passkeys */
     public function test_passkey_login_response_redirects_to_the_current_team_dashboard(): void
     {
@@ -103,6 +113,54 @@ class AuthenticationTest extends TestCase
 
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHas('login.id', $user->id);
+        $this->assertGuest();
+    }
+
+    public function test_disabled_account_shows_specific_error_message(): void
+    {
+        $user = User::factory()->create([
+            'is_disabled' => true,
+            'disabled_at' => now(),
+        ]);
+
+        $response = $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'Akun Anda telah dinonaktifkan. Hubungi admin untuk mengaktifkan kembali akun.',
+        ]);
+    }
+
+    public function test_invalid_password_shows_generic_login_error(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        // Laravel uses generic message to prevent email enumeration
+        $response->assertSessionHasErrors([
+            'email' => 'Akun yang terdaftar tidak cocok dengan password yang diberikan.',
+        ]);
+    }
+
+    public function test_disabled_users_can_not_authenticate(): void
+    {
+        $user = User::factory()->create([
+            'is_disabled' => true,
+            'disabled_at' => now(),
+            'scheduled_deletion_at' => now()->addDays(30),
+        ]);
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
         $this->assertGuest();
     }
 

@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Seeker;
 
-use App\Models\JobSeekerProfile;
-use App\Models\SeekerAccessibilityProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ProfileControllerTest extends TestCase
@@ -19,6 +18,22 @@ class ProfileControllerTest extends TestCase
         $response = $this->actingAs($user)->get('/app/profile');
 
         $response->assertOk();
+    }
+
+    public function test_pelamar_profile_page_shares_avatar_url(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'pelamar',
+            'avatar' => '/storage/avatars/test.webp',
+            'name' => 'Budi Santoso',
+        ]);
+
+        $response = $this->actingAs($user)->get('/app/profile');
+
+        $response->assertInertia(fn (Assert $page) =>
+            $page->component('app/profile')
+                ->where('user.avatar', '/storage/avatars/test.webp')
+        );
     }
 
     public function test_pelamar_can_update_their_profile(): void

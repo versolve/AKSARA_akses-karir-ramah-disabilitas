@@ -1,0 +1,47 @@
+<h2>Kelola status pengguna</h2>
+<p class="subtitle">Rancangan alur nonaktifkan akun dan hapus permanen</p>
+
+<div class="mockup">
+  <div class="mockup-header">Admin · Kelola pengguna</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:1.3fr 1.8fr 1fr 1.1fr;gap:12px;padding:10px 12px;background:#f2f6f8;font-size:12px;font-weight:700;color:#52677a">
+      <span>Pengguna</span><span>Email</span><span>Status</span><span>Tindakan</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.3fr 1.8fr 1fr 1.1fr;gap:12px;align-items:center;padding:14px 12px;border-bottom:1px solid #e2e8f0;font-size:13px">
+      <strong>Budi Santoso</strong><span>budi@example.com</span><span style="color:#15803d;font-weight:700">Aktif</span><button class="mock-button" style="background:#b42318">Nonaktifkan</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1.3fr 1.8fr 1fr 1.1fr;gap:12px;align-items:center;padding:14px 12px;font-size:13px">
+      <strong>Siti Rahma</strong><span>siti@example.com</span><span style="color:#a16207;font-weight:700">Nonaktif hingga 28 Nov 2026</span><div style="display:flex;gap:6px"><button class="mock-button" style="background:#176c98">Aktifkan</button><button class="mock-button" style="background:#b42318">Hapus sekarang</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="split" style="margin-top:24px">
+  <div class="mockup">
+    <div class="mockup-header">Konfirmasi nonaktifkan</div>
+    <div class="mockup-body">
+      <h3>Nonaktifkan Budi Santoso?</h3>
+      <p>Akun tidak dapat masuk. Sistem menghapus akun permanen pada <strong>28 November 2026</strong>.</p>
+      <label class="label">Password admin</label>
+      <input class="mock-input" type="password" value="••••••••" aria-label="Password admin">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="mock-button" style="background:#64748b">Batal</button><button class="mock-button" style="background:#b42318">Nonaktifkan</button></div>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">Konfirmasi hapus permanen</div>
+    <div class="mockup-body">
+      <h3>Hapus Siti Rahma sekarang?</h3>
+      <p>Semua data akun akan dihapus. Tindakan ini tidak dapat dibatalkan.</p>
+      <label class="label">Password admin</label>
+      <input class="mock-input" type="password" value="••••••••" aria-label="Password admin">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="mock-button" style="background:#64748b">Batal</button><button class="mock-button" style="background:#8e160f">Hapus permanen</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:24px">
+  <div class="option" data-choice="approve-flow" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Alur sudah sesuai</h3><p>Nonaktif 30 hari, aktifkan kembali, atau hapus sekarang. Semua aksi sensitif meminta password admin.</p></div>
+  </div>
+</div>

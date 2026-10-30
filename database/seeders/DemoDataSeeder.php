@@ -25,7 +25,7 @@ class DemoDataSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@aksara.id'],
             [
-                'name' => 'Administrator AKSARA',
+                'name' => 'Administrator Profabel',
                 'password' => $password,
                 'role' => 'admin',
                 'is_verified' => true,

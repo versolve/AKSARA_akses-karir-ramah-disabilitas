@@ -23,7 +23,7 @@ export default function AuthSimpleLayout({
                         <Link
                             href="/"
                             className="inline-flex items-center gap-2"
-                            aria-label="Kembali ke beranda AKSARA"
+                            aria-label="Kembali ke beranda Profabel"
                         >
                             <AppLogo />
                         </Link>

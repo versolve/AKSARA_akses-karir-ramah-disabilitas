@@ -35,8 +35,9 @@ function GoogleIcon({ className = 'h-5 w-5' }: { className?: string }) {
 
 export default function Login({ status, canResetPassword = true }: Props): ReactElement {
     const [showPassword, setShowPassword] = useState(false);
+    const [emailBlurred, setEmailBlurred] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         email: '',
         password: '',
         remember: true,
@@ -59,7 +60,7 @@ export default function Login({ status, canResetPassword = true }: Props): React
 
     return (
         <>
-            <Head title="Masuk ke AKSARA" />
+            <Head title="Masuk ke Profabel" />
 
             {status && (
                 <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center text-xs font-semibold text-emerald-800">
@@ -69,7 +70,7 @@ export default function Login({ status, canResetPassword = true }: Props): React
 
             <div className="mb-8">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-[#102B4B] tracking-tight">
-                    Masuk ke AKSARA
+                    Masuk ke Profabel
                 </h1>
                 <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
                     Lanjutkan perjalanan kariermu dengan peluang yang lebih inklusif dan setara.
@@ -89,7 +90,11 @@ export default function Login({ status, canResetPassword = true }: Props): React
                             type="email"
                             name="email"
                             value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
+                            onChange={(e) => {
+                                setData('email', e.target.value);
+                                clearErrors('email');
+                            }}
+                            onBlur={() => setEmailBlurred(true)}
                             required
                             autoFocus
                             autoComplete="email"
@@ -97,6 +102,9 @@ export default function Login({ status, canResetPassword = true }: Props): React
                             className="w-full rounded-xl border border-[#E2E8F0] pl-11 pr-4 py-3 text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none transition min-h-[48px]"
                         />
                     </div>
+                    {emailBlurred && data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email) && (
+                        <p className="mt-1 text-xs text-rose-600">Format email belum valid.</p>
+                    )}
                     <InputError message={errors.email} className="mt-1" />
                 </div>
 

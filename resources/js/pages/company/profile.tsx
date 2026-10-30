@@ -45,7 +45,7 @@ export default function CompanyProfile({ company = {} }: Props): ReactElement {
 
   return (
     <AppLayout>
-      <Head title="Profil Perusahaan - Mitra Inklusif AKSARA" />
+      <Head title="Profil Perusahaan - Mitra Inklusif Profabel" />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>

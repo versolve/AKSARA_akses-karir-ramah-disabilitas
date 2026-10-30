@@ -104,7 +104,7 @@ export default function SeekerDashboard({
   const page = usePage();
   const auth = (page.props as any).auth;
   const user = auth?.user;
-  const userName = user?.name || 'Kawan Aksara';
+  const userName = user?.name || 'Kawan Profabel';
 
   const [keyword, setKeyword] = useState('');
   const [activeDot, setActiveDot] = useState(0);
@@ -146,7 +146,7 @@ export default function SeekerDashboard({
 
   return (
     <AppLayout>
-      <Head title="Beranda Pelamar - AKSARA" />
+      <Head title="Beranda Pelamar - Profabel" />
 
       <div className="py-6 sm:py-8 space-y-6">
         {/* Main Grid: Left Column (Hero + Recommendations + Tips) & Right Column (Profile + Activities + Notice) */}
@@ -160,7 +160,7 @@ export default function SeekerDashboard({
                   Halo, {userName}!
                 </h1>
                 <p className="mt-2 text-xs sm:text-sm text-[#475569] leading-relaxed">
-                  Terus semangat dalam mencari peluang karier terbaik bersama AKSARA. Setiap langkahmu berarti.
+                  Terus semangat dalam mencari peluang karier terbaik bersama Profabel. Setiap langkahmu berarti.
                 </p>
 
                 {/* Search Bar */}
@@ -449,13 +449,13 @@ export default function SeekerDashboard({
                 </div>
 
                 <Link
-                  href="/app/accessibility-profile"
+                  href="/app/profile/edit"
                   className="flex items-center gap-2 text-[#64748B] hover:text-[#1674D1] group pt-0.5"
                 >
                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E2E8F0] text-slate-600 group-hover:bg-[#123B5D] group-hover:text-white transition shrink-0">
                     <Plus className="h-3 w-3" />
                   </div>
-                  <span className="font-medium">Kebutuhan Aksesibilitas</span>
+                  <span className="font-medium">Lengkapi Pengalaman & Portofolio</span>
                 </Link>
               </div>
             </div>
@@ -551,7 +551,7 @@ export default function SeekerDashboard({
                 <div className="min-w-0">
                   <h4 className="font-bold text-xs text-[#102B4B]">Maintenance Sistem</h4>
                   <p className="text-[10px] text-[#64748B] mt-0.5 leading-relaxed">
-                    AKSARA akan melakukan pemeliharaan server berkala pada tanggal 25 Oktober 2026 pukul 22.00 - 23.00 WIB.
+                    Profabel akan melakukan pemeliharaan server berkala pada tanggal 25 Oktober 2026 pukul 22.00 - 23.00 WIB.
                   </p>
                   <span className="inline-block mt-2 rounded bg-amber-100 text-amber-800 font-bold px-2 py-0.5 text-[9px]">
                     Pemberitahuan

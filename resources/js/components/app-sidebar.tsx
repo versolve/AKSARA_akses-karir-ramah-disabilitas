@@ -6,7 +6,6 @@ import {
     ChartBar,
     FileText,
     Globe,
-    HeartHandshake,
     LayoutGrid,
     Search,
     ShieldCheck,
@@ -63,11 +62,6 @@ export function AppSidebar() {
                 title: 'Profil Saya',
                 href: '/app/profile',
                 icon: User,
-            },
-            {
-                title: 'Kebutuhan Aksesibilitas',
-                href: '/app/accessibility-profile',
-                icon: HeartHandshake,
             },
             {
                 title: 'Notifikasi',

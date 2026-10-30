@@ -76,7 +76,9 @@ class RegistrationWithRoleTest extends TestCase
             'role' => 'pelamar',
         ]);
 
-        $response->assertInvalid('email');
+        $response->assertSessionHasErrors([
+            'email' => 'Email ini sudah digunakan. Silakan masuk atau gunakan email lain.',
+        ]);
     }
 
     public function test_password_must_be_confirmed(): void

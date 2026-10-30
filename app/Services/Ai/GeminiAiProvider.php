@@ -31,7 +31,7 @@ class GeminiAiProvider implements AiProviderInterface
         $accProfile = $seeker->user?->accessibilityProfile ?? $seeker->accessibilityProfile;
 
         $prompt = <<<PROMPT
-Anda adalah asisten AI rekrutmen inklusif untuk portal kerja AKSARA (Akses Karier Ramah Disabilitas).
+Anda adalah asisten AI rekrutmen inklusif untuk portal kerja Profabel (Akses Karier Ramah Disabilitas).
 Tugas Anda: Evaluasi kecocokan antara profil pencari kerja penyandang disabilitas dengan lowongan pekerjaan.
 
 DATA PELAMAR:
@@ -93,7 +93,7 @@ PROMPT;
         $targetSkillsStr = implode(', ', $vacancySkills);
 
         $prompt = <<<PROMPT
-Anda adalah AI Career Coach untuk penyandang disabilitas di AKSARA.
+Anda adalah AI Career Coach untuk penyandang disabilitas di Profabel.
 Bandingkan keterampilan pelamar dengan keterampilan yang dibutuhkan posisi pekerjaan target.
 
 Keterampilan Pelamar: {$mySkillsStr}
@@ -136,7 +136,7 @@ PROMPT;
         $skillsStr = implode(', ', $targetSkills);
 
         $prompt = <<<PROMPT
-Anda adalah spesialis pemindai CV ATS dan konsultan karier disabilitas di AKSARA.
+Anda adalah spesialis pemindai CV ATS dan konsultan karier disabilitas di Profabel.
 Analisis isi CV berikut dari sudut pandang keterbacaan mesin ATS dan keramahan pembaca layar (screen reader).
 
 Target Keterampilan Posisi (jika ada): {$skillsStr}

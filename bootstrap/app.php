@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->getDashboardRoute() ?? '/');
 
         // Role-based access control middleware aliases
         $middleware->alias([

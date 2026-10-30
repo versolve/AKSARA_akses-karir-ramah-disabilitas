@@ -37,6 +37,7 @@ export default function Register({ teamInvitation }: Props): ReactElement {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [emailBlurred, setEmailBlurred] = useState(false);
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -57,7 +58,7 @@ export default function Register({ teamInvitation }: Props): ReactElement {
 
     return (
         <>
-            <Head title="Buat Akun AKSARA" />
+            <Head title="Buat Akun Profabel" />
 
             {teamInvitation && (
                 <div className="mb-4">
@@ -73,7 +74,7 @@ export default function Register({ teamInvitation }: Props): ReactElement {
             {/* Heading & Subtitle */}
             <div className="mb-6">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-[#102B4B] tracking-tight">
-                    Buat Akun AKSARA
+                    Buat Akun Profabel
                 </h1>
                 <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
                     Langkah pertama menuju karier yang lebih inklusif.
@@ -185,13 +186,20 @@ export default function Register({ teamInvitation }: Props): ReactElement {
                             type="email"
                             name="email"
                             value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
+                            onChange={(e) => {
+                                setData('email', e.target.value);
+                                clearErrors('email');
+                            }}
+                            onBlur={() => setEmailBlurred(true)}
                             required
                             autoComplete="email"
                             placeholder="nama@email.com"
                             className="w-full rounded-xl border border-[#E2E8F0] pl-11 pr-4 py-3 text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none transition min-h-[48px]"
                         />
                     </div>
+                    {emailBlurred && data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email) && (
+                        <p className="mt-1 text-xs text-rose-600">Format email belum valid.</p>
+                    )}
                     <InputError message={errors.email} className="mt-1" />
                 </div>
 
@@ -286,7 +294,7 @@ export default function Register({ teamInvitation }: Props): ReactElement {
                         <a href="#" className="text-[#1674D1] hover:underline font-medium">
                             Kebijakan Privasi
                         </a>{' '}
-                        AKSARA.
+                        Profabel.
                     </label>
                 </div>
 

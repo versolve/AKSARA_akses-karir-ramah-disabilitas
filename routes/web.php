@@ -16,8 +16,10 @@ Route::prefix('app')
     ->middleware(['auth', 'role:pelamar'])
     ->group(function () {
         Route::get('/dashboard', \App\Http\Controllers\Seeker\DashboardController::class)->name('app.dashboard');
-        Route::get('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'edit'])->name('app.profile.edit');
+        Route::get('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'show'])->name('app.profile.show');
+        Route::get('/profile/edit', [App\Http\Controllers\Seeker\ProfileController::class, 'edit'])->name('app.profile.edit');
         Route::post('/profile', [App\Http\Controllers\Seeker\ProfileController::class, 'update'])->name('app.profile.update');
+        Route::post('/profile/portfolio', [App\Http\Controllers\Seeker\ProfilePortfolioController::class, 'update'])->name('app.profile.portfolio.update');
         Route::post('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'update'])->name('app.profile.cv.update');
         Route::delete('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'destroy'])->name('app.profile.cv.destroy');
         Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
@@ -52,6 +54,9 @@ Route::prefix('admin')
     ->group(function () {
         Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)->name('admin.dashboard');
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+        Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('admin.users.deactivate');
+        Route::post('/users/{user}/activate', [\App\Http\Controllers\Admin\UserController::class, 'activate'])->name('admin.users.activate');
+        Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
         Route::post('/companies/{company}/verify', [\App\Http\Controllers\Admin\UserController::class, 'toggleCompanyVerification'])->name('admin.companies.verify');
         Route::get('/vacancies', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'index'])->name('admin.vacancies.index');
         Route::patch('/vacancies/{vacancy}/status', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'updateStatus'])->name('admin.vacancies.updateStatus');

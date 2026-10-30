@@ -13,7 +13,7 @@ export default function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
                 <div className="max-w-md w-full flex items-center justify-center">
                     <img
                         src="/images/logos/logo_putih.svg"
-                        alt="AKSARA - Akses Karier Ramah Disabilitas"
+                        alt="Profabel - Akses Karier Ramah Disabilitas"
                         className="w-full max-w-[380px] object-contain drop-shadow-md"
                     />
                 </div>
@@ -23,7 +23,7 @@ export default function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
             <div className="flex lg:hidden w-full bg-[#0C2742] items-center justify-center py-8 px-6">
                 <img
                     src="/images/logos/logo_putih.svg"
-                    alt="AKSARA"
+                    alt="Profabel"
                     className="h-10 max-w-[220px] object-contain"
                 />
             </div>

@@ -136,7 +136,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
 
   return (
     <AppLayout>
-      <Head title="Notifikasi - AKSARA" />
+      <Head title="Notifikasi - Profabel" />
 
       <div className="py-6 sm:py-8 space-y-6">
         {/* Title & Subtitle */}

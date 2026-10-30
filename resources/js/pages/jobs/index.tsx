@@ -145,7 +145,7 @@ export default function JobsIndex({ vacancies, filters }: Props): ReactElement {
 
   return (
     <AppLayout>
-      <Head title="Cari Kerja - Lowongan Ramah Disabilitas AKSARA" />
+      <Head title="Cari Kerja - Lowongan Ramah Disabilitas Profabel" />
 
       <div className="py-6 sm:py-8 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -36,6 +36,58 @@ class UserController extends Controller
         ]);
     }
 
+    public function deactivate(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeLifecycleAction($request, $user);
+        $this->validateAdminPassword($request);
+
+        $user->update([
+            'is_disabled' => true,
+            'disabled_at' => now(),
+            'scheduled_deletion_at' => now()->addDays(30),
+        ]);
+
+        return back()->with('status', 'Akun pengguna dinonaktifkan selama 30 hari.');
+    }
+
+    public function activate(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeLifecycleAction($request, $user);
+        $this->validateAdminPassword($request);
+
+        $user->update([
+            'is_disabled' => false,
+            'disabled_at' => null,
+            'scheduled_deletion_at' => null,
+        ]);
+
+        return back()->with('status', 'Akun pengguna diaktifkan kembali.');
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeLifecycleAction($request, $user);
+        $this->validateAdminPassword($request);
+
+        $user->delete();
+
+        return back()->with('status', 'Akun pengguna dihapus permanen.');
+    }
+
+    private function validateAdminPassword(Request $request): void
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+        ]);
+    }
+
+    private function authorizeLifecycleAction(Request $request, User $user): void
+    {
+        if ($user->isAdmin() || $user->is($request->user())) {
+            abort(403, 'Akun admin dan akun sendiri tidak dapat dikelola dari halaman ini.');
+        }
+    }
+
     public function toggleCompanyVerification(Request $request, CompanyProfile $company): RedirectResponse
     {
         $validated = $request->validate([

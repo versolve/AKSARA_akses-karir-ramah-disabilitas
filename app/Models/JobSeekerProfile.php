@@ -23,11 +23,21 @@ class JobSeekerProfile extends Model
         'cv_path',
         'linkedin_url',
         'portfolio_url',
+        'skills',
+        'work_experiences',
+        'educations',
+        'projects',
+        'certifications',
         'profile_completed_percentage',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
+        'skills' => 'array',
+        'work_experiences' => 'array',
+        'educations' => 'array',
+        'projects' => 'array',
+        'certifications' => 'array',
         'profile_completed_percentage' => 'integer',
     ];
 

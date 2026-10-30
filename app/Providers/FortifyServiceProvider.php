@@ -20,8 +20,10 @@ use App\Http\Responses\TwoFactorLoginResponse;
 use App\Http\Responses\VerifyEmailResponse;
 /* @end-chisel-email-verification */
 use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -40,6 +42,7 @@ use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 /* @chisel-passkeys */
 use Laravel\Passkeys\Contracts\PasskeyLoginResponse as PasskeyLoginResponseContract;
+use Laravel\Passkeys\Passkeys;
 
 /* @end-chisel-passkeys */
 
@@ -72,7 +75,9 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureActions();
         $this->configureViews();
+        $this->configureAuthentication();
         $this->configureRateLimiting();
+        $this->configurePasskeyAuthorization();
     }
 
     /**
@@ -125,6 +130,40 @@ class FortifyServiceProvider extends ServiceProvider
         /* @chisel-password-confirmation */
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
         /* @end-chisel-password-confirmation */
+    }
+
+    /**
+     * Configure authentication.
+     */
+    private function configureAuthentication(): void
+    {
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::where('email', $request->input('email'))->first();
+
+            if ($user?->is_disabled) {
+                throw ValidationException::withMessages([
+                    'email' => 'Akun Anda telah dinonaktifkan. Hubungi admin untuk mengaktifkan kembali akun.',
+                ]);
+            }
+
+            if (! $user || ! password_verify($request->input('password'), $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => 'Akun yang terdaftar tidak cocok dengan password yang diberikan.',
+                ]);
+            }
+
+            return $user;
+        });
+    }
+
+    /**
+     * Prevent disabled users from signing in with passkeys.
+     */
+    private function configurePasskeyAuthorization(): void
+    {
+        Passkeys::authorizeLoginUsing(function (Request $request, User $user): bool {
+            return ! $user->is_disabled;
+        });
     }
 
     /**

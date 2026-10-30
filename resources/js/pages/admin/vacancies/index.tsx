@@ -71,7 +71,7 @@ export default function AdminVacanciesIndex({ vacancies, filters }: Props): Reac
 
   return (
     <AppLayout>
-      <Head title="Moderasi Lowongan - Admin AKSARA" />
+      <Head title="Moderasi Lowongan - Admin Profabel" />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Moderasi Lowongan Kerja</h1>

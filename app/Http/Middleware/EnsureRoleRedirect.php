@@ -16,8 +16,10 @@ class EnsureRoleRedirect
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            $user = Auth::user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if ($user) {
             return redirect($user->getDashboardRoute());
         }
 

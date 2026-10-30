@@ -65,7 +65,7 @@ export default function AdminDashboard({
 }: Props): ReactElement {
   return (
     <AppLayout>
-      <Head title="Panel Administrator - AKSARA" />
+      <Head title="Panel Administrator - Profabel" />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Banner Admin */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 text-white shadow-lg sm:p-8">
@@ -79,7 +79,7 @@ export default function AdminDashboard({
                 Dashboard Eksekutif Administrator
               </h1>
               <p className="mt-1 text-sm text-slate-300">
-                Pengawasan platform AKSARA: verifikasi kemitraan perusahaan, moderasi lowongan, dan metrik serapan kerja disabilitas.
+                Pengawasan platform Profabel: verifikasi kemitraan perusahaan, moderasi lowongan, dan metrik serapan kerja disabilitas.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
