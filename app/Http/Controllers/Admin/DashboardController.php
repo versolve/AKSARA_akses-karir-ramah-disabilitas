@@ -18,12 +18,19 @@ class DashboardController extends Controller
     {
         $totalSeekers = User::where('role', 'pelamar')->count();
         $totalCompanies = CompanyProfile::count();
-        $pendingCompanies = CompanyProfile::where('is_approved', false)->count();
+        $verifiedCompanies = CompanyProfile::where('is_approved', true)->count();
+        $pendingCompanies = $totalCompanies - $verifiedCompanies;
 
         $activeVacancies = Vacancy::where('status', 'active')->count();
+        $closedVacancies = Vacancy::where('status', 'closed')->count();
+        $pendingVacancies = Vacancy::where('status', 'draft')->count();
         $totalVacancies = Vacancy::count();
 
         $totalApplications = Application::count();
+        $applicationStatuses = Application::query()
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
         $recentApplications = Application::with([
             'jobSeekerProfile.user',
             'vacancy' => fn ($q) => $q->withTrashed(),
@@ -43,10 +50,14 @@ class DashboardController extends Controller
                 'total_users' => User::count(),
                 'total_seekers' => $totalSeekers,
                 'total_companies' => $totalCompanies,
+                'verified_companies' => $verifiedCompanies,
                 'pending_companies' => $pendingCompanies,
                 'active_vacancies' => $activeVacancies,
+                'closed_vacancies' => $closedVacancies,
+                'pending_vacancies' => $pendingVacancies,
                 'total_vacancies' => $totalVacancies,
                 'total_applications' => $totalApplications,
+                'application_statuses' => $applicationStatuses,
             ],
             'recentApplications' => $recentApplications,
             'recentVacancies' => $recentVacancies,

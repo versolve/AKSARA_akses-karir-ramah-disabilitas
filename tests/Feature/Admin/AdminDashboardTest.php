@@ -35,6 +35,10 @@ class AdminDashboardTest extends TestCase
             ->has('stats.total_users')
             ->has('stats.total_seekers')
             ->has('stats.total_companies')
+            ->has('stats.verified_companies')
+            ->has('stats.closed_vacancies')
+            ->has('stats.pending_vacancies')
+            ->has('stats.application_statuses')
             ->has('stats.active_vacancies')
             ->has('stats.total_applications')
         );

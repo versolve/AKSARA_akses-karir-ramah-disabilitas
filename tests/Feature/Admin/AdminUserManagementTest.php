@@ -6,6 +6,7 @@ use App\Models\CompanyProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class AdminUserManagementTest extends TestCase
@@ -21,6 +22,11 @@ class AdminUserManagementTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/users?role=pelamar');
         $response->assertOk();
         $response->assertSee('Budi Pelamar');
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('counts.pelamar', 1)
+            ->where('counts.perusahaan', 1)
+            ->where('filters.role', 'pelamar')
+        );
     }
 
     public function test_user_account_lifecycle_fields_are_cast(): void
@@ -209,6 +215,27 @@ class AdminUserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $future->id]);
         $this->assertDatabaseHas('users', ['id' => $active->id]);
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    public function test_admin_can_view_company_verification_queue(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $companyUser = User::factory()->create(['role' => 'perusahaan', 'name' => 'PT Inklusi Maju']);
+        CompanyProfile::factory()->create([
+            'user_id' => $companyUser->id,
+            'company_name' => 'PT Inklusi Maju',
+            'is_approved' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->get('/admin/companies/verification?status=pending');
+
+        $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('admin/companies/verification')
+            ->where('counts.pending', 1)
+            ->where('filters.status', 'pending')
+            ->has('companies.data', 1)
+            ->where('companies.data.0.company_name', 'PT Inklusi Maju')
+        );
     }
 
     public function test_admin_can_verify_and_unverify_company(): void

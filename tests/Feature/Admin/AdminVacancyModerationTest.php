@@ -6,6 +6,7 @@ use App\Models\CompanyProfile;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class AdminVacancyModerationTest extends TestCase
@@ -21,6 +22,12 @@ class AdminVacancyModerationTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/vacancies');
         $response->assertOk();
         $response->assertSee('Software Engineer');
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('counts.total', 1)
+            ->where('counts.active', 1)
+            ->where('counts.closed', 0)
+            ->where('counts.draft', 0)
+        );
     }
 
     public function test_admin_can_moderate_vacancy_status(): void

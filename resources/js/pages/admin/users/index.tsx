@@ -8,18 +8,21 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import AppLayout from '@/layouts/app-layout';
+import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import {
+  AlertTriangle,
   Building2,
   CheckCircle2,
+  ChevronRight,
+  CircleUserRound,
+  KeyRound,
   Search,
   ShieldCheck,
-  User,
+  UserRound,
   Users,
+  X,
   XCircle,
-  AlertTriangle,
-  KeyRound,
 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 
@@ -29,11 +32,15 @@ interface CompanyInfo {
   is_approved: boolean;
   industry?: string;
   website?: string;
+  address?: string;
 }
 
 interface SeekerInfo {
   id: number;
   current_job_title?: string;
+  domicile?: string;
+  gender?: string;
+  bio?: string;
 }
 
 interface UserItem {
@@ -59,9 +66,24 @@ interface Props {
     role?: string;
     search?: string;
   };
+  counts?: {
+    pelamar: number;
+    perusahaan: number;
+  };
 }
 
-export default function AdminUsersIndex({ users, filters }: Props): ReactElement {
+const numberFormat = new Intl.NumberFormat('id-ID');
+
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+export default function AdminUsersIndex({ users, filters, counts }: Props): ReactElement {
   const [role, setRole] = useState(filters.role ?? '');
   const [search, setSearch] = useState(filters.search ?? '');
   const [action, setAction] = useState<'deactivate' | 'activate' | 'destroy' | null>(null);
@@ -79,7 +101,6 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
 
   const closeAction = (): void => {
     setAction(null);
-    setSelectedUser(null);
     setCurrentPassword('');
     setErrorBag({});
   };
@@ -106,293 +127,88 @@ export default function AdminUsersIndex({ users, filters }: Props): ReactElement
     router.post(`${url}/${action}`, data, options);
   };
 
-  const applyFilters = (): void => {
-    router.get(
-      '/admin/users',
-      {
-        role: role || undefined,
-        search: search || undefined,
-      },
-      { preserveState: true }
-    );
+  const applyFilters = (nextRole = role): void => {
+    router.get('/admin/users', { role: nextRole || undefined, search: search || undefined }, { preserveState: true, preserveScroll: true });
   };
 
   const handleToggleVerify = (companyId: number, currentApproved: boolean): void => {
     const actionText = currentApproved ? 'mencabut verifikasi' : 'memverifikasi';
     if (confirm(`Yakin ingin ${actionText} akun perusahaan ini?`)) {
-      router.post(`/admin/companies/${companyId}/verify`, {
-        is_approved: !currentApproved,
-      });
+      router.post(`/admin/companies/${companyId}/verify`, { is_approved: !currentApproved }, { preserveScroll: true });
     }
   };
 
+  const closeDetails = (): void => setSelectedUser(null);
+  const activeRole = filters.role ?? '';
+
   return (
-    <AppLayout>
-      <Head title="Kelola Pengguna & Verifikasi - Admin Profabel" />
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Kelola Pengguna Platform</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Daftar pelamar, verifikasi kredibilitas akun perusahaan, dan audit pengguna terdaftar.
-            </p>
-          </div>
-        </div>
+    <AdminLayout>
+      <Head title="Kelola Pengguna - AKSARA" />
+      <main className="min-h-screen bg-[#F5F9FD] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1440px]">
+          <header className="mb-6">
+            <p className="mb-2 text-sm font-semibold text-blue-600">Manajemen platform</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#102B4B] sm:text-4xl">Kelola pengguna</h1>
+            <p className="mt-2 text-sm text-slate-500">Kelola data pelamar dan perusahaan yang terdaftar di AKSARA.</p>
+          </header>
 
-        {/* Filters Bar */}
-        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-              placeholder="Cari nama pengguna atau email..."
-              aria-label="Cari nama pengguna atau email"
-              className="pl-10 min-h-[44px]"
-            />
+          <div className="mb-6 grid gap-4 sm:grid-cols-2">
+            <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_24px_rgba(31,65,114,0.05)]">
+              <div className="flex items-center gap-3"><div className="rounded-xl bg-blue-50 p-3 text-blue-600"><CircleUserRound className="h-5 w-5" /></div><div><p className="text-sm text-slate-500">Total pelamar</p><p className="text-2xl font-extrabold text-[#102B4B]">{numberFormat.format(counts?.pelamar ?? 0)}</p></div></div>
+            </article>
+            <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_24px_rgba(31,65,114,0.05)]">
+              <div className="flex items-center gap-3"><div className="rounded-xl bg-violet-50 p-3 text-violet-600"><Building2 className="h-5 w-5" /></div><div><p className="text-sm text-slate-500">Total perusahaan</p><p className="text-2xl font-extrabold text-[#102B4B]">{numberFormat.format(counts?.perusahaan ?? 0)}</p></div></div>
+            </article>
           </div>
 
-          <div className="sm:w-48">
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 p-2.5 text-sm min-h-[44px]"
-              aria-label="Filter berdasarkan role pengguna"
-            >
-              <option value="">Semua Role</option>
-              <option value="pelamar">Pelamar Kerja</option>
-              <option value="perusahaan">Perusahaan / HR</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
+          <section className="rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_24px_rgba(31,65,114,0.05)]">
+            <nav className="flex overflow-x-auto border-b border-slate-100 px-4 sm:px-6" aria-label="Jenis pengguna">
+              {[
+                { label: `Pelamar (${numberFormat.format(counts?.pelamar ?? 0)})`, value: 'pelamar', icon: UserRound },
+                { label: `Perusahaan (${numberFormat.format(counts?.perusahaan ?? 0)})`, value: 'perusahaan', icon: Building2 },
+              ].map(({ label, value, icon: Icon }) => (
+                <button key={value} type="button" onClick={() => { setRole(value); applyFilters(value); }} className={`inline-flex min-h-14 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-bold transition ${activeRole === value ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`} aria-current={activeRole === value ? 'page' : undefined}>
+                  <Icon className="h-4 w-4" aria-hidden="true" />{label}
+                </button>
+              ))}
+              <button type="button" onClick={() => { setRole(''); applyFilters(''); }} className={`inline-flex min-h-14 shrink-0 items-center border-b-2 px-4 text-sm font-bold transition ${activeRole === '' ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`} aria-current={activeRole === '' ? 'page' : undefined}>Semua pengguna</button>
+            </nav>
 
-          <Button onClick={applyFilters} className="bg-slate-900 hover:bg-slate-800 min-h-[44px]">
-            Filter
-          </Button>
-        </div>
-
-        {/* Users Table */}
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
-              <tr>
-                <th className="px-6 py-4">Pengguna</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Informasi Profil</th>
-                <th className="px-6 py-4">Status Akun</th>
-                <th className="px-6 py-4 text-right">Aksi Moderasi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {users.data.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-400">
-                    Tidak ada pengguna yang cocok dengan kriteria filter.
-                  </td>
-                </tr>
-              ) : (
-                users.data.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900">{u.name}</div>
-                      <div className="text-xs text-slate-500">{u.email}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          u.role === 'admin'
-                            ? 'bg-purple-100 text-purple-800'
-                            : u.role === 'perusahaan'
-                            ? 'bg-indigo-100 text-indigo-800'
-                            : 'bg-teal-100 text-teal-800'
-                        }`}
-                      >
-                        {u.role.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-xs text-slate-600">
-                      {u.company_profile && (
-                        <div>
-                          <strong className="text-slate-800">{u.company_profile.company_name}</strong>
-                          <div className="text-slate-400">{u.company_profile.industry ?? 'Industri umum'}</div>
-                        </div>
-                      )}
-                      {u.job_seeker_profile && (
-                        <span>{u.job_seeker_profile.current_job_title ?? 'Pencari kerja'}</span>
-                      )}
-                      {u.role === 'admin' && <span className="text-slate-400">Pengelola Platform</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      {u.is_disabled ? (
-                        <div className="space-y-1">
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700">
-                            <XCircle className="h-4 w-4" />
-                            Dinonaktifkan
-                          </span>
-                          {u.scheduled_deletion_at && (
-                            <div className="text-xs text-slate-500">
-                              Dihapus {new Date(u.scheduled_deletion_at).toLocaleDateString('id-ID')}
-                            </div>
-                          )}
-                        </div>
-                      ) : u.role === 'perusahaan' && u.company_profile ? (
-                        u.company_profile.is_approved ? (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
-                            <CheckCircle2 className="h-4 w-4" />
-                            Terverifikasi
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700">
-                            <XCircle className="h-4 w-4" />
-                            Menunggu Verifikasi
-                          </span>
-                        )
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                          <CheckCircle2 className="h-4 w-4 text-slate-400" />
-                          Aktif
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        {u.role === 'perusahaan' && u.company_profile && (
-                          <Button
-                            variant={u.company_profile.is_approved ? 'outline' : 'default'}
-                            onClick={() => handleToggleVerify(u.company_profile!.id, u.company_profile!.is_approved)}
-                            className={`text-xs min-h-[44px] ${
-                              u.company_profile.is_approved
-                                ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
-                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                            }`}
-                          >
-                            {u.company_profile.is_approved ? 'Cabut Verifikasi' : 'Verifikasi Akun'}
-                          </Button>
-                        )}
-                        {u.role !== 'admin' && (
-                          <>
-                            <Button
-                              variant="outline"
-                              onClick={() => openAction(u.is_disabled ? 'activate' : 'deactivate', u)}
-                              className={`min-h-[44px] text-xs ${
-                                u.is_disabled
-                                  ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
-                                  : 'border-amber-200 text-amber-700 hover:bg-amber-50'
-                              }`}
-                            >
-                              {u.is_disabled ? 'Aktifkan' : 'Nonaktifkan'}
-                            </Button>
-                            {u.is_disabled && (
-                              <Button
-                                variant="destructive"
-                                onClick={() => openAction('destroy', u)}
-                                className="min-h-[44px] text-xs"
-                              >
-                                Hapus sekarang
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <Dialog open={Boolean(action && selectedUser)} onOpenChange={(open) => !open && closeAction()}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {action === 'destroy'
-                  ? 'Hapus akun secara permanen?'
-                  : action === 'activate'
-                    ? 'Aktifkan akun pengguna?'
-                    : 'Nonaktifkan akun pengguna?'}
-              </DialogTitle>
-              <DialogDescription>
-                {action === 'destroy'
-                  ? `Akun ${selectedUser?.name} dan seluruh datanya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`
-                  : action === 'activate'
-                    ? `Akun ${selectedUser?.name} akan dapat digunakan kembali.`
-                    : `Akun ${selectedUser?.name} akan dinonaktifkan selama 30 hari sebelum dihapus otomatis.`}
-              </DialogDescription>
-            </DialogHeader>
-
-            {action === 'destroy' && (
-              <div className="flex gap-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
-                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                <span>Pastikan akun ini memang harus dihapus sekarang.</span>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label htmlFor="admin-current-password" className="text-sm font-medium text-slate-900">
-                Password admin
-              </label>
-              <div className="relative">
-                <KeyRound className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  id="admin-current-password"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(event) => setCurrentPassword(event.target.value)}
-                  placeholder="Masukkan password akun admin"
-                  autoComplete="current-password"
-                  className="pl-9"
-                  disabled={isSubmitting}
-                />
-              </div>
-              {errorBag.current_password && (
-                <p className="text-sm text-rose-600">{errorBag.current_password}</p>
-              )}
+            <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:p-5">
+              <div className="relative min-w-0 flex-1"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden="true" /><Input value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && applyFilters()} placeholder="Cari nama, email, atau perusahaan..." aria-label="Cari pengguna" className="min-h-11 rounded-xl pl-10" /></div>
+              <select value={role} onChange={(event) => { setRole(event.target.value); applyFilters(event.target.value); }} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600" aria-label="Filter jenis pengguna"><option value="">Semua pengguna</option><option value="pelamar">Pelamar</option><option value="perusahaan">Perusahaan</option></select>
+              <Button onClick={() => applyFilters()} className="min-h-11 rounded-xl bg-[#1769E0] px-5 hover:bg-[#1254B5]">Cari</Button>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeAction} disabled={isSubmitting}>
-                Batal
-              </Button>
-              <Button
-                type="button"
-                variant={action === 'destroy' ? 'destructive' : 'default'}
-                onClick={submitAction}
-                disabled={!currentPassword || isSubmitting}
-              >
-                {isSubmitting
-                  ? 'Memproses...'
-                  : action === 'destroy'
-                    ? 'Hapus permanen'
-                    : action === 'activate'
-                      ? 'Aktifkan akun'
-                      : 'Nonaktifkan akun'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <div className="overflow-x-auto">
+              <table className="min-w-[820px] w-full text-left text-sm">
+                <thead className="bg-[#F8FBFF] text-xs font-bold text-slate-500"><tr><th className="px-5 py-4">Pengguna</th><th className="px-5 py-4">Tipe</th><th className="px-5 py-4">Profil</th><th className="px-5 py-4">Status</th><th className="px-5 py-4 text-right">Aksi</th></tr></thead>
+                <tbody className="divide-y divide-slate-100">
+                  {users.data.length === 0 ? <tr><td colSpan={5} className="px-5 py-12 text-center text-slate-400">Tidak ada pengguna yang cocok dengan filter.</td></tr> : users.data.map((user) => (
+                    <tr key={user.id} className="transition hover:bg-blue-50/40">
+                      <td className="px-5 py-4"><button type="button" onClick={() => setSelectedUser(user)} className="flex items-center gap-3 text-left"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-extrabold text-blue-700">{initials(user.name)}</span><span><span className="block font-bold text-slate-800">{user.name}</span><span className="block text-xs text-slate-500">{user.email}</span></span></button></td>
+                      <td className="px-5 py-4"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold capitalize text-slate-600">{user.role}</span></td>
+                      <td className="px-5 py-4 text-xs text-slate-600">{user.company_profile?.company_name ?? user.job_seeker_profile?.current_job_title ?? 'Profil belum dilengkapi'}</td>
+                      <td className="px-5 py-4">{user.is_disabled ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700"><XCircle className="h-3.5 w-3.5" />Nonaktif</span> : user.role === 'perusahaan' && user.company_profile ? user.company_profile.is_approved ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />Terverifikasi</span> : <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700"><ShieldCheck className="h-3.5 w-3.5" />Menunggu</span> : <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />Aktif</span>}</td>
+                      <td className="px-5 py-4"><div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setSelectedUser(user)} className="min-h-10 rounded-lg text-xs">Detail <ChevronRight className="ml-1 h-3.5 w-3.5" /></Button>{user.role === 'perusahaan' && user.company_profile && <Button type="button" variant="outline" onClick={() => handleToggleVerify(user.company_profile!.id, user.company_profile!.is_approved)} className="min-h-10 rounded-lg text-xs">{user.company_profile.is_approved ? 'Cabut' : 'Verifikasi'}</Button>} {user.role !== 'admin' && <Button type="button" variant="ghost" onClick={() => openAction(user.is_disabled ? 'activate' : 'deactivate', user)} className="min-h-10 rounded-lg px-2 text-xs text-slate-500">{user.is_disabled ? 'Aktifkan' : 'Nonaktifkan'}</Button>}</div></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Pagination Links */}
-        {users.links && users.links.length > 3 && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5">
-            {users.links.map((link, i) => (
-              <Link
-                key={i}
-                href={link.url ?? '#'}
-                dangerouslySetInnerHTML={{ __html: link.label }}
-                className={`rounded-lg px-3.5 py-2 text-xs font-semibold min-h-[44px] min-w-[44px] flex items-center justify-center transition ${
-                  link.active
-                    ? 'bg-slate-900 text-white'
-                    : link.url
-                    ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </AppLayout>
+            {users.links && users.links.length > 3 && <div className="flex flex-wrap items-center justify-center gap-1.5 border-t border-slate-100 p-4">{users.links.map((link, index) => <Link key={index} href={link.url ?? '#'} dangerouslySetInnerHTML={{ __html: link.label }} className={`flex min-h-10 min-w-10 items-center justify-center rounded-lg px-3 text-xs font-bold ${link.active ? 'bg-[#1769E0] text-white' : link.url ? 'border border-slate-200 text-slate-600 hover:bg-slate-50' : 'cursor-not-allowed bg-slate-50 text-slate-300'}`} />)}</div>}
+          </section>
+        </div>
+      </main>
+
+      {selectedUser && !action && <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl" aria-label="Detail pengguna">
+        <div className="flex items-start justify-between border-b border-slate-100 p-5"><div><p className="text-sm font-semibold text-blue-600">Detail pengguna</p><h2 className="mt-1 text-xl font-extrabold text-[#102B4B]">{selectedUser.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedUser.email}</p></div><button type="button" onClick={closeDetails} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-800" aria-label="Tutup detail"><X className="h-5 w-5" /></button></div>
+        <div className="flex-1 space-y-6 overflow-y-auto p-5"><div className="flex items-center gap-3"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-lg font-extrabold text-blue-700">{initials(selectedUser.name)}</span><div><p className="font-bold capitalize text-slate-800">{selectedUser.role}</p><p className={`mt-1 text-xs font-bold ${selectedUser.is_disabled ? 'text-rose-600' : 'text-emerald-600'}`}>{selectedUser.is_disabled ? 'Akun nonaktif' : 'Akun aktif'}</p></div></div><section><h3 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B]"><Users className="h-4 w-4 text-blue-600" />Informasi dasar</h3><dl className="space-y-3 text-sm"><div className="flex justify-between gap-4"><dt className="text-slate-500">Nama</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.name}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Email</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.email}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Terdaftar</dt><dd className="text-right font-semibold text-slate-700">{new Date(selectedUser.created_at).toLocaleDateString('id-ID')}</dd></div></dl></section>{selectedUser.company_profile && <section><h3 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B]"><Building2 className="h-4 w-4 text-violet-600" />Informasi perusahaan</h3><dl className="space-y-3 text-sm"><div className="flex justify-between gap-4"><dt className="text-slate-500">Nama</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.company_profile.company_name}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Industri</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.company_profile.industry ?? 'Belum diisi'}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Website</dt><dd className="max-w-[210px] truncate text-right font-semibold text-blue-600">{selectedUser.company_profile.website ?? 'Belum diisi'}</dd></div></dl></section>}{selectedUser.job_seeker_profile && <section><h3 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B]"><UserRound className="h-4 w-4 text-blue-600" />Informasi pelamar</h3><dl className="space-y-3 text-sm"><div className="flex justify-between gap-4"><dt className="text-slate-500">Posisi</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.job_seeker_profile.current_job_title ?? 'Belum diisi'}</dd></div><div className="flex justify-between gap-4"><dt className="text-slate-500">Domisili</dt><dd className="text-right font-semibold text-slate-700">{selectedUser.job_seeker_profile.domicile ?? 'Belum diisi'}</dd></div></dl></section>}</div>
+        <div className="border-t border-slate-100 p-5">{selectedUser.role !== 'admin' && <Button type="button" onClick={() => openAction(selectedUser.is_disabled ? 'activate' : 'deactivate', selectedUser)} className="min-h-11 w-full rounded-xl bg-[#1769E0] hover:bg-[#1254B5]">{selectedUser.is_disabled ? 'Aktifkan akun' : 'Nonaktifkan akun'}</Button>}</div>
+      </aside>}
+
+      <Dialog open={Boolean(action && selectedUser)} onOpenChange={(open) => !open && closeAction()}><DialogContent><DialogHeader><DialogTitle>{action === 'destroy' ? 'Hapus akun secara permanen?' : action === 'activate' ? 'Aktifkan akun pengguna?' : 'Nonaktifkan akun pengguna?'}</DialogTitle><DialogDescription>{action === 'destroy' ? `Akun ${selectedUser?.name} dan seluruh datanya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.` : action === 'activate' ? `Akun ${selectedUser?.name} akan dapat digunakan kembali.` : `Akun ${selectedUser?.name} akan dinonaktifkan selama 30 hari sebelum dihapus otomatis.`}</DialogDescription></DialogHeader>{action === 'destroy' && <div className="flex gap-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" /><span>Pastikan akun ini memang harus dihapus sekarang.</span></div>}<div className="space-y-2"><label htmlFor="admin-current-password" className="text-sm font-medium text-slate-900">Password admin</label><div className="relative"><KeyRound className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><Input id="admin-current-password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} placeholder="Masukkan password akun admin" autoComplete="current-password" className="pl-9" disabled={isSubmitting} /></div>{errorBag.current_password && <p className="text-sm text-rose-600">{errorBag.current_password}</p>}</div><DialogFooter><Button type="button" variant="outline" onClick={closeAction} disabled={isSubmitting}>Batal</Button><Button type="button" variant={action === 'destroy' ? 'destructive' : 'default'} onClick={submitAction} disabled={!currentPassword || isSubmitting}>{isSubmitting ? 'Memproses...' : action === 'destroy' ? 'Hapus permanen' : action === 'activate' ? 'Aktifkan akun' : 'Nonaktifkan akun'}</Button></DialogFooter></DialogContent></Dialog>
+    </AdminLayout>
   );
 }

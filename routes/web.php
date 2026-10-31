@@ -56,6 +56,7 @@ Route::prefix('admin')
     ->group(function () {
         Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)->name('admin.dashboard');
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/companies/verification', [\App\Http\Controllers\Admin\UserController::class, 'verificationIndex'])->name('admin.companies.verification');
         Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::post('/users/{user}/activate', [\App\Http\Controllers\Admin\UserController::class, 'activate'])->name('admin.users.activate');
         Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
@@ -64,6 +65,7 @@ Route::prefix('admin')
         Route::patch('/vacancies/{vacancy}/status', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'updateStatus'])->name('admin.vacancies.updateStatus');
         Route::delete('/vacancies/{vacancy}', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'destroy'])->name('admin.vacancies.destroy');
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('admin.reports.export');
     });
 
 Route::prefix('{current_team}')

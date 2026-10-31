@@ -31,6 +31,12 @@ class VacancyModerationController extends Controller
         return Inertia::render('admin/vacancies/index', [
             'vacancies' => $vacancies,
             'filters' => $request->only(['status', 'search']),
+            'counts' => [
+                'total' => Vacancy::count(),
+                'active' => Vacancy::where('status', 'active')->count(),
+                'closed' => Vacancy::where('status', 'closed')->count(),
+                'draft' => Vacancy::where('status', 'draft')->count(),
+            ],
         ]);
     }
 

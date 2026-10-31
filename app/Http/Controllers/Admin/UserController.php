@@ -33,6 +33,40 @@ class UserController extends Controller
         return Inertia::render('admin/users/index', [
             'users' => $users,
             'filters' => $request->only(['role', 'search']),
+            'counts' => [
+                'pelamar' => User::where('role', 'pelamar')->count(),
+                'perusahaan' => User::where('role', 'perusahaan')->count(),
+            ],
+        ]);
+    }
+
+    public function verificationIndex(Request $request): Response
+    {
+        $query = CompanyProfile::with('user')->withCount('vacancies')->latest();
+
+        if ($status = $request->input('status')) {
+            $query->when($status === 'pending', fn ($builder) => $builder->where('is_approved', false))
+                ->when($status === 'verified', fn ($builder) => $builder->where('is_approved', true));
+        }
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('industry', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($userQuery) => $userQuery->where('email', 'like', "%{$search}%"));
+            });
+        }
+
+        $companies = $query->paginate(15)->withQueryString();
+
+        return Inertia::render('admin/companies/verification', [
+            'companies' => $companies,
+            'filters' => $request->only(['status', 'search']),
+            'counts' => [
+                'all' => CompanyProfile::count(),
+                'pending' => CompanyProfile::where('is_approved', false)->count(),
+                'verified' => CompanyProfile::where('is_approved', true)->count(),
+            ],
         ]);
     }
 

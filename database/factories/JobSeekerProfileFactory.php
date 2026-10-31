@@ -20,6 +20,7 @@ class JobSeekerProfileFactory extends Factory
             'experience' => '2 tahun sebagai frontend developer',
             'current_job_title' => 'Frontend Developer',
             'cv_path' => null,
+            'domicile' => fake()->city(),
             'profile_completed_percentage' => 0,
         ];
     }

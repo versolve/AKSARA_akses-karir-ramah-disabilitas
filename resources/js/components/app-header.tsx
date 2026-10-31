@@ -65,7 +65,8 @@ export function AppHeader(): ReactElement {
         navLinks = [
             { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
             { title: 'Kelola Pengguna', href: '/admin/users', icon: Users },
-            { title: 'Moderasi Lowongan', href: '/admin/vacancies', icon: ShieldCheck },
+            { title: 'Verifikasi Perusahaan', href: '/admin/companies/verification', icon: ShieldCheck },
+            { title: 'Kelola Lowongan', href: '/admin/vacancies', icon: Briefcase },
             { title: 'Laporan & Statistik', href: '/admin/reports', icon: ChartBar },
             { title: 'Katalog Lowongan', href: '/jobs', icon: Search },
         ];
