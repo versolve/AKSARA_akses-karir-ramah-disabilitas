@@ -42,8 +42,21 @@ interface AiProviderInterface
      * @return array{
      *     ats_score: int,
      *     formatting_grade: string,
+     *     summary?: string,
+     *     category_scores?: array{
+     *         ats_compatibility: int,
+     *         structure_format: int,
+     *         content_relevance: int,
+     *         keyword_usage: int,
+     *         experience_achievement: int,
+     *         project_portfolio: int
+     *     },
      *     strengths: array<string>,
      *     improvements: array<string>,
+     *     strengths_detailed?: array<array{title: string, description: string}>,
+     *     improvements_detailed?: array<array{title: string, description: string}>,
+     *     suggested_keywords?: array<string>,
+     *     action_recommendations?: array<string>,
      *     accessibility_tips: array<string>
      * }
      */

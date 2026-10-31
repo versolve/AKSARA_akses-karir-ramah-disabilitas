@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JobSeekerProfile extends Model
 {
@@ -54,5 +55,10 @@ class JobSeekerProfile extends Model
     public function aiMatches(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AiJobMatch::class);
+    }
+
+    public function aiHistories(): HasMany
+    {
+        return $this->hasMany(AiHistory::class);
     }
 }

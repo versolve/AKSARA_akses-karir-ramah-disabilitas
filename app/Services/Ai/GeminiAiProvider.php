@@ -129,8 +129,10 @@ PROMPT;
 
     public function reviewCvAts(string $cvText, array $targetSkills = []): array
     {
+        $fallbackResult = $this->fallback->reviewCvAts($cvText, $targetSkills);
+
         if (empty($this->apiKey)) {
-            return $this->fallback->reviewCvAts($cvText, $targetSkills);
+            return $fallbackResult;
         }
 
         $skillsStr = implode(', ', $targetSkills);
@@ -148,9 +150,22 @@ Kembalikan evaluasi dalam format JSON murni:
 {
   "ats_score": <integer 0-100>,
   "formatting_grade": "<Sangat Baik (A) / Baik (B) / Cukup (C) / Perlu Perbaikan (D)>",
+  "summary": "ringkasan objektif 2-3 kalimat",
+  "category_scores": {
+    "ats_compatibility": <integer 0-100>,
+    "structure_format": <integer 0-100>,
+    "content_relevance": <integer 0-100>,
+    "keyword_usage": <integer 0-100>,
+    "experience_achievement": <integer 0-100>,
+    "project_portfolio": <integer 0-100>
+  },
   "strengths": ["kelebihan 1", "kelebihan 2"],
-  "improvements": ["perbaikan kata kunci/format 1", "perbaikan 2"],
-  "accessibility_tips": ["tips aksesibilitas untuk screen reader/format ramah disabilitas 1", "tips 2"]
+  "improvements": ["perbaikan 1", "perbaikan 2"],
+  "strengths_detailed": [{"title": "judul singkat", "description": "penjelasan"}],
+  "improvements_detailed": [{"title": "judul singkat", "description": "penjelasan"}],
+  "suggested_keywords": ["kata kunci 1", "kata kunci 2"],
+  "action_recommendations": ["tindakan 1", "tindakan 2"],
+  "accessibility_tips": ["tips aksesibilitas 1", "tips 2"]
 }
 PROMPT;
 
@@ -161,17 +176,67 @@ PROMPT;
             if (isset($parsed['ats_score'], $parsed['strengths'])) {
                 return [
                     'ats_score' => (int) $parsed['ats_score'],
-                    'formatting_grade' => (string) ($parsed['formatting_grade'] ?? 'Baik (B)'),
-                    'strengths' => (array) $parsed['strengths'],
-                    'improvements' => (array) ($parsed['improvements'] ?? []),
-                    'accessibility_tips' => (array) ($parsed['accessibility_tips'] ?? []),
+                    'formatting_grade' => (string) ($parsed['formatting_grade'] ?? $fallbackResult['formatting_grade']),
+                    'summary' => (string) ($parsed['summary'] ?? $fallbackResult['summary']),
+                    'category_scores' => $this->mergeCategoryScores($parsed['category_scores'] ?? null, $fallbackResult['category_scores'] ?? []),
+                    'strengths' => $this->stringsOrFallback($parsed['strengths'] ?? null, $fallbackResult['strengths']),
+                    'improvements' => $this->stringsOrFallback($parsed['improvements'] ?? null, $fallbackResult['improvements']),
+                    'strengths_detailed' => $this->detailsOrFallback($parsed['strengths_detailed'] ?? null, $fallbackResult['strengths_detailed'] ?? []),
+                    'improvements_detailed' => $this->detailsOrFallback($parsed['improvements_detailed'] ?? null, $fallbackResult['improvements_detailed'] ?? []),
+                    'suggested_keywords' => $this->stringsOrFallback($parsed['suggested_keywords'] ?? null, $fallbackResult['suggested_keywords'] ?? []),
+                    'action_recommendations' => $this->stringsOrFallback($parsed['action_recommendations'] ?? null, $fallbackResult['action_recommendations'] ?? []),
+                    'accessibility_tips' => $this->stringsOrFallback($parsed['accessibility_tips'] ?? null, $fallbackResult['accessibility_tips'] ?? []),
                 ];
             }
         } catch (Throwable $e) {
             Log::warning('Gemini AI reviewCvAts failed: ' . $e->getMessage());
         }
 
-        return $this->fallback->reviewCvAts($cvText, $targetSkills);
+        return $fallbackResult;
+    }
+
+    private function stringsOrFallback(mixed $value, array $fallback): array
+    {
+        $strings = is_array($value)
+            ? array_values(array_filter($value, 'is_string'))
+            : [];
+
+        return $strings !== [] ? $strings : $fallback;
+    }
+
+    private function detailsOrFallback(mixed $value, array $fallback): array
+    {
+        if (! is_array($value) || $value === []) {
+            return $fallback;
+        }
+
+        return array_values(array_filter($value, static fn (mixed $detail): bool =>
+            is_array($detail) && is_string($detail['title'] ?? null)
+        ));
+    }
+
+    private function mergeCategoryScores(mixed $value, array $fallback): array
+    {
+        $scores = is_array($value) ? $value : [];
+        $keys = [
+            'ats_compatibility',
+            'structure_format',
+            'content_relevance',
+            'keyword_usage',
+            'experience_achievement',
+            'project_portfolio',
+        ];
+
+        $result = [];
+        foreach ($keys as $key) {
+            if (isset($scores[$key]) && is_numeric($scores[$key])) {
+                $result[$key] = max(0, min(100, (int) $scores[$key]));
+            } elseif (isset($fallback[$key])) {
+                $result[$key] = $fallback[$key];
+            }
+        }
+
+        return $result;
     }
 
     private function callGemini(string $prompt): string

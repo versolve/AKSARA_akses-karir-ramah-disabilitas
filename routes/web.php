@@ -34,6 +34,8 @@ Route::prefix('app')
         Route::post('/ai/match/{vacancy}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'matchVacancy'])->name('app.ai.match');
         Route::post('/ai/skill-gap', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'skillGap'])->name('app.ai.skill-gap');
         Route::post('/ai/cv-review', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'cvReview'])->name('app.ai.cv-review');
+        Route::get('/ai/history', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'listAiHistory']);
+        Route::delete('/ai/history/{history}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'deleteAiHistory']);
     });
 
 Route::prefix('company')
