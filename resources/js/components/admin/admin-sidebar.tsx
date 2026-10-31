@@ -34,7 +34,7 @@ export function AdminSidebar({ mobile = false, onClose }: { mobile?: boolean; on
             label: 'Analitik',
             items: [
                 { title: 'Business Intelligence', href: '/admin/reports', icon: BarChart3 },
-                { title: 'Laporan', href: '/admin/reports', icon: FileText },
+                { title: 'Laporan', href: '/admin/reporting', icon: FileText },
             ],
         },
         { label: 'Sistem', items: [{ title: 'Pengaturan', href: '/settings/profile', icon: Settings }] },

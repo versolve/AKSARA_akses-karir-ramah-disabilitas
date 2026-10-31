@@ -66,6 +66,8 @@ Route::prefix('admin')
         Route::delete('/vacancies/{vacancy}', [\App\Http\Controllers\Admin\VacancyModerationController::class, 'destroy'])->name('admin.vacancies.destroy');
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('admin.reports.export');
+        Route::get('/reporting', [\App\Http\Controllers\Admin\ReportController::class, 'reportingIndex'])->name('admin.reporting.index');
+        Route::get('/reporting/export', [\App\Http\Controllers\Admin\ReportController::class, 'reportingExport'])->name('admin.reporting.export');
     });
 
 Route::prefix('{current_team}')
