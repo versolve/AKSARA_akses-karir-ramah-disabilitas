@@ -74,11 +74,15 @@ export function AppHeader(): ReactElement {
         navLinks = [
             { title: 'Beranda', href: '/', icon: LayoutGrid },
             { title: 'Cari Kerja', href: '/jobs', icon: Search },
+            { title: 'AI Career Assistant', href: '/app/ai-assistant', icon: Sparkles },
         ];
     }
 
     const isActive = (href: string): boolean => {
         if (href === '/') return currentUrl === '/';
+        if (href === '/app/dashboard') {
+            return currentUrl === '/app/dashboard' || currentUrl === '/';
+        }
         return currentUrl.startsWith(href);
     };
 
@@ -215,16 +219,16 @@ export function AppHeader(): ReactElement {
                             </DropdownMenu>
                         </>
                     ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                             <Link
                                 href="/login"
-                                className="rounded-xl border border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#102B4B] hover:bg-slate-50 min-h-[44px] flex items-center"
+                                className="rounded-xl border border-slate-300 bg-white px-5 py-2 text-xs sm:text-sm font-semibold text-[#0B1528] hover:bg-slate-50 transition min-h-[40px] flex items-center"
                             >
                                 Masuk
                             </Link>
                             <Link
                                 href="/register"
-                                className="rounded-xl bg-[#123B5D] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#0C2742] min-h-[44px] flex items-center"
+                                className="rounded-xl bg-[#0B1528] px-5 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#15233D] transition min-h-[40px] flex items-center"
                             >
                                 Daftar
                             </Link>

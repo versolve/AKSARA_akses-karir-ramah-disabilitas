@@ -174,7 +174,114 @@ export default function AdminVacanciesIndex({ vacancies, filters, counts }: Prop
         </div>
       </main>
 
-      {selectedVacancy && <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl" aria-label="Detail lowongan"><div className="flex items-start justify-between border-b border-slate-100 p-5"><div><p className="text-sm font-semibold text-blue-600">Detail lowongan</p><h2 className="mt-1 text-xl font-extrabold text-[#102B4B]">{selectedVacancy.title}</h2><p className="text-sm text-slate-500">{selectedVacancy.company_profile.company_name}</p></div><button type="button" onClick={() => setSelectedVacancy(null)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100" aria-label="Tutup detail"><X className="h-5 w-5" /></button></div><div className="flex-1 space-y-6 overflow-y-auto p-5"><section className="space-y-3"><div className="flex items-center justify-between"><span className="text-xs font-bold uppercase tracking-wider text-slate-400">Status saat ini</span>{statusBadge(selectedVacancy.status)}</div><div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-400">Total pelamar</p><p className="text-2xl font-extrabold text-[#102B4B]">{selectedVacancy.applications_count} pelamar</p></div></section><section><h3 className="mb-3 font-bold text-[#102B4B]">Informasi pekerjaan</h3><dl className="space-y-3 text-sm"><div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Lokasi & Model</dt><dd className="font-semibold capitalize text-slate-700">{selectedVacancy.work_model} · {selectedVacancy.location}</dd></div></div><div className="flex items-start gap-3"><Calendar className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Dibuat</dt><dd className="font-semibold text-slate-700">{new Date(selectedVacancy.created_at).toLocaleDateString('id-ID')}</dd></div></div></dl></section><section><h3 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B]"><Accessibility className="h-4 w-4 text-emerald-600" />Aksesibilitas kerja</h3>{selectedVacancy.accessibilities && selectedVacancy.accessibilities.length > 0 ? <ul className="space-y-2">{selectedVacancy.accessibilities.map((acc) => <li key={acc.id} className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-xs"><p className="font-bold text-emerald-900">{acc.accommodation_type}</p>{acc.description && <p className="mt-1 text-slate-600">{acc.description}</p>}</li>)}</ul> : <p className="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">Tidak ada data akomodasi khusus pada lowongan ini.</p>}</section><Link href={`/jobs/${selectedVacancy.slug}`} target="_blank" className="inline-flex items-center gap-1 text-sm font-bold text-blue-600">Lihat katalog publik <ExternalLink className="h-3.5 w-3.5" /></Link></div><div className="grid gap-2 border-t border-slate-100 p-5 sm:grid-cols-2"><Button variant="outline" onClick={() => handleUpdateStatus(selectedVacancy.id, selectedVacancy.status === 'active' ? 'closed' : 'active')} className="min-h-11 rounded-xl">{selectedVacancy.status === 'active' ? 'Tutup lowongan' : 'Aktifkan lowongan'}</Button><Button variant="outline" onClick={() => handleTakedown(selectedVacancy.id, selectedVacancy.title)} className="min-h-11 rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"><Trash2 className="mr-2 h-4 w-4" />Takedown</Button></div></aside>}
+      {selectedVacancy && (
+        <>
+          <div
+            className="fixed inset-0 top-[72px] z-40 bg-slate-900/20 backdrop-blur-[1px] lg:hidden"
+            onClick={() => setSelectedVacancy(null)}
+            aria-hidden="true"
+          />
+          <aside
+            className="fixed bottom-0 right-0 top-[72px] z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl"
+            aria-label="Detail lowongan"
+          >
+            <div className="flex items-start justify-between border-b border-slate-100 p-5">
+              <div>
+                <p className="text-sm font-semibold text-blue-600">Detail lowongan</p>
+                <h2 className="mt-1 text-xl font-extrabold text-[#102B4B]">{selectedVacancy.title}</h2>
+                <p className="text-sm text-slate-500">{selectedVacancy.company_profile.company_name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedVacancy(null)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+                aria-label="Tutup detail"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 space-y-6 overflow-y-auto p-5">
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Status saat ini</span>
+                  {statusBadge(selectedVacancy.status)}
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs text-slate-400">Total pelamar</p>
+                  <p className="text-2xl font-extrabold text-[#102B4B]">{selectedVacancy.applications_count} pelamar</p>
+                </div>
+              </section>
+              <section>
+                <h3 className="mb-3 font-bold text-[#102B4B]">Informasi pekerjaan</h3>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Lokasi & Model</dt>
+                      <dd className="font-semibold capitalize text-slate-700">
+                        {selectedVacancy.work_model} · {selectedVacancy.location}
+                      </dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Dibuat</dt>
+                      <dd className="font-semibold text-slate-700">
+                        {new Date(selectedVacancy.created_at).toLocaleDateString('id-ID')}
+                      </dd>
+                    </div>
+                  </div>
+                </dl>
+              </section>
+              <section>
+                <h3 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B]">
+                  <Accessibility className="h-4 w-4 text-emerald-600" />
+                  Aksesibilitas kerja
+                </h3>
+                {selectedVacancy.accessibilities && selectedVacancy.accessibilities.length > 0 ? (
+                  <ul className="space-y-2">
+                    {selectedVacancy.accessibilities.map((acc) => (
+                      <li key={acc.id} className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-xs">
+                        <p className="font-bold text-emerald-900">{acc.accommodation_type}</p>
+                        {acc.description && <p className="mt-1 text-slate-600">{acc.description}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
+                    Tidak ada data akomodasi khusus pada lowongan ini.
+                  </p>
+                )}
+              </section>
+              <Link
+                href={`/jobs/${selectedVacancy.slug}`}
+                target="_blank"
+                className="inline-flex items-center gap-1 text-sm font-bold text-blue-600"
+              >
+                Lihat katalog publik <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <div className="grid gap-2 border-t border-slate-100 p-5 sm:grid-cols-2">
+              <Button
+                variant="outline"
+                onClick={() => handleUpdateStatus(selectedVacancy.id, selectedVacancy.status === 'active' ? 'closed' : 'active')}
+                className="min-h-11 rounded-xl"
+              >
+                {selectedVacancy.status === 'active' ? 'Tutup lowongan' : 'Aktifkan lowongan'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleTakedown(selectedVacancy.id, selectedVacancy.title)}
+                className="min-h-11 rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Takedown
+              </Button>
+            </div>
+          </aside>
+        </>
+      )}
     </AdminLayout>
   );
 }

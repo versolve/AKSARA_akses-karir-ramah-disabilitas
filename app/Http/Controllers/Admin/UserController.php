@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
+use App\Models\JobSeekerProfile;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,28 +16,87 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = User::with(['companyProfile', 'jobSeekerProfile']);
+        $role = $request->input('role', 'pelamar');
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $gender = $request->input('gender');
+        $domicile = $request->input('domicile');
+        $disability = $request->input('disability');
 
-        if ($role = $request->input('role')) {
+        $query = User::with(['companyProfile', 'jobSeekerProfile', 'accessibilityProfile']);
+
+        if ($role && in_array($role, ['pelamar', 'perusahaan', 'admin'], true)) {
             $query->where('role', $role);
         }
 
-        if ($search = $request->input('search')) {
+        if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereHas('companyProfile', fn ($cq) => $cq->where('company_name', 'like', "%{$search}%")->orWhere('industry', 'like', "%{$search}%"))
+                  ->orWhereHas('jobSeekerProfile', fn ($jq) => $jq->where('current_job_title', 'like', "%{$search}%")->orWhere('skills', 'like', "%{$search}%"));
             });
         }
 
-        $users = $query->latest()->paginate(15)->withQueryString();
+        if ($status === 'active') {
+            $query->where('is_disabled', false);
+        } elseif ($status === 'disabled') {
+            $query->where('is_disabled', true);
+        }
+
+        if ($gender) {
+            $query->whereHas('jobSeekerProfile', fn ($q) => $q->where('gender', $gender));
+        }
+
+        if ($domicile) {
+            $query->where(function ($q) use ($domicile) {
+                $q->whereHas('jobSeekerProfile', fn ($jq) => $jq->where('domicile', 'like', "%{$domicile}%"))
+                  ->orWhereHas('companyProfile', fn ($cq) => $cq->where('address', 'like', "%{$domicile}%"));
+            });
+        }
+
+        if ($disability) {
+            $query->whereHas('accessibilityProfile', function ($q) use ($disability) {
+                $q->where('disability_types', 'like', "%{$disability}%");
+            });
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        // Base query for current role counts
+        $baseRoleQuery = User::query();
+        if ($role && in_array($role, ['pelamar', 'perusahaan', 'admin'], true)) {
+            $baseRoleQuery->where('role', $role);
+        }
+
+        $totalCount = (clone $baseRoleQuery)->count();
+        $activeCount = (clone $baseRoleQuery)->where('is_disabled', false)->count();
+        $disabledCount = (clone $baseRoleQuery)->where('is_disabled', true)->count();
+        $newCount = (clone $baseRoleQuery)->where('created_at', '>=', now()->subDays(30))->count();
+
+        $domiciles = JobSeekerProfile::whereNotNull('domicile')->where('domicile', '!=', '')->pluck('domicile')->unique()->values()->all();
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
-            'filters' => $request->only(['role', 'search']),
+            'filters' => [
+                'role' => $role,
+                'search' => $search ?? '',
+                'status' => $status ?? '',
+                'gender' => $gender ?? '',
+                'domicile' => $domicile ?? '',
+                'disability' => $disability ?? '',
+            ],
             'counts' => [
                 'pelamar' => User::where('role', 'pelamar')->count(),
                 'perusahaan' => User::where('role', 'perusahaan')->count(),
+                'total' => $totalCount,
+                'active' => $activeCount,
+                'disabled' => $disabledCount,
+                'new_30_days' => $newCount,
+                'active_pct' => $totalCount > 0 ? round(($activeCount / $totalCount) * 100, 1) : 0,
+                'disabled_pct' => $totalCount > 0 ? round(($disabledCount / $totalCount) * 100, 1) : 0,
             ],
+            'availableDomiciles' => $domiciles,
         ]);
     }
 

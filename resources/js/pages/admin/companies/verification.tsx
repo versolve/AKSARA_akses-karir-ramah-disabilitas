@@ -101,7 +101,117 @@ export default function CompanyVerification({ companies, filters, counts }: Prop
         </div>
       </main>
 
-      {selectedCompany && <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl" aria-label="Detail verifikasi perusahaan"><div className="flex items-start justify-between border-b border-slate-100 p-5"><div><p className="text-sm font-semibold text-blue-600">Detail verifikasi</p><h2 className="mt-1 text-xl font-extrabold text-[#102B4B]">{selectedCompany.company_name}</h2><span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${selectedCompany.is_approved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{selectedCompany.is_approved ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}{selectedCompany.is_approved ? 'Terverifikasi' : 'Menunggu verifikasi'}</span></div><button type="button" onClick={() => setSelectedCompany(null)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100" aria-label="Tutup detail"><X className="h-5 w-5" /></button></div><div className="flex-1 space-y-6 overflow-y-auto p-5"><section><h3 className="mb-3 font-bold text-[#102B4B]">Informasi perusahaan</h3><dl className="space-y-3 text-sm"><div className="flex items-start gap-3"><Building2 className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Industri</dt><dd className="font-semibold text-slate-700">{selectedCompany.industry ?? 'Belum diisi'}</dd></div></div><div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Email</dt><dd className="font-semibold text-slate-700">{selectedCompany.user?.email ?? 'Tidak tersedia'}</dd></div></div><div className="flex items-start gap-3"><Globe2 className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Website</dt><dd className="font-semibold text-blue-600">{selectedCompany.website ?? 'Belum diisi'}</dd></div></div><div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-blue-600" /><div><dt className="text-xs text-slate-400">Alamat</dt><dd className="font-semibold text-slate-700">{selectedCompany.address ?? 'Belum diisi'}</dd></div></div></dl></section><section className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><h3 className="flex items-center gap-2 font-bold text-[#102B4B]"><ShieldCheck className="h-4 w-4 text-emerald-600" />Pemeriksaan profil</h3><p className="mt-2 text-sm leading-6 text-slate-600">Data yang tampil berasal dari profil perusahaan. Dokumen legal dan data aksesibilitas belum tersedia pada model saat ini.</p>{selectedCompany.website && <a href={selectedCompany.website} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-blue-600">Buka website <ExternalLink className="h-3.5 w-3.5" /></a>}</section></div><div className="grid gap-2 border-t border-slate-100 p-5 sm:grid-cols-2">{selectedCompany.is_approved ? <Button variant="outline" onClick={() => updateVerification(selectedCompany, false)} className="min-h-11 rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"><XCircle className="mr-2 h-4 w-4" />Cabut verifikasi</Button> : <><Button variant="outline" onClick={() => setSelectedCompany(null)} className="min-h-11 rounded-xl">Tutup</Button><Button onClick={() => updateVerification(selectedCompany, true)} className="min-h-11 rounded-xl bg-[#1769E0] hover:bg-[#1254B5]"><CheckCircle2 className="mr-2 h-4 w-4" />Setujui</Button></>}</div></aside>}
+      {selectedCompany && (
+        <>
+          <div
+            className="fixed inset-0 top-[72px] z-40 bg-slate-900/20 backdrop-blur-[1px] lg:hidden"
+            onClick={() => setSelectedCompany(null)}
+            aria-hidden="true"
+          />
+          <aside
+            className="fixed bottom-0 right-0 top-[72px] z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl"
+            aria-label="Detail verifikasi perusahaan"
+          >
+            <div className="flex items-start justify-between border-b border-slate-100 p-5">
+              <div>
+                <p className="text-sm font-semibold text-blue-600">Detail verifikasi</p>
+                <h2 className="mt-1 text-xl font-extrabold text-[#102B4B]">{selectedCompany.company_name}</h2>
+                <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${selectedCompany.is_approved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                  {selectedCompany.is_approved ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
+                  {selectedCompany.is_approved ? 'Terverifikasi' : 'Menunggu verifikasi'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedCompany(null)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100"
+                aria-label="Tutup detail"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 space-y-6 overflow-y-auto p-5">
+              <section>
+                <h3 className="mb-3 font-bold text-[#102B4B]">Informasi perusahaan</h3>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Industri</dt>
+                      <dd className="font-semibold text-slate-700">{selectedCompany.industry ?? 'Belum diisi'}</dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Mail className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Email</dt>
+                      <dd className="font-semibold text-slate-700">{selectedCompany.user?.email ?? 'Tidak tersedia'}</dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Globe2 className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Website</dt>
+                      <dd className="font-semibold text-blue-600">{selectedCompany.website ?? 'Belum diisi'}</dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 text-blue-600" />
+                    <div>
+                      <dt className="text-xs text-slate-400">Alamat</dt>
+                      <dd className="font-semibold text-slate-700">{selectedCompany.address ?? 'Belum diisi'}</dd>
+                    </div>
+                  </div>
+                </dl>
+              </section>
+              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <h3 className="flex items-center gap-2 font-bold text-[#102B4B]">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  Pemeriksaan profil
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Data yang tampil berasal dari profil perusahaan. Dokumen legal dan data aksesibilitas belum tersedia pada model saat ini.
+                </p>
+                {selectedCompany.website && (
+                  <a
+                    href={selectedCompany.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-blue-600"
+                  >
+                    Buka website <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </section>
+            </div>
+            <div className="grid gap-2 border-t border-slate-100 p-5 sm:grid-cols-2">
+              {selectedCompany.is_approved ? (
+                <Button
+                  variant="outline"
+                  onClick={() => updateVerification(selectedCompany, false)}
+                  className="min-h-11 rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Cabut verifikasi
+                </Button>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => setSelectedCompany(null)} className="min-h-11 rounded-xl">
+                    Tutup
+                  </Button>
+                  <Button
+                    onClick={() => updateVerification(selectedCompany, true)}
+                    className="min-h-11 rounded-xl bg-[#1769E0] hover:bg-[#1254B5]"
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Setujui
+                  </Button>
+                </>
+              )}
+            </div>
+          </aside>
+        </>
+      )}
     </AdminLayout>
   );
 }

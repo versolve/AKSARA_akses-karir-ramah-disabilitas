@@ -23,9 +23,13 @@ class ApplicationMessageController extends Controller
         abort_unless($isApplicant || $isCompany || $isAdmin, 403, 'Anda tidak berhak mengakses percakapan ini.');
     }
 
-    public function inbox(Request $request): Response
+    public function inbox(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
+
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.messages.index');
+        }
 
         if ($user->isPelamar()) {
             $seeker = $user->jobSeekerProfile;
@@ -67,11 +71,71 @@ class ApplicationMessageController extends Controller
                 ->update(['is_read' => true]);
         }
 
+        // Load Admin Announcements relevant to this user
+        $allAnnouncements = \App\Http\Controllers\Admin\MessageController::loadAnnouncements();
+        $userAnnouncements = array_values(array_filter($allAnnouncements, function ($a) use ($user) {
+            return $a['target'] === 'all' || $a['target'] === $user->role;
+        }));
+
+        // Load Admin Direct Messages for this user
+        $allDirect = \App\Http\Controllers\Admin\MessageController::loadDirectMessages();
+        $userDirectMessages = array_values(array_filter($allDirect, function ($m) use ($user) {
+            return $m['sender_id'] == $user->id || $m['recipient_id'] == $user->id;
+        }));
+
+        // Mark direct messages from admin as read for this user
+        $updatedAny = false;
+        foreach ($allDirect as &$d) {
+            if ($d['recipient_id'] == $user->id && empty($d['is_read'])) {
+                $d['is_read'] = true;
+                $updatedAny = true;
+            }
+        }
+        unset($d);
+        if ($updatedAny) {
+            \App\Http\Controllers\Admin\MessageController::saveDirectMessages($allDirect);
+        }
+
         return Inertia::render('applications/messages', [
             'conversations' => $conversations,
             'activeApplication' => $activeApplication ? $activeApplication->load(['vacancy.companyProfile', 'jobSeekerProfile.user']) : null,
             'messages' => $messages,
+            'adminAnnouncements' => $userAnnouncements,
+            'adminDirectMessages' => $userDirectMessages,
         ]);
+    }
+
+    public function replyAdmin(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $admin = \App\Models\User::where('role', 'admin')->first();
+        $adminId = $admin ? $admin->id : 1;
+
+        $allDirect = \App\Http\Controllers\Admin\MessageController::loadDirectMessages();
+
+        $newMessage = [
+            'id' => 'dm_' . time() . '_' . \Illuminate\Support\Str::random(6),
+            'sender_id' => $user->id,
+            'sender_name' => $user->name,
+            'sender_role' => $user->role,
+            'recipient_id' => $adminId,
+            'recipient_name' => $admin ? $admin->name : 'Administrator',
+            'subject' => null,
+            'body' => $validated['body'],
+            'is_read' => false,
+            'created_at' => now()->toIso8601String(),
+            'time_ago' => 'Baru saja',
+        ];
+
+        $allDirect[] = $newMessage;
+        \App\Http\Controllers\Admin\MessageController::saveDirectMessages($allDirect);
+
+        return back()->with('status', 'Pesan balasan berhasil dikirim ke Administrator.');
     }
 
     public function index(Request $request, Application $application)

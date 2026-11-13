@@ -68,6 +68,19 @@ Route::prefix('admin')
         Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('admin.reports.export');
         Route::get('/reporting', [\App\Http\Controllers\Admin\ReportController::class, 'reportingIndex'])->name('admin.reporting.index');
         Route::get('/reporting/export', [\App\Http\Controllers\Admin\ReportController::class, 'reportingExport'])->name('admin.reporting.export');
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
+        Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
+        Route::post('/settings/backup', [\App\Http\Controllers\Admin\SettingController::class, 'backup'])->name('admin.settings.backup');
+        Route::patch('/settings/admin-profile', [\App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.settings.profile');
+        Route::put('/settings/admin-password', [\App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('admin.settings.password');
+        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('admin.notifications.readAll');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+        Route::get('/messages', [\App\Http\Controllers\Admin\MessageController::class, 'index'])->name('admin.messages.index');
+        Route::post('/messages/direct', [\App\Http\Controllers\Admin\MessageController::class, 'storeDirectMessage'])->name('admin.messages.direct');
+        Route::post('/messages/announcement', [\App\Http\Controllers\Admin\MessageController::class, 'storeAnnouncement'])->name('admin.messages.announcement');
+        Route::delete('/messages/announcement/{id}', [\App\Http\Controllers\Admin\MessageController::class, 'destroyAnnouncement'])->name('admin.messages.announcement.destroy');
     });
 
 Route::prefix('{current_team}')
@@ -80,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'update'])->name('profile.avatar.update');
     Route::delete('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
     Route::get('/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'inbox'])->name('messages.inbox');
+    Route::post('/messages/reply-admin', [\App\Http\Controllers\ApplicationMessageController::class, 'replyAdmin'])->name('messages.replyAdmin');
     Route::get('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'index'])->name('applications.messages.index');
     Route::post('/applications/{application}/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'store'])->name('applications.messages.store');
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');

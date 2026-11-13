@@ -1,28 +1,24 @@
 import type { SVGAttributes } from 'react';
 
-export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
+export default function AppLogoIcon({
+    className = 'size-8',
+    ...props
+}: { className?: string } & SVGAttributes<SVGElement>) {
     return (
-        <svg {...props} viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="aksara-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#059669" />
-                    <stop offset="100%" stopColor="#0D9488" />
-                </linearGradient>
-            </defs>
-            {/* Minimalist A shape forming bridge/accessibility path */}
+        <svg
+            {...props}
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+        >
+            {/* Circular blue badge */}
+            <circle cx="24" cy="24" r="24" fill="#1D64EC" />
+            {/* Bold white letter P matching the Profabel brandmark */}
             <path
-                fill="url(#aksara-gradient)"
-                d="M32 4L12 20v24l20 16 20-16V20L32 4zm0 7.5L46.5 21v18L32 51.5 17.5 39V21L32 11.5z"
+                d="M18 13H27.5C31.6421 13 35 16.3579 35 20.5C35 24.6421 31.6421 28 27.5 28H23V35H18V13ZM23 23.5H27C28.6569 23.5 30 22.1569 30 20.5C30 18.8431 28.6569 17.5 27 17.5H23V23.5Z"
+                fill="white"
             />
-            {/* Access ramp symbol */}
-            <path
-                fill="none"
-                stroke="#0D9488"
-                strokeWidth="3"
-                d="M18 32h28l-3 7H21z"
-            />
-            {/* Accessibility focus point */}
-            <circle cx="32" cy="30" r="2.5" fill="#0D9488" />
         </svg>
     );
 }

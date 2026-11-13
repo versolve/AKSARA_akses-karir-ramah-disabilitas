@@ -46,6 +46,12 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'adminNotifications' => fn () => ($user && $user->role === 'admin')
+                ? array_slice(\App\Http\Controllers\Admin\NotificationController::collectAdminNotifications($user), 0, 6)
+                : [],
+            'adminUnreadNotificationsCount' => fn () => ($user && $user->role === 'admin')
+                ? count(array_filter(\App\Http\Controllers\Admin\NotificationController::collectAdminNotifications($user), fn ($n) => !$n['is_read']))
+                : 0,
         ];
     }
 }
