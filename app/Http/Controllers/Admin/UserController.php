@@ -163,9 +163,17 @@ class UserController extends Controller
         $this->authorizeLifecycleAction($request, $user);
         $this->validateAdminPassword($request);
 
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            if ($user->current_team_id) {
+                $team = \App\Models\Team::find($user->current_team_id);
+                if ($team && $team->is_personal) {
+                    $team->delete();
+                }
+            }
+            $user->delete();
+        });
 
-        return back()->with('status', 'Akun pengguna dihapus permanen.');
+        return back()->with('status', 'Akun pengguna berhasil dihapus permanen dari database.');
     }
 
     private function validateAdminPassword(Request $request): void

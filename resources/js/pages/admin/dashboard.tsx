@@ -675,7 +675,7 @@ export default function AdminDashboard({
 
     return (
         <AdminLayout>
-            <Head title="Dashboard Admin - AKSARA" />
+            <Head title="Dashboard Admin - Profabel" />
             <main className="min-h-full w-full overflow-x-hidden bg-[#F5F9FF] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-[1440px] space-y-6">
                     {/* Header with Centralized Time Filter */}
@@ -683,7 +683,7 @@ export default function AdminDashboard({
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-[#101B4D]">Dashboard</h1>
                             <p className="mt-1 text-sm text-slate-500">
-                                Ringkasan data dan aktivitas platform AKSARA untuk memudahkan pemantauan dan pengambilan keputusan.
+                                Ringkasan data dan aktivitas platform Profabel untuk memudahkan pemantauan dan pengambilan keputusan.
                             </p>
                         </div>
 

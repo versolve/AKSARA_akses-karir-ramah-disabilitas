@@ -44,9 +44,20 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => $input['password'],
                 'role' => $role,
-                'is_verified' => $role === 'pelamar',
-                'email_verified_at' => now(),
+                'is_verified' => false,
+                'email_verified_at' => null,
             ]);
+
+            if ($role === 'pelamar') {
+                $user->jobSeekerProfile()->create([
+                    'headline' => 'Pencari Kerja Inklusif',
+                ]);
+            } elseif ($role === 'perusahaan') {
+                $user->companyProfile()->create([
+                    'company_name' => $input['name'],
+                    'address' => '-',
+                ]);
+            }
 
             $this->createTeam->handle($user, $user->name."'s Team", isPersonal: true);
 

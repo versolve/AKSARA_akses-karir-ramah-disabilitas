@@ -290,7 +290,7 @@ export default function AdminMessagesIndex({
 
   return (
     <AdminLayout>
-      <Head title="Pusat Pesan & Pengumuman - AKSARA" />
+      <Head title="Pusat Pesan & Pengumuman - Profabel" />
 
       <div className="min-h-screen bg-[#F8FBFE] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1440px] space-y-6">
@@ -633,7 +633,7 @@ export default function AdminMessagesIndex({
                             >
                               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1 px-1">
                                 <span className="font-bold text-slate-600">
-                                  {isAdminSender ? 'Administrator AKSARA' : m.sender_name}
+                                  {isAdminSender ? 'Administrator Profabel' : m.sender_name}
                                 </span>
                                 <span>•</span>
                                 <span>{m.time_ago}</span>
@@ -682,9 +682,9 @@ export default function AdminMessagesIndex({
                       <div className="flex flex-wrap gap-1.5">
                         {[
                           'Mohon segera melengkapi dokumen verifikasi legalitas perusahaan Anda.',
-                          'Akun dan profil Anda telah berhasil diverifikasi oleh tim AKSARA.',
+                          'Akun dan profil Anda telah berhasil diverifikasi oleh tim Profabel.',
                           'Terima kasih telah menghubungi kami. Kami akan meninjau kendala Anda secepatnya.',
-                          'Lowongan pekerjaan Anda telah kami tinjau dan aktif di platform AKSARA.',
+                          'Lowongan pekerjaan Anda telah kami tinjau dan aktif di platform Profabel.',
                         ].map((tpl) => (
                           <button
                             key={tpl}
@@ -741,7 +741,7 @@ export default function AdminMessagesIndex({
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#102B4B]">
-                      Pengumuman Siaran Platform AKSARA
+                      Pengumuman Siaran Platform Profabel
                     </h3>
                     <p className="text-xs text-slate-500">
                       Pengumuman yang Anda buat akan langsung terkirim ke pesan masuk serta lonceng notifikasi pengguna yang ditargetkan.
@@ -866,7 +866,7 @@ export default function AdminMessagesIndex({
               Kirim Pesan Personal
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Kirim pesan langsung ke pelamar disabilitas atau perusahaan terdaftar di AKSARA.
+              Kirim pesan langsung ke pelamar disabilitas atau perusahaan terdaftar di Profabel.
             </DialogDescription>
           </DialogHeader>
 
@@ -967,7 +967,7 @@ export default function AdminMessagesIndex({
               Siarkan Pengumuman Langsung
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Kirimkan pengumuman resmi ke seluruh pelamar, perusahaan, atau seluruh pengguna platform AKSARA.
+              Kirimkan pengumuman resmi ke seluruh pelamar, perusahaan, atau seluruh pengguna platform Profabel.
             </DialogDescription>
           </DialogHeader>
 
@@ -1056,7 +1056,7 @@ export default function AdminMessagesIndex({
                 type="text"
                 value={announcementTitle}
                 onChange={(e) => setAnnouncementTitle(e.target.value)}
-                placeholder="Contoh: Pembaruan Kebijakan & Fitur Karir Inklusif AKSARA"
+                placeholder="Contoh: Pembaruan Kebijakan & Fitur Karir Inklusif Profabel"
                 className="mt-1.5 h-10 rounded-xl text-xs"
                 required
               />

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
+  ArrowLeft,
   Bell,
   Calendar,
   Check,
@@ -12,6 +13,7 @@ import {
   FileText,
   Mail,
   MessageSquare,
+  Trash2,
   Video,
   X,
   XCircle,
@@ -53,6 +55,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
   const [selectedNotif, setSelectedNotif] = useState<NotificationItem | null>(
     notifications.data.length > 0 ? notifications.data[0] : null
   );
+  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
 
   useEffect(() => {
     if (notifications.data.length > 0 && !selectedNotif) {
@@ -68,11 +71,28 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
     router.post('/app/notifications/read-all', {}, { preserveScroll: true });
   };
 
+  const handleDeleteNotif = (id: string, e?: React.MouseEvent): void => {
+    if (e) e.stopPropagation();
+    if (confirm('Apakah Anda yakin ingin menghapus notifikasi ini?')) {
+      router.delete(`/app/notifications/${id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+          if (selectedNotif?.id === id) {
+            const remaining = notifications.data.filter((n) => n.id !== id);
+            setSelectedNotif(remaining.length > 0 ? remaining[0] : null);
+            setMobileView('list');
+          }
+        },
+      });
+    }
+  };
+
   const handleSelectNotif = (item: NotificationItem): void => {
     setSelectedNotif(item);
     if (!item.read_at) {
       markAsRead(item.id);
     }
+    setMobileView('detail');
   };
 
   const getNotifTitle = (item: NotificationItem): string => {
@@ -138,7 +158,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
     <AppLayout>
       <Head title="Notifikasi - Profabel" />
 
-      <div className="py-6 sm:py-8 space-y-6">
+      <div className="py-4 sm:py-8 space-y-5 sm:space-y-6 max-w-[1440px] mx-auto px-4 sm:px-6">
         {/* Title & Subtitle */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -154,7 +174,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
             <button
               type="button"
               onClick={markAllAsRead}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1674D1] hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1674D1] hover:underline cursor-pointer self-start sm:self-auto py-1"
             >
               <CheckCheck className="h-4 w-4" />
               <span>Tandai Semua Dibaca ({unreadCount})</span>
@@ -162,10 +182,51 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
           )}
         </div>
 
+        {/* Mobile View Switcher Tab (< lg screen only) */}
+        <div className="flex lg:hidden items-center p-1 rounded-2xl bg-slate-100 border border-slate-200/80 shadow-xs">
+          <button
+            type="button"
+            onClick={() => setMobileView('list')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition ${
+              mobileView === 'list'
+                ? 'bg-white text-[#102B4B] shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Bell className="h-3.5 w-3.5" />
+            <span>Daftar Notifikasi</span>
+            {notifications.data.length > 0 && (
+              <span className="rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">
+                {notifications.data.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileView('detail')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition ${
+              mobileView === 'detail'
+                ? 'bg-white text-[#102B4B] shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            <span>Detail Notifikasi</span>
+            {selectedNotif && !selectedNotif.read_at && (
+              <span className="h-2 w-2 rounded-full bg-[#1674D1]" />
+            )}
+          </button>
+        </div>
+
         {/* 2-Column Split Layout matching Notifikasi.png */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ===================== LEFT COLUMN: TERBARU (5 COLS) ===================== */}
-          <div className="lg:col-span-5 rounded-3xl border border-[#E2E8F0] bg-white p-5 sm:p-6 shadow-xs space-y-4">
+          <div
+            className={`lg:col-span-5 rounded-3xl border border-[#E2E8F0] bg-white p-4 sm:p-6 shadow-xs space-y-4 ${
+              mobileView === 'list' ? 'block' : 'hidden lg:block'
+            }`}
+          >
             <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3.5">
               <h2 className="font-bold text-sm text-[#102B4B]">Terbaru</h2>
               <Bell className="h-4 w-4 text-[#102B4B]" />
@@ -186,7 +247,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                     <div
                       key={item.id}
                       onClick={() => handleSelectNotif(item)}
-                      className={`flex items-start justify-between gap-3 p-3 rounded-2xl transition cursor-pointer ${
+                      className={`flex items-start justify-between gap-3 p-3 sm:p-3.5 rounded-2xl transition cursor-pointer min-h-[56px] ${
                         isSelected
                           ? 'bg-[#EBF5FA]'
                           : 'hover:bg-slate-50'
@@ -223,33 +284,74 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
           </div>
 
           {/* ===================== RIGHT COLUMN: DETAIL NOTIFIKASI (7 COLS) ===================== */}
-          <div className="lg:col-span-7 space-y-4">
-            <h2 className="font-bold text-sm text-[#102B4B]">Detail Notifikasi</h2>
+          <div
+            className={`lg:col-span-7 space-y-4 ${
+              mobileView === 'detail' ? 'block' : 'hidden lg:block'
+            }`}
+          >
+            {/* Mobile Back Button to list view */}
+            <div className="flex lg:hidden items-center justify-between pb-1">
+              <button
+                type="button"
+                onClick={() => setMobileView('list')}
+                className="flex items-center gap-1.5 text-xs font-bold text-[#1674D1] hover:underline py-1"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Kembali ke Daftar Notifikasi</span>
+              </button>
+            </div>
+
+            <div className="hidden lg:flex items-center justify-between">
+              <h2 className="font-bold text-sm text-[#102B4B]">Detail Notifikasi</h2>
+              {selectedNotif && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteNotif(selectedNotif.id)}
+                  className="flex items-center gap-1 text-[11px] font-medium text-rose-500 hover:text-rose-700 transition"
+                  title="Hapus notifikasi ini"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>Hapus</span>
+                </button>
+              )}
+            </div>
 
             {selectedNotif ? (
-              <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8 shadow-xs space-y-6">
-                {/* Header Row: Company Logo & Info */}
-                <div className="flex items-center gap-3.5 border-b border-[#F1F5F9] pb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-base shrink-0">
-                    {(selectedNotif.data.company_name || 'MB').substring(0, 2).toUpperCase()}
+              <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5 sm:p-8 shadow-xs space-y-6">
+                {/* Header Row: Company Logo, Info & Action */}
+                <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-base shrink-0">
+                      {(selectedNotif.data.company_name || 'MB').substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-base text-[#102B4B]">
+                        {selectedNotif.data.company_name}
+                      </h3>
+                      <p className="text-xs text-[#64748B]">
+                        {selectedNotif.data.vacancy_title}
+                      </p>
+                      <p className="text-[10px] text-[#94A3B8] mt-0.5">
+                        {new Date(selectedNotif.created_at).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-base text-[#102B4B]">
-                      {selectedNotif.data.company_name}
-                    </h3>
-                    <p className="text-xs text-[#64748B]">
-                      {selectedNotif.data.vacancy_title}
-                    </p>
-                    <p className="text-[10px] text-[#94A3B8] mt-0.5">
-                      {new Date(selectedNotif.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
+
+                  {/* Delete button on mobile */}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteNotif(selectedNotif.id)}
+                    className="flex lg:hidden h-8 w-8 items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition"
+                    title="Hapus notifikasi"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {/* Body Content */}
@@ -286,34 +388,34 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                     )}
                   </p>
 
-                  {/* Schedule Details Box (matching Reference) */}
-                  <div className="rounded-2xl bg-[#F8FAFC] border border-[#F1F5F9] p-4 sm:p-5 space-y-2.5 text-xs">
-                    <div className="grid grid-cols-12 gap-2">
-                      <span className="col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-[#1674D1]" />
+                  {/* Schedule Details Box (Mobile Friendly & Responsive) */}
+                  <div className="rounded-2xl bg-[#F8FAFC] border border-[#F1F5F9] p-4 sm:p-5 space-y-3 text-xs">
+                    <div className="flex flex-col sm:grid sm:grid-cols-12 gap-1 sm:gap-2">
+                      <span className="sm:col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-[#1674D1] shrink-0" />
                         Hari, tanggal
                       </span>
-                      <span className="col-span-8 text-[#475569]">
+                      <span className="sm:col-span-8 text-[#475569] pl-5 sm:pl-0">
                         : {selectedNotif.data.interview_date || 'Senin, 20 Oktober 2026'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-12 gap-2">
-                      <span className="col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-[#1674D1]" />
+                    <div className="flex flex-col sm:grid sm:grid-cols-12 gap-1 sm:gap-2">
+                      <span className="sm:col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[#1674D1] shrink-0" />
                         Waktu
                       </span>
-                      <span className="col-span-8 text-[#475569]">
+                      <span className="sm:col-span-8 text-[#475569] pl-5 sm:pl-0">
                         : {selectedNotif.data.interview_time || '10.00 - 10.45 WIB'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-12 gap-2">
-                      <span className="col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
-                        <Video className="h-3.5 w-3.5 text-[#1674D1]" />
+                    <div className="flex flex-col sm:grid sm:grid-cols-12 gap-1 sm:gap-2">
+                      <span className="sm:col-span-4 font-semibold text-[#102B4B] flex items-center gap-1.5">
+                        <Video className="h-3.5 w-3.5 text-[#1674D1] shrink-0" />
                         Platform
                       </span>
-                      <span className="col-span-8 text-[#475569]">
+                      <span className="sm:col-span-8 text-[#475569] pl-5 sm:pl-0">
                         : {selectedNotif.data.interview_platform || 'Google Meet'}
                       </span>
                     </div>
@@ -324,7 +426,7 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
                   </p>
                 </div>
 
-                {/* Bottom Action Buttons */}
+                {/* Bottom Action Buttons (Touch Friendly on Mobile) */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-[#F1F5F9]">
                   {selectedNotif.data.application_id && (
                     <Link
@@ -363,3 +465,4 @@ export default function NotificationsIndex({ notifications, unreadCount }: Props
     </AppLayout>
   );
 }
+

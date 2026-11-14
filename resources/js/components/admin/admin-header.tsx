@@ -60,7 +60,7 @@ export function AdminHeader({
                     <Menu className="h-5 w-5" aria-hidden="true" />
                 </button>
                 <Link href="/admin/dashboard" className="flex items-center gap-3">
-                    <img src="/images/logos/logo_biru.svg" alt="AKSARA" className="h-8 w-auto sm:h-9" />
+                    <img src="/images/logos/logo_biru.svg" alt="Profabel" className="h-8 w-auto sm:h-9" />
                 </Link>
             </div>
 

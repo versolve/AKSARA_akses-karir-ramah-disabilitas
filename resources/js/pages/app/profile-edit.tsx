@@ -193,7 +193,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
     ['ramp', 'Akses fisik tertentu'],
   ] as const;
 
-  const completion = Math.min(100, Math.max(0, profile.profile_completed_percentage ?? 80));
+  const completion = Math.min(100, Math.max(0, profile.profile_completed_percentage ?? 0));
 
   return (
     <AppLayout>

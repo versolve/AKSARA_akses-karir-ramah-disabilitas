@@ -13,6 +13,10 @@ class JobListingController extends Controller
     {
         $query = Vacancy::active()->with(['companyProfile', 'accessibilities']);
 
+        $savedVacancyIds = $request->user()
+            ? $request->user()->savedVacancies()->pluck('vacancy_id')->toArray()
+            : [];
+
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -35,11 +39,16 @@ class JobListingController extends Controller
             });
         }
 
+        if ($request->boolean('only_favorites') && $request->user()) {
+            $query->whereIn('id', $savedVacancyIds);
+        }
+
         $vacancies = $query->latest()->paginate(12)->withQueryString();
 
         return Inertia::render('jobs/index', [
             'vacancies' => $vacancies,
-            'filters' => $request->only(['search', 'work_model', 'job_type', 'accessibility']),
+            'filters' => $request->only(['search', 'work_model', 'job_type', 'accessibility', 'only_favorites']),
+            'savedVacancyIds' => $savedVacancyIds,
         ]);
     }
 
@@ -51,18 +60,25 @@ class JobListingController extends Controller
             ->firstOrFail();
 
         $alreadyApplied = false;
-        if ($request->user() && $request->user()->isPelamar()) {
-            $seeker = $request->user()->jobSeekerProfile;
-            if ($seeker) {
-                $alreadyApplied = $vacancy->applications()
-                    ->where('job_seeker_profile_id', $seeker->id)
-                    ->exists();
+        $isSaved = false;
+
+        if ($request->user()) {
+            $isSaved = $request->user()->savedVacancies()->where('vacancy_id', $vacancy->id)->exists();
+
+            if ($request->user()->isPelamar()) {
+                $seeker = $request->user()->jobSeekerProfile;
+                if ($seeker) {
+                    $alreadyApplied = $vacancy->applications()
+                        ->where('job_seeker_profile_id', $seeker->id)
+                        ->exists();
+                }
             }
         }
 
         return Inertia::render('jobs/show', [
             'vacancy' => $vacancy,
             'alreadyApplied' => $alreadyApplied,
+            'isSaved' => $isSaved,
         ]);
     }
 }

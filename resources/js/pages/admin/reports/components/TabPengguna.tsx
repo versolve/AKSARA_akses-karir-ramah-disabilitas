@@ -105,7 +105,7 @@ export function TabPengguna({ users }: TabPenggunaProps): ReactElement {
                 />
                 <BiStackedBarChart
                     title="Status Aktivitas Pengguna"
-                    info="Tingkat keterlibatan pengguna dalam platform AKSARA"
+                    info="Tingkat keterlibatan pengguna dalam platform Profabel"
                     data={users.activity_status}
                 />
                 <BiHorizontalBarList
@@ -124,7 +124,7 @@ export function TabPengguna({ users }: TabPenggunaProps): ReactElement {
             {/* Row 4: BI Insights */}
             <BiInsightsCard
                 title="Insight BI"
-                subtitle="Ringkasan temuan penting dari analisis data pengguna AKSARA."
+                subtitle="Ringkasan temuan penting dari analisis data pengguna Profabel."
                 actionHref="/admin/reporting?tab=users"
                 actionLabel="Lihat Laporan Lengkap"
                 items={[
@@ -150,7 +150,7 @@ export function TabPengguna({ users }: TabPenggunaProps): ReactElement {
                         num: 4,
                         title: 'Website Menjadi Kanal Utama',
                         description:
-                            '42% pengguna mendaftar melalui website AKSARA, diikuti media sosial 25%.',
+                            '42% pengguna mendaftar melalui website Profabel, diikuti media sosial 25%.',
                     },
                 ]}
             />

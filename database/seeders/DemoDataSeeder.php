@@ -23,7 +23,7 @@ class DemoDataSeeder extends Seeder
 
         // 1. Admin Account
         $admin = User::firstOrCreate(
-            ['email' => 'admin@aksara.id'],
+            ['email' => 'admin@profabel.id'],
             [
                 'name' => 'Administrator Profabel',
                 'password' => $password,
@@ -83,7 +83,7 @@ class DemoDataSeeder extends Seeder
         // 3. Job Seeker Accounts (3 diverse disabilities)
         // Seeker A: Netra
         $seekerUser1 = User::firstOrCreate(
-            ['email' => 'budi.netra@aksara.id'],
+            ['email' => 'budi.netra@profabel.id'],
             [
                 'name' => 'Budi Santoso',
                 'password' => $password,
@@ -116,7 +116,7 @@ class DemoDataSeeder extends Seeder
 
         // Seeker B: Fisik / Kursi Roda
         $seekerUser2 = User::firstOrCreate(
-            ['email' => 'siti.fisik@aksara.id'],
+            ['email' => 'siti.fisik@profabel.id'],
             [
                 'name' => 'Siti Rahmawati',
                 'password' => $password,
@@ -149,7 +149,7 @@ class DemoDataSeeder extends Seeder
 
         // Seeker C: Rungu / Tuli
         $seekerUser3 = User::firstOrCreate(
-            ['email' => 'andi.rungu@aksara.id'],
+            ['email' => 'andi.rungu@profabel.id'],
             [
                 'name' => 'Andi Wijaya',
                 'password' => $password,
@@ -199,6 +199,7 @@ class DemoDataSeeder extends Seeder
                 'skills_required' => ['React', 'TypeScript', 'Tailwind CSS', 'Web Accessibility (a11y)'],
                 'status' => 'active',
                 'deadline' => now()->addDays(30),
+                'created_at' => now()->subDays(3),
             ]
         );
 
@@ -226,6 +227,7 @@ class DemoDataSeeder extends Seeder
                 'skills_required' => ['Microsoft Excel', 'Data Entry', 'Ketelitian'],
                 'status' => 'active',
                 'deadline' => now()->addDays(20),
+                'created_at' => now()->subDays(2),
             ]
         );
 
@@ -254,6 +256,7 @@ class DemoDataSeeder extends Seeder
                 'skills_required' => ['Customer Service', 'Live Chat', 'Komunikasi Tertulis'],
                 'status' => 'active',
                 'deadline' => now()->addDays(25),
+                'created_at' => now()->subDays(1),
             ]
         );
 
@@ -280,6 +283,7 @@ class DemoDataSeeder extends Seeder
                 'skills_required' => ['Software Testing', 'Bug Reporting', 'Dokumentasi'],
                 'status' => 'active',
                 'deadline' => now()->addDays(15),
+                'created_at' => now()->subHours(5),
             ]
         );
 
@@ -307,6 +311,7 @@ class DemoDataSeeder extends Seeder
                 'skills_required' => ['Administrasi', 'Pengarsipan', 'Google Drive'],
                 'status' => 'active',
                 'deadline' => now()->addDays(40),
+                'created_at' => now()->subHours(2),
             ]
         );
 

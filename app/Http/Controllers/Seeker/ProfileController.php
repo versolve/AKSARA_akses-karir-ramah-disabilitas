@@ -25,6 +25,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $profile = $user->jobSeekerProfile()->firstOrNew(['user_id' => $user->id]);
         $accessibility = $user->accessibilityProfile()->firstOrNew(['user_id' => $user->id]);
+        $completeness = $profile->calculateCompleteness();
 
         return Inertia::render($page, [
             'user' => [
@@ -47,7 +48,8 @@ class ProfileController extends Controller
                 'cv_url' => $profile->cv_path ? '/storage/' . $profile->cv_path : null,
                 'cv_name' => $profile->cv_path ? basename($profile->cv_path) : null,
                 'cv_updated_at' => $profile->updated_at?->toIso8601String(),
-                'profile_completed_percentage' => $profile->profile_completed_percentage ?? 80,
+                'profile_completed_percentage' => $completeness['percentage'],
+                'profile_completeness' => $completeness,
                 'skills' => $profile->skills ?? [],
                 'work_experiences' => $profile->work_experiences ?? [],
                 'educations' => $profile->educations ?? [],
@@ -107,10 +109,12 @@ class ProfileController extends Controller
             $request->user()->update(['name' => $request->input('name')]);
         }
 
-        $request->user()->jobSeekerProfile()->updateOrCreate(
+        $profile = $request->user()->jobSeekerProfile()->updateOrCreate(
             ['user_id' => $request->user()->id],
             $validated
         );
+
+        $profile->calculateCompleteness();
 
         return redirect('/app/profile')->with('status', 'Profil berhasil disimpan.');
     }

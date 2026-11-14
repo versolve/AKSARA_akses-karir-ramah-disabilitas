@@ -131,7 +131,7 @@ export default function BusinessIntelligencePage({
 
     return (
         <AdminLayout>
-            <Head title="Business Intelligence - AKSARA Admin" />
+            <Head title="Business Intelligence - Profabel Admin" />
 
             <main className="min-h-full bg-[#F8FAFC] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-[1600px] space-y-6">
@@ -142,7 +142,7 @@ export default function BusinessIntelligencePage({
                                 Business Intelligence
                             </h1>
                             <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                                Analisis data dan tren platform AKSARA untuk mendukung pengambilan keputusan strategis.
+                                Analisis data dan tren platform Profabel untuk mendukung pengambilan keputusan strategis.
                             </p>
                         </div>
 
@@ -259,7 +259,7 @@ export default function BusinessIntelligencePage({
                                 Pilih Rentang Waktu Kalender
                             </DialogTitle>
                             <DialogDescription className="text-xs text-slate-500">
-                                Tentukan tanggal awal dan akhir untuk menganalisis data platform AKSARA.
+                                Tentukan tanggal awal dan akhir untuk menganalisis data platform Profabel.
                             </DialogDescription>
                         </DialogHeader>
 

@@ -92,10 +92,10 @@ export function AppSidebar(): ReactElement {
                                     </div>
                                     <div className="flex flex-col text-left">
                                         <span className="text-base font-extrabold tracking-tight text-[#102B4B] leading-none">
-                                            AKSARA
+                                            Profabel
                                         </span>
                                         <span className="mt-1 text-[11px] font-bold text-slate-400 leading-none">
-                                            AKSARA — Admin
+                                            Profabel — Admin
                                         </span>
                                     </div>
                                 </Link>
@@ -154,7 +154,7 @@ export function AppSidebar(): ReactElement {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={dashboardUrl} prefetch>
-                                <img src="/images/logos/logo_biru.svg" alt="AKSARA" className="h-8 w-auto" />
+                                <img src="/images/logos/logo_biru.svg" alt="Profabel" className="h-8 w-auto" />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

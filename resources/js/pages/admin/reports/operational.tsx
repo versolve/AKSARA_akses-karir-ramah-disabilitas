@@ -1571,7 +1571,7 @@ export default function ReportingIndex({
 
     return (
         <AdminLayout>
-            <Head title="Laporan - AKSARA" />
+            <Head title="Laporan - Profabel" />
 
             <div className="min-h-screen bg-[#F4F8FC] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl space-y-6">

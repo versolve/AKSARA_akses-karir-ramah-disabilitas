@@ -121,10 +121,10 @@ export default function AdminVacanciesIndex({ vacancies, filters, counts }: Prop
 
   return (
     <AdminLayout>
-      <Head title="Kelola Lowongan - AKSARA" />
+      <Head title="Kelola Lowongan - Profabel" />
       <main className="min-h-screen bg-[#F5F9FD] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1440px]">
-          <header className="mb-6"><p className="mb-2 text-sm font-semibold text-blue-600">Manajemen platform</p><h1 className="text-3xl font-extrabold tracking-tight text-[#102B4B] sm:text-4xl">Kelola lowongan</h1><p className="mt-2 max-w-3xl text-sm text-slate-500">Tinjau dan kelola seluruh lowongan kerja yang dibuat mitra perusahaan di AKSARA.</p></header>
+          <header className="mb-6"><p className="mb-2 text-sm font-semibold text-blue-600">Manajemen platform</p><h1 className="text-3xl font-extrabold tracking-tight text-[#102B4B] sm:text-4xl">Kelola lowongan</h1><p className="mt-2 max-w-3xl text-sm text-slate-500">Tinjau dan kelola seluruh lowongan kerja yang dibuat mitra perusahaan di Profabel.</p></header>
 
           <section className="mb-6 grid gap-4 sm:grid-cols-4" aria-label="Ringkasan lowongan">
             {[

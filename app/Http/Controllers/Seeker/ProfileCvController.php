@@ -27,6 +27,8 @@ class ProfileCvController extends Controller
             'cv_path' => $request->file('cv')->store('cvs/profile', 'public'),
         ]);
 
+        $profile->calculateCompleteness();
+
         return back()->with('status', 'CV berhasil diperbarui.');
     }
 
@@ -39,6 +41,7 @@ class ProfileCvController extends Controller
         }
 
         $profile?->update(['cv_path' => null]);
+        $profile?->calculateCompleteness();
 
         return back()->with('status', 'CV berhasil dihapus.');
     }

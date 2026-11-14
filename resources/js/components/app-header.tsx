@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
+    Bookmark,
     Briefcase,
     Building2,
     Calendar,
@@ -38,6 +39,7 @@ export function AppHeader(): ReactElement {
     const { auth } = page.props as any;
     const user = auth?.user;
     const userRole = user?.role;
+    const seekerUnreadCount = Number((page.props as any).seekerUnreadNotificationsCount || 0);
     const currentUrl = page.url;
     const getInitials = useInitials();
 
@@ -90,7 +92,7 @@ export function AppHeader(): ReactElement {
         <header className="sticky top-0 z-40 w-full border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md">
             <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Left: Logo */}
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 shrink-0">
                     <Link href="/" className="flex items-center gap-2">
                         <img
                             src="/images/logos/logo_biru.svg"
@@ -111,7 +113,7 @@ export function AppHeader(): ReactElement {
                                 className={`inline-flex items-center text-sm transition select-none ${
                                     active
                                         ? 'font-bold text-[#123B5D] border-b-2 border-[#123B5D] h-16 pt-0.5'
-                                        : 'font-medium text-[#64748B] hover:text-[#123B5D] h-16 pt-0.5'
+                                        : 'font-medium text-[#64748B] hover:text-[#123B5D] h-16 pt-0.5 border-b-2 border-transparent'
                                 }`}
                             >
                                 {link.title}
@@ -121,7 +123,7 @@ export function AppHeader(): ReactElement {
                 </nav>
 
                 {/* Right: User Profile & Quick Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0">
                     {user ? (
                         <>
                             {/* Notification Bell */}
@@ -131,8 +133,10 @@ export function AppHeader(): ReactElement {
                                 aria-label="Buka notifikasi"
                             >
                                 <Bell className="h-5 w-5" />
-                                {userRole === 'pelamar' && (
-                                    <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500" />
+                                {userRole === 'pelamar' && seekerUnreadCount > 0 && (
+                                    <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                                        {seekerUnreadCount > 9 ? '9+' : seekerUnreadCount}
+                                    </span>
                                 )}
                             </Link>
 
@@ -181,12 +185,20 @@ export function AppHeader(): ReactElement {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuGroup>
                                         {userRole === 'pelamar' && (
-                                            <DropdownMenuItem asChild>
-                                                <Link href="/app/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
-                                                    <User className="h-4 w-4 text-slate-500" />
-                                                    Profil Saya
-                                                </Link>
-                                            </DropdownMenuItem>
+                                            <>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/app/profile" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                        <User className="h-4 w-4 text-slate-500" />
+                                                        Profil Saya
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/app/favorites" className="cursor-pointer text-xs flex items-center gap-2 py-2">
+                                                        <Bookmark className="h-4 w-4 text-slate-500" />
+                                                        Lowongan Favorit
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            </>
                                         )}
                                         {userRole === 'perusahaan' && (
                                             <DropdownMenuItem asChild>

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { TimeAgo } from '@/components/time-ago';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
@@ -27,6 +28,7 @@ import {
     Users,
 } from 'lucide-react';
 import {
+    useEffect,
     useRef,
     useState,
     type ChangeEvent,
@@ -39,6 +41,7 @@ interface StatsData {
     in_review: number;
     interview: number;
     hired: number;
+    total_favorites?: number;
 }
 
 interface ApplicationItem {
@@ -65,6 +68,7 @@ interface VacancyItem {
     work_model: string;
     job_type: string;
     created_at: string;
+    time_ago?: string;
     company_profile: {
         company_name: string;
         industry?: string;
@@ -73,6 +77,18 @@ interface VacancyItem {
         id: number;
         accommodation_type: string;
     }>;
+}
+
+interface ProfileCompletenessItem {
+    id: string;
+    label: string;
+    is_completed: boolean;
+    link: string;
+}
+
+interface ProfileCompletenessData {
+    percentage: number;
+    items: ProfileCompletenessItem[];
 }
 
 interface SeekerProfile {
@@ -86,9 +102,11 @@ interface SeekerProfile {
 
 interface Props {
     seeker: SeekerProfile;
+    profileCompleteness?: ProfileCompletenessData;
     stats: StatsData;
     recentApplications: ApplicationItem[];
     recommendedJobs: VacancyItem[];
+    savedVacancyIds?: number[];
     unreadNotificationsCount: number;
 }
 
@@ -117,14 +135,45 @@ const STATUS_CONFIG: Record<
 
 export default function SeekerDashboard({
     seeker,
+    profileCompleteness,
     stats,
     recentApplications,
     recommendedJobs,
+    savedVacancyIds = [],
 }: Props): ReactElement {
     const page = usePage();
     const auth = (page.props as any).auth;
     const user = auth?.user;
     const userName = user?.name || 'Kawan Profabel';
+
+    const [savedIds, setSavedIds] = useState<number[]>(savedVacancyIds);
+    const [togglingId, setTogglingId] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (savedVacancyIds) setSavedIds(savedVacancyIds);
+    }, [savedVacancyIds]);
+
+    const handleToggleFavorite = (e: React.MouseEvent, vacancyId: number): void => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (togglingId === vacancyId) return;
+
+        const isSaved = savedIds.includes(vacancyId);
+        setSavedIds((prev) =>
+            isSaved ? prev.filter((id) => id !== vacancyId) : [...prev, vacancyId]
+        );
+        setTogglingId(vacancyId);
+
+        router.post(
+            `/vacancies/${vacancyId}/favorite`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setTogglingId(null),
+            }
+        );
+    };
 
     const [keyword, setKeyword] = useState('');
     const [activeDot, setActiveDot] = useState(0);
@@ -162,7 +211,17 @@ export default function SeekerDashboard({
         });
     };
 
-    const completionPercent = seeker.profile_completed_percentage || 80;
+    const completionPercent = typeof profileCompleteness?.percentage === 'number'
+        ? profileCompleteness.percentage
+        : (typeof seeker?.profile_completed_percentage === 'number' ? seeker.profile_completed_percentage : 0);
+
+    const checklistItems: ProfileCompletenessItem[] = profileCompleteness?.items || [
+        { id: 'personal_data', label: 'Data Diri', is_completed: Boolean(seeker?.bio && seeker?.current_job_title), link: '/app/profile/edit' },
+        { id: 'accessibility', label: 'Kebutuhan Aksesibilitas', is_completed: false, link: '/app/accessibility-profile' },
+        { id: 'education', label: 'Pendidikan', is_completed: false, link: '/app/profile/edit' },
+        { id: 'experience', label: 'Pengalaman Kerja', is_completed: false, link: '/app/profile/edit' },
+        { id: 'resume_skills', label: 'Resume & Portofolio', is_completed: false, link: '/app/profile/edit' },
+    ];
 
     return (
         <AppLayout>
@@ -281,10 +340,17 @@ export default function SeekerDashboard({
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    className="p-1 text-slate-400 hover:text-[#123B5D]"
-                                                    aria-label="Simpan lowongan"
+                                                    onClick={(e) => handleToggleFavorite(e, job.id)}
+                                                    disabled={togglingId === job.id}
+                                                    className={`p-1.5 transition rounded-lg cursor-pointer ${
+                                                        savedIds.includes(job.id)
+                                                            ? 'text-[#1769E0] bg-blue-50 hover:bg-blue-100'
+                                                            : 'text-slate-400 hover:text-[#123B5D] hover:bg-slate-50'
+                                                    }`}
+                                                    aria-label={savedIds.includes(job.id) ? "Hapus dari favorit" : "Simpan lowongan ke favorit"}
+                                                    title={savedIds.includes(job.id) ? "Tersimpan di Favorit" : "Simpan ke Favorit"}
                                                 >
-                                                    <Bookmark className="h-4 w-4" />
+                                                    <Bookmark className={`h-4 w-4 ${savedIds.includes(job.id) ? 'fill-[#1769E0]' : ''}`} />
                                                 </button>
                                             </div>
 
@@ -327,9 +393,12 @@ export default function SeekerDashboard({
 
                                         {/* Card Footer */}
                                         <div className="mt-4 flex items-center justify-between border-t border-[#F1F5F9] pt-3">
-                                            <span className="flex items-center gap-1 text-[10px] text-[#94A3B8]">
-                                                <Clock className="h-3 w-3" />2
-                                                hari yang lalu
+                                            <span className="flex items-center gap-1.5 text-[10px] text-[#94A3B8]">
+                                                <Clock className="h-3 w-3 shrink-0" />
+                                                <TimeAgo
+                                                    date={job.created_at}
+                                                    fallback={job.time_ago}
+                                                />
                                             </span>
                                             <Link
                                                 href={`/jobs/${job.slug}`}
@@ -492,46 +561,43 @@ export default function SeekerDashboard({
                                 </div>
                             </div>
 
-                            {/* Profile Checklist */}
+                            {/* Profile Checklist (Dynamic based on real data) */}
                             <div className="mt-4 space-y-2.5 text-xs text-[#475569]">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#123B5D] text-white">
-                                        <Check className="h-3 w-3 stroke-[3]" />
+                                {checklistItems.map((item) => (
+                                    <div key={item.id} className="flex items-center justify-between gap-2">
+                                        {item.is_completed ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#123B5D] text-white">
+                                                    <Check className="h-3 w-3 stroke-[3]" />
+                                                </div>
+                                                <span className="font-semibold text-[#102B4B]">
+                                                    {item.label}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <Link
+                                                href={item.link}
+                                                className="group flex items-center gap-2 text-[#64748B] hover:text-[#1674D1] transition"
+                                            >
+                                                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2E8F0] text-slate-500 transition group-hover:bg-[#123B5D] group-hover:text-white">
+                                                    <Plus className="h-3 w-3" />
+                                                </div>
+                                                <span className="font-medium">
+                                                    Lengkapi {item.label}
+                                                </span>
+                                            </Link>
+                                        )}
+                                        {item.is_completed && (
+                                            <span className="text-[10px] font-bold text-emerald-600">Selesai</span>
+                                        )}
                                     </div>
-                                    <span className="font-medium">
-                                        Data Diri
-                                    </span>
-                                </div>
+                                ))}
 
-                                <div className="flex items-center gap-2">
-                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#123B5D] text-white">
-                                        <Check className="h-3 w-3 stroke-[3]" />
+                                {completionPercent === 100 && (
+                                    <div className="mt-2 rounded-xl bg-emerald-50 border border-emerald-200 p-2 text-center text-[11px] font-bold text-emerald-700">
+                                        🎉 Profil Anda telah lengkap 100%!
                                     </div>
-                                    <span className="font-medium">
-                                        Pendidikan
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#123B5D] text-white">
-                                        <Check className="h-3 w-3 stroke-[3]" />
-                                    </div>
-                                    <span className="font-medium">
-                                        Pengalaman Kerja
-                                    </span>
-                                </div>
-
-                                <Link
-                                    href="/app/profile/edit"
-                                    className="group flex items-center gap-2 pt-0.5 text-[#64748B] hover:text-[#1674D1]"
-                                >
-                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E2E8F0] text-slate-600 transition group-hover:bg-[#123B5D] group-hover:text-white">
-                                        <Plus className="h-3 w-3" />
-                                    </div>
-                                    <span className="font-medium">
-                                        Lengkapi Pengalaman & Portofolio
-                                    </span>
-                                </Link>
+                                )}
                             </div>
                         </div>
 
@@ -650,6 +716,41 @@ export default function SeekerDashboard({
                                             })}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Lowongan Favorit Card */}
+                        <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-xs">
+                            <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
+                                <div className="flex items-center gap-2">
+                                    <Bookmark className="h-4 w-4 text-[#1769E0] fill-[#1769E0]" />
+                                    <h2 className="text-sm font-bold text-[#102B4B]">
+                                        Lowongan Favorit
+                                    </h2>
+                                </div>
+                                <Link
+                                    href="/app/favorites"
+                                    className="text-xs font-semibold text-[#1674D1] hover:underline"
+                                >
+                                    Lihat semua →
+                                </Link>
+                            </div>
+                            <div className="mt-3.5 flex items-center justify-between gap-2">
+                                <div>
+                                    <div className="text-lg font-black text-[#102B4B]">
+                                        {stats.total_favorites ?? savedIds.length}
+                                    </div>
+                                    <p className="text-[11px] text-[#64748B]">
+                                        Lowongan tersimpan
+                                    </p>
+                                </div>
+                                <Link
+                                    href="/app/favorites"
+                                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3.5 py-2 text-xs font-bold text-[#1769E0] hover:bg-blue-100 transition"
+                                >
+                                    <span>Buka Daftar</span>
+                                    <ChevronRight className="h-3.5 w-3.5" />
+                                </Link>
                             </div>
                         </div>
 

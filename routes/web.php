@@ -30,13 +30,23 @@ Route::prefix('app')
         Route::get('/notifications', [\App\Http\Controllers\Seeker\NotificationController::class, 'index'])->name('app.notifications.index');
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\Seeker\NotificationController::class, 'markAsRead'])->name('app.notifications.read');
         Route::post('/notifications/read-all', [\App\Http\Controllers\Seeker\NotificationController::class, 'markAllAsRead'])->name('app.notifications.readAll');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\Seeker\NotificationController::class, 'destroy'])->name('app.notifications.destroy');
         Route::get('/ai-assistant', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'index'])->name('app.ai-assistant.index');
         Route::post('/ai/match/{vacancy}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'matchVacancy'])->name('app.ai.match');
         Route::post('/ai/skill-gap', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'skillGap'])->name('app.ai.skill-gap');
         Route::post('/ai/cv-review', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'cvReview'])->name('app.ai.cv-review');
         Route::get('/ai/history', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'listAiHistory']);
         Route::delete('/ai/history/{history}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'deleteAiHistory']);
+
+        // Lowongan Favorit / Saved Vacancies
+        Route::get('/favorites', [\App\Http\Controllers\Seeker\FavoriteVacancyController::class, 'index'])->name('app.favorites.index');
+        Route::post('/favorites/toggle/{vacancy}', [\App\Http\Controllers\Seeker\FavoriteVacancyController::class, 'toggle'])->name('app.favorites.toggle');
+        Route::delete('/favorites/{vacancy}', [\App\Http\Controllers\Seeker\FavoriteVacancyController::class, 'destroy'])->name('app.favorites.destroy');
     });
+
+Route::post('/vacancies/{vacancy}/favorite', [\App\Http\Controllers\Seeker\FavoriteVacancyController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('vacancies.favorite.toggle');
 
 Route::prefix('company')
     ->middleware(['auth', 'role:perusahaan'])
@@ -47,8 +57,23 @@ Route::prefix('company')
         Route::resource('vacancies', \App\Http\Controllers\Company\VacancyController::class, [
             'as' => 'company'
         ]);
+        Route::patch('/vacancies/{vacancy}/status', [\App\Http\Controllers\Company\VacancyController::class, 'updateStatus'])->name('company.vacancies.updateStatus');
         Route::get('/applications', [\App\Http\Controllers\Company\ApplicationReviewController::class, 'index'])->name('company.applications.index');
         Route::patch('/applications/{application}/status', [\App\Http\Controllers\Company\ApplicationReviewController::class, 'updateStatus'])->name('company.applications.updateStatus');
+        Route::post('/applications/{application}/notify', [\App\Http\Controllers\Company\ApplicationReviewController::class, 'sendNotification'])->name('company.applications.notify');
+        Route::get('/candidates', [\App\Http\Controllers\Company\CandidateController::class, 'index'])->name('company.candidates.index');
+        Route::get('/candidates/{id}', [\App\Http\Controllers\Company\CandidateController::class, 'show'])->name('company.candidates.show');
+        Route::post('/candidates/{id}/notes', [\App\Http\Controllers\Company\CandidateController::class, 'updateNotes'])->name('company.candidates.updateNotes');
+        Route::patch('/candidates/{id}/status', [\App\Http\Controllers\Company\CandidateController::class, 'updateStatus'])->name('company.candidates.updateStatus');
+        Route::get('/bi', [\App\Http\Controllers\Company\BusinessIntelligenceController::class, 'index'])->name('company.bi.index');
+        Route::get('/reports', [\App\Http\Controllers\Company\ReportController::class, 'index'])->name('company.reports.index');
+        Route::post('/reports', [\App\Http\Controllers\Company\ReportController::class, 'store'])->name('company.reports.store');
+        Route::get('/reports/{report}/download', [\App\Http\Controllers\Company\ReportController::class, 'download'])->name('company.reports.download');
+        Route::delete('/reports/{report}', [\App\Http\Controllers\Company\ReportController::class, 'destroy'])->name('company.reports.destroy');
+        Route::get('/notifications', [\App\Http\Controllers\Company\NotificationController::class, 'index'])->name('company.notifications.index');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\Company\NotificationController::class, 'markAllAsRead'])->name('company.notifications.readAll');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Company\NotificationController::class, 'markAsRead'])->name('company.notifications.read');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\Company\NotificationController::class, 'destroy'])->name('company.notifications.destroy');
     });
 
 Route::prefix('admin')
@@ -90,6 +115,9 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/email/verify-code', [\App\Http\Controllers\Auth\EmailVerificationCodeController::class, 'verify'])->name('verification.verify-code');
+    Route::post('/email/resend-code', [\App\Http\Controllers\Auth\EmailVerificationCodeController::class, 'resend'])->name('verification.resend-code');
+
     Route::post('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'update'])->name('profile.avatar.update');
     Route::delete('/profile/avatar', [\App\Http\Controllers\ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
     Route::get('/messages', [\App\Http\Controllers\ApplicationMessageController::class, 'inbox'])->name('messages.inbox');

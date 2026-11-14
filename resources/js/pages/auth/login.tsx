@@ -189,7 +189,7 @@ export default function Login({ status, canResetPassword = true }: Props): React
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                         <button
                             type="button"
-                            onClick={() => fillDemoAccount('budi.netra@aksara.id')}
+                            onClick={() => fillDemoAccount('budi.netra@profabel.id')}
                             className="rounded-lg border border-[#E2E8F0] bg-white px-2 py-1.5 text-left text-[11px] font-medium text-slate-700 hover:border-[#007F96] hover:text-[#0C2742] min-h-[36px] transition cursor-pointer"
                         >
                             <strong>Budi</strong> (Netra)
@@ -203,7 +203,7 @@ export default function Login({ status, canResetPassword = true }: Props): React
                         </button>
                         <button
                             type="button"
-                            onClick={() => fillDemoAccount('admin@aksara.id')}
+                            onClick={() => fillDemoAccount('admin@profabel.id')}
                             className="rounded-lg border border-[#E2E8F0] bg-white px-2 py-1.5 text-left text-[11px] font-medium text-slate-700 hover:border-[#007F96] hover:text-[#0C2742] min-h-[36px] transition cursor-pointer"
                         >
                             <strong>Admin</strong> Sistem

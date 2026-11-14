@@ -287,14 +287,14 @@ export default function AdminUsersIndex({
 
   return (
     <AdminLayout>
-      <Head title="Kelola Pengguna - AKSARA" />
+      <Head title="Kelola Pengguna - Profabel" />
       <main className="min-h-screen bg-[#F8FBFE] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1440px] space-y-6">
           {/* Header */}
           <div>
             <h1 className="text-2xl font-black tracking-tight text-[#102B4B] sm:text-3xl">Kelola Pengguna</h1>
             <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-              Kelola data pengguna yang terdaftar di AKSARA, baik pelamar maupun perusahaan.
+              Kelola data pengguna yang terdaftar di Profabel, baik pelamar maupun perusahaan.
             </p>
           </div>
 
@@ -687,19 +687,19 @@ export default function AdminUsersIndex({
                                 )
                               )}
 
-                              {/* 3. Nonaktifkan / Aktifkan / Hapus Akun */}
+                              {/* 3. Nonaktifkan / Aktifkan & Hapus Akun */}
                               {user.role !== 'admin' && (
-                                !user.is_disabled ? (
-                                  <DropdownMenuItem
-                                    onSelect={() => openAction('deactivate', user)}
-                                    onClick={() => openAction('deactivate', user)}
-                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-amber-600 hover:bg-amber-50 cursor-pointer"
-                                  >
-                                    <UserX className="h-3.5 w-3.5 text-amber-500" />
-                                    Nonaktifkan Akun
-                                  </DropdownMenuItem>
-                                ) : (
-                                  <>
+                                <>
+                                  {!user.is_disabled ? (
+                                    <DropdownMenuItem
+                                      onSelect={() => openAction('deactivate', user)}
+                                      onClick={() => openAction('deactivate', user)}
+                                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-amber-600 hover:bg-amber-50 cursor-pointer"
+                                    >
+                                      <UserX className="h-3.5 w-3.5 text-amber-500" />
+                                      Nonaktifkan Akun
+                                    </DropdownMenuItem>
+                                  ) : (
                                     <DropdownMenuItem
                                       onSelect={() => openAction('activate', user)}
                                       onClick={() => openAction('activate', user)}
@@ -708,16 +708,16 @@ export default function AdminUsersIndex({
                                       <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
                                       Aktifkan Akun
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onSelect={() => openAction('destroy', user)}
-                                      onClick={() => openAction('destroy', user)}
-                                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                                      Hapus Akun
-                                    </DropdownMenuItem>
-                                  </>
-                                )
+                                  )}
+                                  <DropdownMenuItem
+                                    onSelect={() => openAction('destroy', user)}
+                                    onClick={() => openAction('destroy', user)}
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                                    Hapus Akun Permanen
+                                  </DropdownMenuItem>
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1062,28 +1062,41 @@ export default function AdminUsersIndex({
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="border-t border-slate-100 p-5 flex gap-3">
-              {selectedUser.role !== 'admin' && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => openAction(selectedUser.is_disabled ? 'activate' : 'deactivate', selectedUser)}
-                  className={`flex-1 rounded-xl text-xs font-bold ${
-                    selectedUser.is_disabled
-                      ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
-                      : 'border-rose-200 text-rose-600 hover:bg-rose-50'
-                  }`}
-                >
-                  <UserX className="mr-1.5 h-3.5 w-3.5" />
-                  {selectedUser.is_disabled ? 'Aktifkan Akun' : 'Nonaktifkan Akun'}
-                </Button>
-              )}
+            <div className="border-t border-slate-100 p-5 flex flex-col gap-2.5">
+              <div className="flex gap-2">
+                {selectedUser.role !== 'admin' && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => openAction(selectedUser.is_disabled ? 'activate' : 'deactivate', selectedUser)}
+                    className={`flex-1 rounded-xl text-xs font-bold ${
+                      selectedUser.is_disabled
+                        ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                        : 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                    }`}
+                  >
+                    <UserX className="mr-1.5 h-3.5 w-3.5" />
+                    {selectedUser.is_disabled ? 'Aktifkan Akun' : 'Nonaktifkan Akun'}
+                  </Button>
+                )}
+                {selectedUser.role !== 'admin' && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => openAction('destroy', selectedUser)}
+                    className="flex-1 rounded-xl text-xs font-bold border-rose-200 text-rose-600 hover:bg-rose-50"
+                  >
+                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                    Hapus Permanen
+                  </Button>
+                )}
+              </div>
               <a
                 href={`mailto:${selectedUser.email}`}
-                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#1769E0] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#1254B5] transition shadow-sm"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#1769E0] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#1254B5] transition shadow-sm"
               >
                 <Mail className="h-3.5 w-3.5" />
-                <span>Kirim Pesan</span>
+                <span>Kirim Pesan Email</span>
               </a>
             </div>
           </aside>
@@ -1103,10 +1116,10 @@ export default function AdminUsersIndex({
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
               {action === 'destroy'
-                ? `Akun ${selectedUser?.name} dan seluruh datanya akan dihapus permanen dari platform AKSARA. Tindakan ini tidak dapat dibatalkan.`
+                ? `Akun ${selectedUser?.name} (${selectedUser?.email}) akan dihapus secara permanen dari database. Email ini akan dapat didaftarkan kembali jika diinginkan.`
                 : action === 'activate'
-                ? `Akun ${selectedUser?.name} akan diaktifkan kembali dan dapat masuk ke platform AKSARA.`
-                : `Akun ${selectedUser?.name} akan dinonaktifkan sementara selama 30 hari sebelum dihapus otomatis.`}
+                ? `Akun ${selectedUser?.name} akan diaktifkan kembali dan dapat masuk ke platform Profabel.`
+                : `Akun ${selectedUser?.name} hanya akan dinonaktifkan sementara (suspend) selama 30 hari. Data dan email tetap tersimpan di database.`}
             </DialogDescription>
           </DialogHeader>
 

@@ -39,10 +39,12 @@ class ProfilePortfolioController extends Controller
             'certifications.*.credential_url' => ['nullable', 'url', 'max:255'],
         ]);
 
-        $request->user()->jobSeekerProfile()->updateOrCreate(
+        $profile = $request->user()->jobSeekerProfile()->updateOrCreate(
             ['user_id' => $request->user()->id],
             $validated
         );
+
+        $profile->calculateCompleteness();
 
         return back()->with('status', 'Portofolio berhasil disimpan.');
     }

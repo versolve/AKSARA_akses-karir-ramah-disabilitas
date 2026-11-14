@@ -39,6 +39,8 @@ class AccessibilityProfileController extends Controller
             $validated
         );
 
+        $request->user()->jobSeekerProfile?->calculateCompleteness();
+
         return back()->with('status', 'Profil aksesibilitas berhasil disimpan.');
     }
 }

@@ -81,7 +81,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
   const educations = profile.educations ?? [];
   const projects = profile.projects ?? [];
   const certifications = profile.certifications ?? [];
-  const completion = Math.min(100, Math.max(0, profile.profile_completed_percentage ?? 80));
+  const completion = Math.min(100, Math.max(0, profile.profile_completed_percentage ?? 0));
 
   return (
     <AppLayout>

@@ -1,4 +1,4 @@
-# AKSARA (Akses Karier Ramah Disabilitas)
+# Profabel (Platform Karier Ramah Disabilitas)
 
 Platform portal pencarian kerja inklusif yang menghubungkan penyandang disabilitas dengan perusahaan yang menyediakan fasilitas dan akomodasi aksesibilitas tempat kerja.
 
@@ -43,12 +43,12 @@ Aplikasi telah dilengkapi seeder data realistis yang siap diuji:
 
 | Peran (Role) | Email | Kata Sandi | Keterangan / Profil |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@aksara.id` | `password123` | Pengelola & verifikator platform |
+| **Administrator** | `admin@profabel.id` | `password123` | Pengelola & verifikator platform |
 | **Perusahaan (HR)** | `hr@inklusiftech.id` | `password123` | PT Inklusif Teknologi Nusantara (IT & Software) |
 | **Perusahaan (HR)** | `hr@karyasama.id` | `password123` | PT Karya Bersama Inklusif (Contact Center & Admin) |
-| **Pelamar (Netra)** | `budi.netra@aksara.id` | `password123` | Budi Santoso - Frontend Developer (Screen Reader) |
-| **Pelamar (Fisik)** | `siti.fisik@aksara.id` | `password123` | Siti Rahmawati - Data Entry (Kursi Roda / Ram) |
-| **Pelamar (Rungu)** | `andi.rungu@aksara.id` | `password123` | Andi Wijaya - Live Chat QA (Komunikasi Tertulis) |
+| **Pelamar (Netra)** | `budi.netra@profabel.id` | `password123` | Budi Santoso - Frontend Developer (Screen Reader) |
+| **Pelamar (Fisik)** | `siti.fisik@profabel.id` | `password123` | Siti Rahmawati - Data Entry (Kursi Roda / Ram) |
+| **Pelamar (Rungu)** | `andi.rungu@profabel.id` | `password123` | Andi Wijaya - Live Chat QA (Komunikasi Tertulis) |
 
 ---
 
@@ -73,7 +73,7 @@ Aplikasi telah dilengkapi seeder data realistis yang siap diuji:
 ### 2. Langkah Setup Proyek
 ```bash
 # 1. Masuk ke direktori proyek
-cd C:/!project/project_WE/AKSARA
+cd C:/!project/project_WE/Profabel
 
 # 2. Install dependensi PHP
 composer install
@@ -142,4 +142,4 @@ Seluruh alur bisnis telah diverifikasi menggunakan pengujian unit dan fitur (TDD
 - [x] **Fase 2 Plus**: Sistem Pesan Internal, Notifikasi Status Lamaran, Role Dashboards, & Demo Data Seeder.
 - [x] **Fase 3**: Integrasi AI Engine (Google Gemini Live - Job Matching, Skill Gap Analysis, CV ATS Assistant).
 - [x] **Fase 4**: Panel Moderasi Administrator & Laporan Statistik.
-- [x] **Fase 5**: Final Visual Polish (Gaya Minimalis Bersih, Desain Landing Page Baru, Identitas Logo Aksara, Aksesibilitas Keyboard Ring).
+- [x] **Fase 5**: Final Visual Polish (Gaya Minimalis Bersih, Desain Landing Page Baru, Identitas Logo Profabel, Aksesibilitas Keyboard Ring).

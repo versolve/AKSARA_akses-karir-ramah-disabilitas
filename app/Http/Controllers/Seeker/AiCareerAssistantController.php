@@ -37,6 +37,7 @@ class AiCareerAssistantController extends Controller
     public function index(Request $request): Response
     {
         $seeker = $this->getSeekerProfile($request);
+        $user = $request->user();
 
         // Fetch user's saved matches or recommended active vacancies
         $matches = AiJobMatch::where('job_seeker_profile_id', $seeker->id)
@@ -44,10 +45,32 @@ class AiCareerAssistantController extends Controller
             ->orderByDesc('match_percentage')
             ->get();
 
+        // Ensure legacy AiJobMatch records are mirrored in AiHistory
+        foreach ($matches as $legacyMatch) {
+            if (! $legacyMatch->vacancy) {
+                continue;
+            }
+            $exists = $seeker->aiHistories()
+                ->where('type', 'job_match')
+                ->where('metadata_source', (string) $legacyMatch->vacancy_id)
+                ->exists();
+
+            if (! $exists) {
+                $legacyVacancy = $legacyMatch->vacancy->loadMissing(['companyProfile', 'accessibilities']);
+                $payload = $legacyMatch->toArray();
+                $payload['vacancy'] = $legacyVacancy->toArray();
+                $seeker->aiHistories()->create([
+                    'type' => 'job_match',
+                    'payload' => $payload,
+                    'metadata_source' => (string) $legacyMatch->vacancy_id,
+                    'analyzed_at' => $legacyMatch->created_at ?? now(),
+                ]);
+            }
+        }
+
         $activeVacancies = Vacancy::active()
-            ->with(['companyProfile', 'accessibilities'])
+            ->with(['companyProfile.user', 'accessibilities'])
             ->latest()
-            ->limit(8)
             ->get();
 
         $aiHistories = $seeker->aiHistories()
@@ -62,10 +85,15 @@ class AiCareerAssistantController extends Controller
                 'analyzed_at' => $history->analyzed_at?->toIso8601String(),
             ]);
 
+        $favoriteVacancyIds = $user
+            ? $user->savedVacancies()->pluck('vacancy_id')->all()
+            : [];
+
         return Inertia::render('app/ai-assistant/index', [
             'seeker' => $seeker->load('user.accessibilityProfile'),
             'savedMatches' => $matches,
             'activeVacancies' => $activeVacancies,
+            'favoriteVacancyIds' => $favoriteVacancyIds,
             'aiHistories' => $aiHistories,
             'profileCv' => [
                 'has_cv' => filled($seeker->cv_path),

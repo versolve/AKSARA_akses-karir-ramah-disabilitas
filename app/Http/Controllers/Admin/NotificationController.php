@@ -126,7 +126,7 @@ class NotificationController extends Controller
         $notifications[] = [
             'id' => $sysId,
             'title' => 'Pencadangan Sistem Otomatis Berhasil',
-            'message' => 'Pencadangan database dan berkas sistem AKSARA telah selesai dilakukan secara aman.',
+            'message' => 'Pencadangan database dan berkas sistem Profabel telah selesai dilakukan secara aman.',
             'category' => 'system',
             'link' => '/admin/settings',
             'created_at' => $sysTime->toIso8601String(),

@@ -147,7 +147,7 @@ export function TabPenempatan({ placements }: TabPenempatanProps): ReactElement 
             {/* Row 4: BI Insights */}
             <BiInsightsCard
                 title="Insight BI"
-                subtitle="Ringkasan temuan penting dari analisis data penempatan kerja AKSARA."
+                subtitle="Ringkasan temuan penting dari analisis data penempatan kerja Profabel."
                 actionHref="/admin/reporting?tab=applications"
                 actionLabel="Lihat Laporan Lengkap"
                 items={[

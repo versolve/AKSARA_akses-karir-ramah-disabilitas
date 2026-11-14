@@ -880,7 +880,7 @@ class ReportController extends Controller
                 'companies' => ['label' => "Perusahaan ({$companies})", 'active' => $compActive, 'semi_active' => $compSemi, 'inactive' => $compInact],
             ],
             'registration_sources' => [
-                ['source' => 'Website AKSARA', 'count' => intval($total * 0.42), 'pct' => 42],
+                ['source' => 'Website Profabel', 'count' => intval($total * 0.42), 'pct' => 42],
                 ['source' => 'Media Sosial', 'count' => intval($total * 0.25), 'pct' => 25],
                 ['source' => 'Rekomendasi', 'count' => intval($total * 0.14), 'pct' => 14],
                 ['source' => 'Kampus/Institusi', 'count' => intval($total * 0.10), 'pct' => 10],

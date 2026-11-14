@@ -281,7 +281,16 @@ class DashboardController extends Controller
         ];
 
         foreach ($filteredVacancies as $vac) {
-            $text = strtolower($vac->title . ' ' . implode(' ', (array) ($vac->skills_required ?? [])));
+            $skillsArray = is_array($vac->skills_required) ? $vac->skills_required : [];
+            $skillsFlat = [];
+            foreach ($skillsArray as $sk) {
+                if (is_string($sk)) {
+                    $skillsFlat[] = $sk;
+                } elseif (is_array($sk)) {
+                    $skillsFlat[] = implode(' ', array_filter($sk, 'is_string'));
+                }
+            }
+            $text = strtolower($vac->title . ' ' . implode(' ', $skillsFlat));
             $matched = false;
 
             foreach ($categories as $catKey => &$catVal) {

@@ -41,6 +41,15 @@ class Vacancy extends Model
         'deadline' => 'date',
     ];
 
+    protected $appends = [
+        'time_ago',
+    ];
+
+    public function getTimeAgoAttribute(): string
+    {
+        return $this->created_at ? $this->created_at->diffForHumans() : 'Baru saja';
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -70,6 +79,25 @@ class Vacancy extends Model
     public function aiMatches(): HasMany
     {
         return $this->hasMany(AiJobMatch::class);
+    }
+
+    public function savedVacancies(): HasMany
+    {
+        return $this->hasMany(SavedVacancy::class);
+    }
+
+    public function savedByUsers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_vacancies')->withTimestamps();
+    }
+
+    public function isFavoritedBy(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $this->savedVacancies()->where('user_id', $user->id)->exists();
     }
 
     public function scopeActive(Builder $query): Builder

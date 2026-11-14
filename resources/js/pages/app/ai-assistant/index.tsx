@@ -4,21 +4,26 @@ import {
     AlertCircle,
     ArrowLeft,
     ArrowRight,
+    Bookmark,
     BriefcaseBusiness,
     Building2,
     Check,
     CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
     FileSearch,
     FileText,
     History,
     Lightbulb,
     MapPin,
     Minus,
+    Search,
     Sparkles,
     Trash2,
     TrendingDown,
     TrendingUp,
     Upload,
+    X,
     Zap,
 } from 'lucide-react';
 import {
@@ -28,14 +33,45 @@ import {
     type ReactElement,
 } from 'react';
 
+interface VacancyCompanyProfile {
+    company_name: string;
+    logo_url?: string | null;
+}
+
 interface VacancyItem {
     id: number;
     title: string;
     slug: string;
     work_model: string;
     location: string;
-    skills_required?: string[];
-    company_profile: { company_name: string };
+    skills_required?: any;
+    company_profile: VacancyCompanyProfile;
+}
+
+function parseSkillList(skills: unknown): string[] {
+    if (!skills) return [];
+    if (Array.isArray(skills)) {
+        return skills.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+    }
+    if (typeof skills === 'object') {
+        const obj = skills as Record<string, unknown>;
+        if (Array.isArray(obj.responsibilities)) {
+            return obj.responsibilities.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+        }
+        if (Array.isArray(obj.skills)) {
+            return obj.skills.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+        }
+        return Object.values(obj).filter((s): s is string => typeof s === 'string' && s.trim().length > 0 && s.length < 50);
+    }
+    if (typeof skills === 'string') {
+        try {
+            const parsed = JSON.parse(skills);
+            return parseSkillList(parsed);
+        } catch {
+            return skills.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+    }
+    return [];
 }
 
 interface SavedMatch {
@@ -78,11 +114,12 @@ interface Props {
     seeker: SeekerProfile;
     savedMatches: SavedMatch[];
     activeVacancies: VacancyItem[];
+    favoriteVacancyIds?: number[];
     aiHistories?: AiHistory[];
     profileCv?: ProfileCvMeta;
 }
 
-type Tab = 'home' | 'matches' | 'skillGap' | 'cvReview' | 'history';
+type Tab = 'home' | 'matches' | 'skillGap' | 'cvReview' | 'history' | 'historyDetail';
 
 type SkillGapResult = {
     match_score?: number;
@@ -345,11 +382,17 @@ export default function AiAssistantIndex({
     seeker,
     savedMatches,
     activeVacancies,
+    favoriteVacancyIds = [],
     aiHistories = [],
     profileCv = { has_cv: false },
 }: Props): ReactElement {
     const [activeTab, setActiveTab] = useState<Tab>('home');
     const [selectedVacancyId, setSelectedVacancyId] = useState<string>('');
+    const [vacancySearch, setVacancySearch] = useState<string>('');
+    const [vacancyFilter, setVacancyFilter] = useState<'all' | 'favorites'>('all');
+    const [favoriteIds, setFavoriteIds] = useState<number[]>(favoriteVacancyIds);
+    const [vacancyPage, setVacancyPage] = useState<number>(1);
+    const VACANCIES_PER_PAGE = 4;
     const [isMatching, setIsMatching] = useState(false);
     const [currentMatch, setCurrentMatch] = useState<MatchResult | null>(null);
     const [gapResult, setGapResult] = useState<SkillGapResult | null>(null);
@@ -365,6 +408,10 @@ export default function AiAssistantIndex({
     const [isScanningCv, setIsScanningCv] = useState(false);
     const [cvResult, setCvResult] = useState<CvResult | null>(null);
     const [cvResultTab, setCvResultTab] = useState<
+        'summary' | 'ats' | 'content' | 'keywords' | 'recommendations'
+    >('summary');
+    const [viewingHistory, setViewingHistory] = useState<AiHistory | null>(null);
+    const [historyCvResultTab, setHistoryCvResultTab] = useState<
         'summary' | 'ats' | 'content' | 'keywords' | 'recommendations'
     >('summary');
     const [historyList, setHistoryList] = useState<AiHistory[]>(aiHistories);
@@ -438,6 +485,10 @@ export default function AiAssistantIndex({
             items.filter((item) => item.id !== history.id),
         );
         if (selectedHistoryId === history.id) setSelectedHistoryId(null);
+        if (viewingHistory?.id === history.id) {
+            setViewingHistory(null);
+            setActiveTab('history');
+        }
     };
 
     const handleCvFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -496,9 +547,69 @@ export default function AiAssistantIndex({
         }
     };
 
+    const toggleFavorite = async (e: React.MouseEvent, vacancyId: number): Promise<void> => {
+        e.stopPropagation();
+        const isFav = favoriteIds.includes(vacancyId);
+        setFavoriteIds((prev) =>
+            isFav ? prev.filter((id) => id !== vacancyId) : [...prev, vacancyId],
+        );
+        try {
+            const response = await fetch(`/vacancies/${vacancyId}/favorite`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': csrfToken(),
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.is_favorited) {
+                    setFavoriteIds((prev) => Array.from(new Set([...prev, vacancyId])));
+                } else {
+                    setFavoriteIds((prev) => prev.filter((id) => id !== vacancyId));
+                }
+            }
+        } catch {
+            setFavoriteIds((prev) =>
+                isFav ? [...prev, vacancyId] : prev.filter((id) => id !== vacancyId),
+            );
+        }
+    };
+
     const selectedVacancy = activeVacancies.find(
         (vacancy) => vacancy.id === Number(selectedVacancyId),
     );
+
+    const favoriteVacanciesCount = activeVacancies.filter((v) =>
+        favoriteIds.includes(v.id),
+    ).length;
+
+    const filteredVacancies = activeVacancies.filter((vacancy) => {
+        if (vacancyFilter === 'favorites' && !favoriteIds.includes(vacancy.id)) {
+            return false;
+        }
+        if (!vacancySearch.trim()) return true;
+        const query = vacancySearch.toLowerCase();
+        const titleMatch = vacancy.title.toLowerCase().includes(query);
+        const companyMatch = vacancy.company_profile?.company_name
+            ?.toLowerCase()
+            .includes(query);
+        const locationMatch = vacancy.location?.toLowerCase().includes(query);
+        const workModelMatch = vacancy.work_model?.toLowerCase().includes(query);
+        return Boolean(titleMatch || companyMatch || locationMatch || workModelMatch);
+    });
+
+    const totalVacancyPages = Math.max(
+        1,
+        Math.ceil(filteredVacancies.length / VACANCIES_PER_PAGE),
+    );
+    const paginatedVacancies = filteredVacancies.slice(
+        (vacancyPage - 1) * VACANCIES_PER_PAGE,
+        vacancyPage * VACANCIES_PER_PAGE,
+    );
+    const recentJobMatches = historyList
+        .filter((item) => item.type === 'job_match')
+        .slice(0, 3);
     const getPreviousHistory = (history: AiHistory): AiHistory | null => {
         const candidates = historyList
             .filter(
@@ -556,18 +667,14 @@ export default function AiAssistantIndex({
     };
     const openHistory = (history: AiHistory): void => {
         setSelectedHistoryId(history.id);
-        if (history.type === 'cv_analysis') {
-            setCvResult(history.payload);
-            setActiveTab('cvReview');
-        } else {
-            setCurrentMatch(history.payload);
-            setGapResult(history.payload.skill_gap ?? null);
-            setSelectedVacancyId(String(history.payload.vacancy?.id ?? ''));
-            setActiveTab('matches');
-        }
-    };
-    const openTab = (tab: Exclude<Tab, 'home'>): void => {
+        setViewingHistory(history);
+        setHistoryCvResultTab('summary');
         setRequestError('');
+        setActiveTab('historyDetail');
+    };
+    const openTab = (tab: Exclude<Tab, 'home' | 'historyDetail'>): void => {
+        setRequestError('');
+        setViewingHistory(null);
         setActiveTab(tab);
     };
 
@@ -660,76 +767,175 @@ export default function AiAssistantIndex({
 
                     {activeTab !== 'home' && (
                         <>
-                            <div className="mb-8 flex flex-col gap-4 border-b border-[#DCEAF2] pb-5 sm:flex-row sm:items-end sm:justify-between">
-                                <div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveTab('home')}
-                                        className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-[#1674D1] hover:underline"
-                                    >
-                                        <ArrowLeft className="h-4 w-4" />{' '}
-                                        Kembali ke AI Career Assistant
-                                    </button>
-                                    <div className="flex items-center gap-3">
-                                        {activeTab === 'matches' ? (
-                                            <BriefcaseBusiness className="h-8 w-8 text-[#1674D1]" />
-                                        ) : activeTab === 'cvReview' ? (
-                                            <FileSearch className="h-8 w-8 text-[#6921B7]" />
-                                        ) : activeTab === 'history' ? (
-                                            <History className="h-8 w-8 text-[#1674D1]" />
-                                        ) : (
-                                            <Zap className="h-8 w-8 text-[#12B981]" />
-                                        )}
-                                        <div>
-                                            <h1 className="text-3xl font-extrabold text-[#102B4B]">
-                                                {activeTab === 'matches'
-                                                    ? 'AI Job Matching'
-                                                    : activeTab === 'cvReview'
-                                                      ? 'Analisis CV dengan AI'
-                                                      : activeTab === 'history'
-                                                        ? 'Riwayat Analisis'
-                                                        : 'Analisis Skill Gap'}
-                                            </h1>
-                                            <p className="mt-1 text-sm text-slate-600">
-                                                {activeTab === 'matches'
-                                                    ? 'Temukan seberapa cocok profilmu dengan lowongan yang kamu inginkan.'
-                                                    : activeTab === 'cvReview'
-                                                      ? 'Dapatkan insight agar CV lebih jelas, relevan, dan ramah ATS.'
-                                                      : activeTab === 'history'
-                                                        ? 'Buka kembali hasil analisis lengkap dan bandingkan progresmu.'
-                                                        : 'Kenali kemampuan yang sudah kuat dan langkah yang bisa kamu kembangkan.'}
-                                            </p>
+                            {activeTab === 'historyDetail' && viewingHistory ? (
+                                <div className="mb-8 flex flex-col gap-4 border-b border-[#DCEAF2] pb-5 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="min-w-0 flex-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setActiveTab('history');
+                                                setViewingHistory(null);
+                                            }}
+                                            className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1674D1] hover:underline"
+                                        >
+                                            <ArrowLeft className="h-4 w-4" />{' '}
+                                            Kembali ke Riwayat AI
+                                        </button>
+                                        <div className="flex items-start sm:items-center gap-3">
+                                            <div
+                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+                                                    viewingHistory.type === 'cv_analysis'
+                                                        ? 'bg-[#F2E7FE] text-[#6921B7]'
+                                                        : 'bg-[#EAF4FF] text-[#1674D1]'
+                                                }`}
+                                            >
+                                                {viewingHistory.type === 'cv_analysis' ? (
+                                                    <FileSearch className="h-6 w-6" />
+                                                ) : (
+                                                    <BriefcaseBusiness className="h-6 w-6" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
+                                                        <History className="h-3 w-3" /> Arsip Riwayat
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">
+                                                        Dianalisis pada{' '}
+                                                        {new Date(
+                                                            viewingHistory.analyzed_at ?? Date.now(),
+                                                        ).toLocaleString('id-ID', {
+                                                            dateStyle: 'medium',
+                                                            timeStyle: 'short',
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <h1 className="mt-1 text-xl font-extrabold text-[#102B4B] sm:text-2xl lg:text-3xl leading-snug">
+                                                    {viewingHistory.type === 'cv_analysis'
+                                                        ? `Hasil Analisis CV: ${viewingHistory.metadata_source || 'Profil'}`
+                                                        : `Hasil Job Matching: ${viewingHistory.payload.vacancy?.title || 'Lowongan'}`}
+                                                </h1>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div className="flex shrink-0 items-center gap-2.5 self-start lg:self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => void deleteHistory(viewingHistory)}
+                                            className="inline-flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs sm:text-sm font-bold text-rose-600 shadow-sm hover:bg-rose-50 hover:border-rose-300 transition"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                            Hapus Riwayat
+                                        </button>
+                                        {viewingHistory.type === 'cv_analysis' ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCvResult(null);
+                                                    setViewingHistory(null);
+                                                    openTab('cvReview');
+                                                }}
+                                                className="inline-flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-xl bg-[#6921B7] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#581b9b] transition"
+                                            >
+                                                <Sparkles className="h-4 w-4" />
+                                                Analisis CV Baru
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCurrentMatch(null);
+                                                    setViewingHistory(null);
+                                                    openTab('matches');
+                                                }}
+                                                className="inline-flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-xl bg-[#15527E] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#123B5D] transition"
+                                            >
+                                                <Sparkles className="h-4 w-4" />
+                                                Pencocokan Lowongan Baru
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                                <nav
-                                    className="flex flex-wrap gap-2"
-                                    aria-label="Fitur AI"
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() => openTab('cvReview')}
-                                        className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'cvReview' ? 'bg-[#6921B7] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                            ) : (
+                                <div className="mb-8 flex flex-col gap-4 border-b border-[#DCEAF2] pb-5 sm:flex-row sm:items-end sm:justify-between">
+                                    <div>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (activeTab === 'skillGap' && viewingHistory) {
+                                                    setActiveTab('historyDetail');
+                                                } else {
+                                                    setActiveTab('home');
+                                                }
+                                            }}
+                                            className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-[#1674D1] hover:underline"
+                                        >
+                                            <ArrowLeft className="h-4 w-4" />{' '}
+                                            {activeTab === 'skillGap' && viewingHistory
+                                                ? 'Kembali ke Detail Riwayat'
+                                                : 'Kembali ke AI Career Assistant'}
+                                        </button>
+                                        <div className="flex items-center gap-3">
+                                            {activeTab === 'matches' ? (
+                                                <BriefcaseBusiness className="h-8 w-8 text-[#1674D1]" />
+                                            ) : activeTab === 'cvReview' ? (
+                                                <FileSearch className="h-8 w-8 text-[#6921B7]" />
+                                            ) : activeTab === 'history' ? (
+                                                <History className="h-8 w-8 text-[#1674D1]" />
+                                            ) : (
+                                                <Zap className="h-8 w-8 text-[#12B981]" />
+                                            )}
+                                            <div>
+                                                <h1 className="text-3xl font-extrabold text-[#102B4B]">
+                                                    {activeTab === 'matches'
+                                                        ? 'AI Job Matching'
+                                                        : activeTab === 'cvReview'
+                                                          ? 'Analisis CV dengan AI'
+                                                          : activeTab === 'history'
+                                                            ? 'Riwayat Analisis'
+                                                            : 'Analisis Skill Gap'}
+                                                </h1>
+                                                <p className="mt-1 text-sm text-slate-600">
+                                                    {activeTab === 'matches'
+                                                        ? 'Temukan seberapa cocok profilmu dengan lowongan yang kamu inginkan.'
+                                                        : activeTab === 'cvReview'
+                                                          ? 'Dapatkan insight agar CV lebih jelas, relevan, dan ramah ATS.'
+                                                          : activeTab === 'history'
+                                                            ? 'Buka kembali hasil analisis lengkap dan bandingkan progresmu.'
+                                                            : 'Kenali kemampuan yang sudah kuat dan langkah yang bisa kamu kembangkan.'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <nav
+                                        className="flex flex-wrap gap-2"
+                                        aria-label="Fitur AI"
                                     >
-                                        Analisis CV
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => openTab('matches')}
-                                        className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'matches' ? 'bg-[#15527E] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
-                                    >
-                                        Job Matching
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => openTab('history')}
-                                        className={`inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'history' ? 'bg-[#1674D1] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
-                                    >
-                                        <History className="h-3.5 w-3.5" />{' '}
-                                        Riwayat
-                                    </button>
-                                </nav>
-                            </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => openTab('cvReview')}
+                                            className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'cvReview' ? 'bg-[#6921B7] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                                        >
+                                            Analisis CV
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => openTab('matches')}
+                                            className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'matches' ? 'bg-[#15527E] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                                        >
+                                            Job Matching
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => openTab('history')}
+                                            className={`inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'history' ? 'bg-[#1674D1] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                                        >
+                                            <History className="h-3.5 w-3.5" />{' '}
+                                            Riwayat
+                                        </button>
+                                    </nav>
+                                </div>
+                            )}
 
                             {requestError && (
                                 <div
@@ -744,78 +950,385 @@ export default function AiAssistantIndex({
                             {activeTab === 'matches' && (
                                 <div className="space-y-6">
                                     <section className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
-                                        <h2 className="text-lg font-extrabold text-[#102B4B]">
-                                            Pilih lowongan yang ingin dicocokkan
-                                        </h2>
-                                        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                            {activeVacancies
-                                                .slice(0, 8)
-                                                .map((vacancy) => (
-                                                    <button
-                                                        key={vacancy.id}
-                                                        type="button"
-                                                        onClick={() =>
-                                                            setSelectedVacancyId(
-                                                                String(
-                                                                    vacancy.id,
-                                                                ),
-                                                            )
-                                                        }
-                                                        className={`rounded-xl border p-4 text-left transition ${selectedVacancyId === String(vacancy.id) ? 'border-[#1674D1] bg-[#F0F8FD] ring-2 ring-[#B8D6E5]' : 'border-[#E2EDF3] hover:border-[#9CCAE2]'}`}
-                                                    >
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <Building2 className="h-5 w-5 text-[#1674D1]" />
-                                                            <span className="text-[10px] font-semibold text-slate-500">
-                                                                {
-                                                                    vacancy.work_model
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                        <h3 className="mt-3 line-clamp-2 text-sm font-bold text-[#102B4B]">
-                                                            {vacancy.title}
-                                                        </h3>
-                                                        <p className="mt-1 truncate text-xs text-slate-500">
-                                                            {
-                                                                vacancy
-                                                                    .company_profile
-                                                                    .company_name
-                                                            }
-                                                        </p>
-                                                        <p className="mt-2 flex items-center gap-1 text-xs text-slate-500">
-                                                            <MapPin className="h-3 w-3" />
-                                                            {vacancy.location}
-                                                        </p>
-                                                    </button>
-                                                ))}
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                    Pilih lowongan yang ingin dicocokkan
+                                                </h2>
+                                                <p className="mt-0.5 text-xs text-slate-500">
+                                                    Pilih lowongan dari daftar di bawah untuk dianalisis kecocokannya dengan profil keahlian Anda.
+                                                </p>
+                                            </div>
+                                            {filteredVacancies.length > 0 && (
+                                                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#1674D1] self-start sm:self-center">
+                                                    {filteredVacancies.length} Lowongan Tersedia
+                                                </span>
+                                            )}
                                         </div>
-                                        {activeVacancies.length === 0 && (
-                                            <p className="mt-4 text-sm text-slate-500">
-                                                Belum ada lowongan aktif untuk
-                                                dianalisis.
-                                            </p>
+
+                                        {/* Filter Tabs: Semua Lowongan vs Lowongan Favorit */}
+                                        <div className="mt-4 flex flex-wrap items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setVacancyFilter('all');
+                                                    setVacancyPage(1);
+                                                }}
+                                                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                                                    vacancyFilter === 'all'
+                                                        ? 'bg-[#15527E] text-white shadow-xs'
+                                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                                }`}
+                                            >
+                                                Semua Lowongan ({activeVacancies.length})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setVacancyFilter('favorites');
+                                                    setVacancyPage(1);
+                                                }}
+                                                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                                                    vacancyFilter === 'favorites'
+                                                        ? 'bg-amber-500 text-white shadow-xs'
+                                                        : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                                                }`}
+                                            >
+                                                <Bookmark
+                                                    className={`h-3.5 w-3.5 ${vacancyFilter === 'favorites' ? 'fill-white text-white' : 'fill-amber-500 text-amber-500'}`}
+                                                />
+                                                Lowongan Favorit ({favoriteVacanciesCount})
+                                            </button>
+                                        </div>
+
+                                        {/* Search Bar */}
+                                        <div className="relative mt-3">
+                                            <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+                                            <input
+                                                type="text"
+                                                value={vacancySearch}
+                                                onChange={(e) => {
+                                                    setVacancySearch(e.target.value);
+                                                    setVacancyPage(1);
+                                                }}
+                                                placeholder={
+                                                    vacancyFilter === 'favorites'
+                                                        ? 'Cari di antara lowongan favorit Anda...'
+                                                        : 'Cari lowongan berdasarkan posisi, perusahaan, atau lokasi...'
+                                                }
+                                                className="w-full rounded-xl border border-[#E2EDF3] bg-white pl-10 pr-10 py-2.5 text-xs text-[#102B4B] placeholder:text-slate-400 focus:border-[#1674D1] focus:ring-2 focus:ring-[#1674D1]/20 outline-none transition"
+                                            />
+                                            {vacancySearch && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setVacancySearch('');
+                                                        setVacancyPage(1);
+                                                    }}
+                                                    className="absolute right-3 top-2.5 rounded-lg p-0.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                                                    aria-label="Hapus pencarian"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* List Kebawah (Vertical List) */}
+                                        <div className="mt-4 space-y-3">
+                                            {paginatedVacancies.map((vacancy) => {
+                                                const isSelected = selectedVacancyId === String(vacancy.id);
+                                                const isFavorited = favoriteIds.includes(vacancy.id);
+                                                const companyName = vacancy.company_profile?.company_name || 'Perusahaan';
+                                                const companyLogo = vacancy.company_profile?.logo_url;
+                                                const companyInitial = companyName
+                                                    .replace(/^PT\.?\s+/i, '')
+                                                    .substring(0, 2)
+                                                    .toUpperCase();
+                                                const workModelBadge =
+                                                    vacancy.work_model === 'remote'
+                                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                                        : vacancy.work_model === 'hybrid'
+                                                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                        : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                                                return (
+                                                    <div
+                                                        key={vacancy.id}
+                                                        onClick={() => setSelectedVacancyId(String(vacancy.id))}
+                                                        className={`group flex cursor-pointer flex-col justify-between gap-3 rounded-2xl border p-4 sm:p-5 transition sm:flex-row sm:items-center ${
+                                                            isSelected
+                                                                ? 'border-[#1674D1] bg-[#F0F8FD] ring-2 ring-[#B8D6E5] shadow-xs'
+                                                                : 'border-[#E2EDF3] bg-white hover:border-[#9CCAE2] hover:bg-[#F9FCFE]'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-start gap-3.5 min-w-0">
+                                                            {companyLogo ? (
+                                                                <img
+                                                                    src={companyLogo}
+                                                                    alt={companyName}
+                                                                    className="h-12 w-12 shrink-0 rounded-2xl object-cover border border-[#E2EDF3] bg-white shadow-xs"
+                                                                />
+                                                            ) : (
+                                                                <div
+                                                                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border font-black text-xs tracking-wider transition ${
+                                                                        isSelected
+                                                                            ? 'bg-white text-[#1674D1] border-blue-200 shadow-xs'
+                                                                            : 'bg-[#EBF5FA] text-[#123B5D] border-blue-100/70'
+                                                                    }`}
+                                                                >
+                                                                    {companyInitial}
+                                                                </div>
+                                                            )}
+
+                                                            <div className="min-w-0 flex-1">
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <h3 className="font-bold text-sm sm:text-base text-[#102B4B] group-hover:text-[#1674D1] transition">
+                                                                        {vacancy.title}
+                                                                    </h3>
+                                                                    <span
+                                                                        className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${workModelBadge}`}
+                                                                    >
+                                                                        {vacancy.work_model}
+                                                                    </span>
+                                                                    {isFavorited && (
+                                                                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                                                                            <Bookmark className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                                                                            Favorit
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                                                                    <span className="font-semibold text-slate-700">
+                                                                        {companyName}
+                                                                    </span>
+                                                                    <span>•</span>
+                                                                    <span className="flex items-center gap-1">
+                                                                        <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                                                        {vacancy.location}
+                                                                    </span>
+                                                                </div>
+
+                                                                {parseSkillList(vacancy.skills_required).length > 0 && (
+                                                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                                                        {parseSkillList(vacancy.skills_required).slice(0, 4).map((skill) => (
+                                                                            <span
+                                                                                key={skill}
+                                                                                className="rounded-lg bg-slate-100/80 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+                                                                            >
+                                                                                {skill}
+                                                                            </span>
+                                                                        ))}
+                                                                        {parseSkillList(vacancy.skills_required).length > 4 && (
+                                                                            <span className="text-[10px] text-slate-400 self-center">
+                                                                                +{parseSkillList(vacancy.skills_required).length - 4} lainnya
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Selection & Favorite Actions */}
+                                                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => void toggleFavorite(e, vacancy.id)}
+                                                                title={isFavorited ? 'Hapus dari favorit' : 'Simpan ke favorit'}
+                                                                className={`flex h-8 w-8 items-center justify-center rounded-xl transition cursor-pointer ${
+                                                                    isFavorited
+                                                                        ? 'bg-amber-50 text-amber-500 hover:bg-amber-100'
+                                                                        : 'bg-slate-100 text-slate-400 hover:text-amber-500 hover:bg-slate-200'
+                                                                }`}
+                                                                aria-label={`Favoritkan ${vacancy.title}`}
+                                                            >
+                                                                <Bookmark className={`h-4 w-4 ${isFavorited ? 'fill-amber-500' : ''}`} />
+                                                            </button>
+                                                            {isSelected ? (
+                                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1674D1] px-4 py-1.5 text-xs font-bold text-white shadow-xs">
+                                                                    <Check className="h-4 w-4" />
+                                                                    Terpilih
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-xs font-semibold text-slate-600 group-hover:border-[#1674D1] group-hover:bg-blue-50 group-hover:text-[#1674D1] transition">
+                                                                    Pilih Lowongan
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Empty State */}
+                                        {filteredVacancies.length === 0 && (
+                                            <div className="mt-4 rounded-2xl border border-dashed border-[#CFE6F7] bg-white p-8 text-center">
+                                                {vacancyFilter === 'favorites' ? (
+                                                    <div>
+                                                        <Bookmark className="mx-auto h-8 w-8 text-amber-500" />
+                                                        <h3 className="mt-3 text-sm font-bold text-[#102B4B]">
+                                                            Belum ada lowongan favorit yang sesuai
+                                                        </h3>
+                                                        <p className="mt-1 text-xs text-slate-500">
+                                                            {vacancySearch
+                                                                ? `Tidak ada lowongan favorit dengan kata kunci "${vacancySearch}".`
+                                                                : 'Simpan lowongan di halaman Cari Kerja untuk memilihnya dengan cepat di sini.'}
+                                                        </p>
+                                                        <div className="mt-4 flex flex-wrap justify-center gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setVacancyFilter('all');
+                                                                    setVacancySearch('');
+                                                                    setVacancyPage(1);
+                                                                }}
+                                                                className="rounded-xl border border-slate-200 px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                                                            >
+                                                                Tampilkan Semua Lowongan
+                                                            </button>
+                                                            <Link
+                                                                href="/jobs"
+                                                                className="rounded-xl bg-[#1674D1] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#125CB3]"
+                                                            >
+                                                                Cari Lowongan
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        {vacancySearch ? (
+                                                            <div>
+                                                                <p className="font-semibold text-slate-700 text-xs">
+                                                                    Tidak ada lowongan yang sesuai dengan kata kunci &quot;{vacancySearch}&quot;
+                                                                </p>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setVacancySearch('');
+                                                                        setVacancyPage(1);
+                                                                    }}
+                                                                    className="mt-2 text-xs font-bold text-[#1674D1] hover:underline cursor-pointer"
+                                                                >
+                                                                    Reset Pencarian
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-xs text-slate-500">Belum ada lowongan aktif untuk dianalisis.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         )}
-                                        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#EDF3F7] pt-5">
-                                            <span className="text-xs text-slate-500">
-                                                Profil: {seeker.user.name}
-                                                {seeker.current_job_title
-                                                    ? ` · ${seeker.current_job_title}`
-                                                    : ''}
-                                            </span>
+
+                                        {/* Pagination Bar */}
+                                        {filteredVacancies.length > 0 && (
+                                            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#EDF3F7] pt-4 text-xs text-slate-500">
+                                                <div>
+                                                    Menampilkan{' '}
+                                                    <span className="font-bold text-[#102B4B]">
+                                                        {(vacancyPage - 1) * VACANCIES_PER_PAGE + 1}
+                                                    </span>{' '}
+                                                    -{' '}
+                                                    <span className="font-bold text-[#102B4B]">
+                                                        {Math.min(
+                                                            filteredVacancies.length,
+                                                            vacancyPage * VACANCIES_PER_PAGE,
+                                                        )}
+                                                    </span>{' '}
+                                                    dari{' '}
+                                                    <span className="font-bold text-[#102B4B]">
+                                                        {filteredVacancies.length}
+                                                    </span>{' '}
+                                                    lowongan
+                                                </div>
+
+                                                {totalVacancyPages > 1 && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setVacancyPage((p) => Math.max(1, p - 1))
+                                                            }
+                                                            disabled={vacancyPage === 1}
+                                                            className="flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                                        >
+                                                            <ChevronLeft className="h-3.5 w-3.5" />
+                                                            <span className="hidden sm:inline">Sebelumnya</span>
+                                                        </button>
+
+                                                        {Array.from(
+                                                            { length: totalVacancyPages },
+                                                            (_, i) => i + 1,
+                                                        ).map((pageNum) => (
+                                                            <button
+                                                                key={pageNum}
+                                                                type="button"
+                                                                onClick={() => setVacancyPage(pageNum)}
+                                                                className={`h-8 min-w-[32px] px-2 rounded-xl text-xs font-bold transition ${
+                                                                    vacancyPage === pageNum
+                                                                        ? 'bg-[#1674D1] text-white shadow-xs'
+                                                                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                                                }`}
+                                                            >
+                                                                {pageNum}
+                                                            </button>
+                                                        ))}
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setVacancyPage((p) =>
+                                                                    Math.min(totalVacancyPages, p + 1),
+                                                                )
+                                                            }
+                                                            disabled={vacancyPage === totalVacancyPages}
+                                                            className="flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                                        >
+                                                            <span className="hidden sm:inline">Selanjutnya</span>
+                                                            <ChevronRight className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Action Bar */}
+                                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#EDF3F7] pt-5">
+                                            <div className="space-y-0.5">
+                                                <span className="text-xs text-slate-500 block">
+                                                    Profil:{' '}
+                                                    <strong className="text-slate-700">
+                                                        {seeker.user.name}
+                                                    </strong>
+                                                    {seeker.current_job_title
+                                                        ? ` · ${seeker.current_job_title}`
+                                                        : ''}
+                                                </span>
+                                                {selectedVacancy ? (
+                                                    <span className="text-xs text-[#1674D1] font-bold flex items-center gap-1">
+                                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                                        Lowongan dipilih: {selectedVacancy.title} ({selectedVacancy.company_profile.company_name})
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[11px] text-amber-600 font-medium">
+                                                        Pilih salah satu lowongan di atas untuk memulai analisis
+                                                    </span>
+                                                )}
+                                            </div>
+
                                             <button
                                                 type="button"
                                                 onClick={() =>
                                                     selectedVacancyId &&
                                                     void handleRunMatch(
-                                                        Number(
-                                                            selectedVacancyId,
-                                                        ),
+                                                        Number(selectedVacancyId),
                                                     )
                                                 }
                                                 disabled={
                                                     !selectedVacancyId ||
                                                     isMatching
                                                 }
-                                                className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#15527E] px-5 text-sm font-bold text-white transition hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1] disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#15527E] px-6 text-sm font-bold text-white transition hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1] disabled:cursor-not-allowed disabled:opacity-50 shadow-sm"
                                             >
                                                 <Sparkles className="h-4 w-4" />
                                                 {isMatching
@@ -959,61 +1472,75 @@ export default function AiAssistantIndex({
                                     )}
 
                                     <section className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
-                                        <h2 className="text-lg font-extrabold text-[#102B4B]">
-                                            Riwayat pencocokan
-                                        </h2>
-                                        {savedMatches.length === 0 ? (
-                                            <p className="mt-3 text-sm text-slate-500">
-                                                Belum ada riwayat pencocokan.
-                                                Pilih lowongan untuk memulai.
+                                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                    Riwayat pencocokan
+                                                </h2>
+                                                <p className="mt-0.5 text-xs text-slate-500">
+                                                    3 riwayat pencocokan terakhir (real-time).
+                                                </p>
+                                            </div>
+                                            {historyList.filter((item) => item.type === 'job_match').length > 3 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openTab('history')}
+                                                    className="self-start sm:self-center text-xs font-bold text-[#1674D1] hover:underline cursor-pointer"
+                                                >
+                                                    Lihat Semua ({historyList.filter((item) => item.type === 'job_match').length}) →
+                                                </button>
+                                            )}
+                                        </div>
+                                        {recentJobMatches.length === 0 ? (
+                                            <p className="mt-4 text-sm text-slate-500">
+                                                Belum ada riwayat pencocokan. Pilih lowongan di atas untuk memulai.
                                             </p>
                                         ) : (
-                                            <div className="mt-3 divide-y divide-[#EDF3F7]">
-                                                {savedMatches.map((match) => (
-                                                    <div
-                                                        key={match.id}
-                                                        className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
-                                                    >
-                                                        <div>
-                                                            <div className="flex flex-wrap items-center gap-2">
-                                                                <span className="rounded-full bg-[#E2F7EF] px-2.5 py-1 text-xs font-bold text-[#087A5E]">
-                                                                    {clampScore(
-                                                                        match.match_percentage,
-                                                                    ) ?? 0}
-                                                                    % cocok
-                                                                </span>
-                                                                <h3 className="font-bold text-[#102B4B]">
-                                                                    {
-                                                                        match
-                                                                            .vacancy
-                                                                            .title
-                                                                    }
-                                                                </h3>
-                                                            </div>
-                                                            <p className="mt-1 text-xs text-slate-500">
-                                                                {
-                                                                    match
-                                                                        .vacancy
-                                                                        .company_profile
-                                                                        .company_name
-                                                                }{' '}
-                                                                ·{' '}
-                                                                {
-                                                                    match
-                                                                        .vacancy
-                                                                        .location
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                        <Link
-                                                            href={`/jobs/${match.vacancy.slug}`}
-                                                            className="inline-flex min-h-10 items-center justify-center gap-1 rounded-xl border border-[#1674D1] px-3 text-xs font-bold text-[#1674D1]"
+                                            <div className="mt-4 divide-y divide-[#EDF3F7]">
+                                                {recentJobMatches.map((historyItem) => {
+                                                    const score = clampScore(
+                                                        historyItem.payload.match_percentage,
+                                                    );
+                                                    const vacancy = historyItem.payload.vacancy;
+                                                    return (
+                                                        <div
+                                                            key={historyItem.id}
+                                                            className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
                                                         >
-                                                            Lihat Lowongan{' '}
-                                                            <ArrowRight className="h-3.5 w-3.5" />
-                                                        </Link>
-                                                    </div>
-                                                ))}
+                                                            <div className="min-w-0 flex-1 pr-3">
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <span className="rounded-full bg-[#E2F7EF] px-2.5 py-1 text-xs font-bold text-[#087A5E]">
+                                                                        {score ?? 0}% cocok
+                                                                    </span>
+                                                                    <h3 className="font-bold text-[#102B4B] truncate">
+                                                                        {vacancy?.title ?? 'Pencocokan Lowongan'}
+                                                                    </h3>
+                                                                </div>
+                                                                <p className="mt-1 text-xs text-slate-500">
+                                                                    {vacancy?.company_profile?.company_name || 'Perusahaan'}
+                                                                    {vacancy?.location ? ` · ${vacancy.location}` : ''}
+                                                                    {historyItem.analyzed_at && (
+                                                                        <span className="text-slate-400">
+                                                                            {' '}•{' '}
+                                                                            {new Date(historyItem.analyzed_at).toLocaleString('id-ID', {
+                                                                                dateStyle: 'medium',
+                                                                                timeStyle: 'short',
+                                                                            })}
+                                                                        </span>
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => openHistory(historyItem)}
+                                                                className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-[#1674D1] bg-white px-3.5 text-xs font-bold text-[#1674D1] shadow-xs hover:bg-[#F0F8FD] transition cursor-pointer"
+                                                            >
+                                                                Lihat Detail Riwayat
+                                                                <ArrowRight className="h-3.5 w-3.5" />
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </section>
@@ -2430,6 +2957,529 @@ export default function AiAssistantIndex({
                                         )}
                                     </div>
                                 </section>
+                            )}
+
+                            {activeTab === 'historyDetail' && viewingHistory && (
+                                <div className="space-y-6">
+                                    {viewingHistory.type === 'job_match' ? (
+                                        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.8fr)]">
+                                            <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
+                                                <div className="flex flex-col gap-5 border-b border-[#EDF3F7] pb-5 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div>
+                                                        <p className="text-xs font-semibold text-[#1674D1]">
+                                                            Hasil evaluasi kecocokan profil tersimpan
+                                                        </p>
+                                                        <h2 className="mt-1 text-2xl font-extrabold text-[#102B4B]">
+                                                            {viewingHistory.payload.vacancy?.title ?? 'Lowongan terpilih'}
+                                                        </h2>
+                                                        <p className="mt-1 text-sm text-slate-500">
+                                                            {viewingHistory.payload.vacancy?.company_profile?.company_name || 'Perusahaan'}
+                                                            {viewingHistory.payload.vacancy?.location ? ` · ${viewingHistory.payload.vacancy.location}` : ''}
+                                                            {viewingHistory.payload.vacancy?.work_model ? ` · ${viewingHistory.payload.vacancy.work_model}` : ''}
+                                                        </p>
+                                                    </div>
+                                                    <ScoreRing
+                                                        value={clampScore(
+                                                            viewingHistory.payload.match_percentage,
+                                                        )}
+                                                    />
+                                                </div>
+                                                <p className="mt-5 text-sm leading-relaxed text-slate-600">
+                                                    {viewingHistory.payload.summary ||
+                                                        'Profilmu sudah dibandingkan dengan kebutuhan lowongan ini.'}
+                                                </p>
+                                                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                                    <MetricBar
+                                                        label="Skill"
+                                                        value={viewingHistory.payload.competency_score}
+                                                    />
+                                                    <MetricBar
+                                                        label="Pengalaman"
+                                                        value={viewingHistory.payload.experience_score}
+                                                        color="#6D4AE8"
+                                                    />
+                                                    <MetricBar
+                                                        label="Proyek"
+                                                        value={viewingHistory.payload.project_score}
+                                                        color="#8B5CF6"
+                                                    />
+                                                    <MetricBar
+                                                        label="Aksesibilitas"
+                                                        value={viewingHistory.payload.accessibility_score}
+                                                        color="#12B981"
+                                                    />
+                                                </div>
+                                                <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                                                    <div>
+                                                        <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#102B4B]">
+                                                            <CheckCircle2 className="h-4 w-4 text-[#12B981]" />
+                                                            Yang sesuai
+                                                        </h3>
+                                                        <BulletList
+                                                            items={viewingHistory.payload.matching_points}
+                                                            emptyText="Belum ada poin kecocokan yang tersedia."
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#102B4B]">
+                                                            <AlertCircle className="h-4 w-4 text-[#F59E0B]" />
+                                                            Area yang perlu diperhatikan
+                                                        </h3>
+                                                        <BulletList
+                                                            items={viewingHistory.payload.gaps}
+                                                            emptyText="Tidak ada gap signifikan yang teridentifikasi."
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {viewingHistory.payload.vacancy?.slug && (
+                                                    <div className="mt-6">
+                                                        <Link
+                                                            href={`/jobs/${viewingHistory.payload.vacancy.slug}`}
+                                                            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#1674D1] px-4 text-sm font-bold text-[#1674D1] hover:bg-[#F0F8FD]"
+                                                        >
+                                                            Lihat Detail Lowongan{' '}
+                                                            <ArrowRight className="h-4 w-4" />
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <aside className="space-y-4">
+                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                    <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                        Alasan kecocokan
+                                                    </h2>
+                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                                        Analisis ini memperhitungkan kompetensi dan kebutuhan aksesibilitas yang tersedia pada profilmu saat pengujian dijalankan.
+                                                    </p>
+                                                    {viewingHistory.payload.skill_gap && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setGapResult(
+                                                                    viewingHistory.payload.skill_gap ?? null,
+                                                                );
+                                                                openTab('skillGap');
+                                                            }}
+                                                            className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#15527E] px-4 text-sm font-bold text-white hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
+                                                        >
+                                                            Lihat Analisis Skill Gap{' '}
+                                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                    <h3 className="text-sm font-extrabold text-[#102B4B]">
+                                                        Informasi Snapshot
+                                                    </h3>
+                                                    <div className="mt-3 space-y-2.5 text-xs text-slate-600">
+                                                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                                            <span className="text-slate-400">Waktu Analisis</span>
+                                                            <span className="font-semibold text-slate-700">
+                                                                {new Date(
+                                                                    viewingHistory.analyzed_at ?? Date.now(),
+                                                                ).toLocaleString('id-ID', {
+                                                                    dateStyle: 'medium',
+                                                                    timeStyle: 'short',
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                                            <span className="text-slate-400">Skor Kecocokan</span>
+                                                            <span className="font-bold text-[#087A5E]">
+                                                                {clampScore(viewingHistory.payload.match_percentage) ?? 0}%
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-400">Perusahaan</span>
+                                                            <span className="font-semibold text-slate-700 truncate max-w-[150px]">
+                                                                {viewingHistory.payload.vacancy?.company_profile?.company_name || '—'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setCurrentMatch(null);
+                                                            setViewingHistory(null);
+                                                            openTab('matches');
+                                                        }}
+                                                        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-[#15527E] px-3 text-xs font-bold text-[#15527E] hover:bg-slate-50 transition"
+                                                    >
+                                                        Cocokkan Lowongan Baru
+                                                    </button>
+                                                </div>
+                                            </aside>
+                                        </section>
+                                    ) : (
+                                        (() => {
+                                            const categoryLabels: Array<
+                                                [keyof CvCategoryScores, string]
+                                            > = [
+                                                ['ats_compatibility', 'ATS Compatibility'],
+                                                ['structure_format', 'Struktur & Format'],
+                                                ['content_relevance', 'Konten & Relevansi'],
+                                                ['keyword_usage', 'Penggunaan Kata Kunci'],
+                                                ['experience_achievement', 'Pengalaman & Pencapaian'],
+                                                ['project_portfolio', 'Proyek & Portofolio'],
+                                            ];
+                                            const strengths: CvDetail[] =
+                                                viewingHistory.payload.strengths_detailed?.length
+                                                    ? viewingHistory.payload.strengths_detailed
+                                                    : (viewingHistory.payload.strengths ?? []).map((title) => ({ title }));
+                                            const improvements: CvDetail[] =
+                                                viewingHistory.payload.improvements_detailed?.length
+                                                    ? viewingHistory.payload.improvements_detailed
+                                                    : (viewingHistory.payload.improvements ?? []).map((title) => ({ title }));
+                                            const fileName = viewingHistory.metadata_source || 'CV Profil';
+                                            const analyzedAt = new Date(
+                                                viewingHistory.analyzed_at ?? Date.now(),
+                                            ).toLocaleString('id-ID', {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short',
+                                            });
+
+                                            return (
+                                                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.65fr)]">
+                                                    <section className="space-y-4">
+                                                        <div className="flex items-center justify-between rounded-xl border border-[#DCEAF2] bg-white px-4 py-3 shadow-sm">
+                                                            <div className="flex min-w-0 items-center gap-3">
+                                                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F2E7FE] text-[#6921B7]">
+                                                                    <FileText className="h-6 w-6" />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="truncate text-sm font-bold text-[#102B4B]">
+                                                                        {fileName}
+                                                                    </p>
+                                                                    <p className="mt-1 text-xs text-slate-500">
+                                                                        Dianalisis pada {analyzedAt}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <span className="rounded-full bg-[#E2F7EF] px-3 py-1 text-xs font-bold text-[#087A5E]">
+                                                                Tersimpan di Riwayat
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="rounded-xl border border-[#DCEAF2] bg-[#F1F8FF] p-4 sm:p-5">
+                                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                                                <FileText className="h-8 w-8 shrink-0 text-[#1674D1]" />
+                                                                <div className="min-w-0 flex-1">
+                                                                    <h3 className="text-base font-extrabold text-[#102B4B]">
+                                                                        Gunakan Template CV ATS
+                                                                    </h3>
+                                                                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+                                                                        Belum punya CV yang ATS-friendly? Gunakan struktur sederhana yang mudah dibaca sistem ATS dan sesuai standar industri.
+                                                                    </p>
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    className="min-h-10 shrink-0 rounded-lg border border-[#1674D1] px-3 text-sm font-bold text-[#1674D1] hover:bg-white"
+                                                                >
+                                                                    Unduh Template CV ATS
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="overflow-x-auto rounded-xl border border-[#DCEAF2] bg-white shadow-sm">
+                                                            <div className="flex min-w-[600px] border-b border-[#EDF3F7] px-2 sm:px-4">
+                                                                {(
+                                                                    [
+                                                                        ['summary', 'Ringkasan'],
+                                                                        ['ats', 'ATS & Struktur CV'],
+                                                                        ['content', 'Konten'],
+                                                                        ['keywords', 'Kata Kunci'],
+                                                                        ['recommendations', 'Rekomendasi'],
+                                                                    ] as const
+                                                                ).map(([tab, label]) => (
+                                                                    <button
+                                                                        key={tab}
+                                                                        type="button"
+                                                                        onClick={() => setHistoryCvResultTab(tab)}
+                                                                        className={`min-h-12 flex-1 border-b-2 px-2 text-xs font-bold transition sm:text-sm ${
+                                                                            historyCvResultTab === tab
+                                                                                ? 'border-[#6921B7] text-[#6921B7]'
+                                                                                : 'border-transparent text-slate-600 hover:text-[#6921B7]'
+                                                                        }`}
+                                                                    >
+                                                                        {label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="rounded-xl border border-[#DCEAF2] bg-white p-4 shadow-sm sm:p-5">
+                                                            {historyCvResultTab === 'summary' && (
+                                                                <>
+                                                                    <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
+                                                                        <FileText className="h-5 w-5 text-[#6921B7]" />
+                                                                        Ringkasan Analisis
+                                                                    </h3>
+                                                                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                                                                        {viewingHistory.payload.summary ||
+                                                                            'Ringkasan analisis belum tersedia.'}
+                                                                    </p>
+                                                                    <div className="mt-6">
+                                                                        <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
+                                                                            <CheckCircle2 className="h-5 w-5 text-[#12B981]" />
+                                                                            Kekuatan Utama
+                                                                        </h3>
+                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                                                                            {strengths.map((item, index) => (
+                                                                                <div
+                                                                                    key={`${item.title}-${index}`}
+                                                                                    className="rounded-xl border border-[#D8F0E8] bg-[#F5FFFB] p-4"
+                                                                                >
+                                                                                    <p className="text-sm font-bold text-[#102B4B]">
+                                                                                        {item.title || 'Kekuatan CV'}
+                                                                                    </p>
+                                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                                                                        {item.description || 'Kekuatan ini terdeteksi dari isi CV.'}
+                                                                                    </p>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                        {strengths.length === 0 && (
+                                                                            <p className="mt-3 text-sm text-slate-500">
+                                                                                Belum ada kekuatan yang terdeteksi.
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="mt-6">
+                                                                        <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
+                                                                            <AlertCircle className="h-5 w-5 text-[#EF4444]" />
+                                                                            Area yang Perlu Ditingkatkan
+                                                                        </h3>
+                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                                                                            {improvements.map((item, index) => (
+                                                                                <div
+                                                                                    key={`${item.title}-${index}`}
+                                                                                    className="rounded-xl border border-[#F3D8D8] bg-[#FFF8F8] p-4"
+                                                                                >
+                                                                                    <p className="text-sm font-bold text-[#102B4B]">
+                                                                                        {item.title || 'Area perbaikan'}
+                                                                                    </p>
+                                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                                                                        {item.description || 'Perlu ditinjau lebih lanjut berdasarkan isi CV.'}
+                                                                                    </p>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                        {improvements.length === 0 && (
+                                                                            <p className="mt-3 text-sm text-slate-500">
+                                                                                Belum ada saran perbaikan.
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                            {historyCvResultTab === 'ats' && (
+                                                                <div>
+                                                                    <h3 className="text-lg font-extrabold text-[#102B4B]">
+                                                                        ATS & Struktur CV
+                                                                    </h3>
+                                                                    <p className="mt-2 text-sm text-slate-600">
+                                                                        Nilai berdasarkan data analisis CV.
+                                                                    </p>
+                                                                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                                                        {categoryLabels.slice(0, 2).map(([key, label]) => (
+                                                                            <MetricBar
+                                                                                key={key}
+                                                                                label={label}
+                                                                                value={viewingHistory.payload.category_scores?.[key]}
+                                                                                color="#6921B7"
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                    <p className="mt-4 text-sm text-slate-600">
+                                                                        Status format:{' '}
+                                                                        <strong className="text-[#102B4B]">
+                                                                            {viewingHistory.payload.formatting_grade || 'Belum tersedia'}
+                                                                        </strong>
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            {historyCvResultTab === 'content' && (
+                                                                <div>
+                                                                    <h3 className="text-lg font-extrabold text-[#102B4B]">
+                                                                        Konten CV
+                                                                    </h3>
+                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                                                        {viewingHistory.payload.summary || 'Analisis konten belum tersedia.'}
+                                                                    </p>
+                                                                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                                                        {categoryLabels.slice(2, 4).map(([key, label]) => (
+                                                                            <MetricBar
+                                                                                key={key}
+                                                                                label={label}
+                                                                                value={viewingHistory.payload.category_scores?.[key]}
+                                                                                color="#6921B7"
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {historyCvResultTab === 'keywords' && (
+                                                                <div>
+                                                                    <h3 className="text-lg font-extrabold text-[#102B4B]">
+                                                                        Kata Kunci yang Disarankan
+                                                                    </h3>
+                                                                    <p className="mt-2 text-sm text-slate-600">
+                                                                        Kata kunci yang terdeteksi relevan untuk posisi target.
+                                                                    </p>
+                                                                    <div className="mt-4 flex flex-wrap gap-2">
+                                                                        {(viewingHistory.payload.suggested_keywords ?? []).map((keyword) => (
+                                                                            <span
+                                                                                key={keyword}
+                                                                                className="rounded-lg bg-[#EAF4FF] px-3 py-2 text-sm font-semibold text-[#15527E]"
+                                                                            >
+                                                                                {keyword}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    {(viewingHistory.payload.suggested_keywords ?? []).length === 0 && (
+                                                                        <p className="mt-4 text-sm text-slate-500">
+                                                                            Belum ada kata kunci yang disarankan.
+                                                                        </p>
+                                                                    )}
+                                                                    <div className="mt-4">
+                                                                        <MetricBar
+                                                                            label="Penggunaan Kata Kunci"
+                                                                            value={viewingHistory.payload.category_scores?.keyword_usage}
+                                                                            color="#12B981"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {historyCvResultTab === 'recommendations' && (
+                                                                <div>
+                                                                    <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
+                                                                        <Lightbulb className="h-5 w-5 text-[#F59E0B]" />
+                                                                        Rekomendasi Tindak Lanjut
+                                                                    </h3>
+                                                                    <ol className="mt-4 space-y-3">
+                                                                        {(viewingHistory.payload.action_recommendations ?? []).map((item, index) => (
+                                                                            <li
+                                                                                key={`${item}-${index}`}
+                                                                                className="flex items-start gap-3 text-sm leading-relaxed text-slate-600"
+                                                                            >
+                                                                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#6921B7] text-xs font-bold text-white">
+                                                                                    {index + 1}
+                                                                                </span>
+                                                                                <span>{item}</span>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ol>
+                                                                    {(viewingHistory.payload.action_recommendations ?? []).length === 0 && (
+                                                                        <p className="mt-3 text-sm text-slate-500">
+                                                                            Belum ada rekomendasi tindak lanjut.
+                                                                        </p>
+                                                                    )}
+                                                                    <div className="mt-5 rounded-xl border border-[#DCEAF2] bg-[#F7FBFD] p-4">
+                                                                        <p className="text-sm font-bold text-[#102B4B]">
+                                                                            Tips aksesibilitas
+                                                                        </p>
+                                                                        <BulletList
+                                                                            items={viewingHistory.payload.accessibility_tips}
+                                                                            emptyText="Belum ada tips aksesibilitas."
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </section>
+
+                                                    <aside className="h-fit space-y-4">
+                                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                                Skor CV Snapshot
+                                                            </h2>
+                                                            <div className="mt-4 flex items-center gap-4">
+                                                                <ScoreRing
+                                                                    value={clampScore(viewingHistory.payload.ats_score)}
+                                                                    label="Skor"
+                                                                />
+                                                                <div className="min-w-0">
+                                                                    <p className="text-sm font-bold text-[#079669]">
+                                                                        {(() => {
+                                                                            const score = clampScore(viewingHistory.payload.ats_score);
+                                                                            return score === null
+                                                                                ? 'Skor belum tersedia'
+                                                                                : score >= 80
+                                                                                  ? 'CV kamu sudah baik!'
+                                                                                  : score >= 60
+                                                                                    ? 'CV kamu cukup baik'
+                                                                                    : 'CV perlu ditingkatkan';
+                                                                        })()}
+                                                                    </p>
+                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                                                        {viewingHistory.payload.summary ||
+                                                                            'Ringkasan analisis belum tersedia.'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                                Penilaian per Kategori
+                                                            </h2>
+                                                            <div className="mt-4 space-y-3">
+                                                                {categoryLabels.map(([key, label]) => (
+                                                                    <MetricBar
+                                                                        key={key}
+                                                                        label={label}
+                                                                        value={viewingHistory.payload.category_scores?.[key]}
+                                                                        color="#6921B7"
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                                Kata Kunci yang Disarankan
+                                                            </h2>
+                                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                                {(viewingHistory.payload.suggested_keywords ?? []).map((keyword) => (
+                                                                    <span
+                                                                        key={keyword}
+                                                                        className="rounded-lg bg-[#EAF4FF] px-3 py-2 text-xs font-semibold text-[#15527E]"
+                                                                    >
+                                                                        {keyword}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                            {(viewingHistory.payload.suggested_keywords ?? []).length === 0 && (
+                                                                <p className="mt-3 text-sm text-slate-500">
+                                                                    Belum ada kata kunci yang disarankan.
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                                Rekomendasi Tindak Lanjut
+                                                            </h2>
+                                                            <ol className="mt-4 space-y-3">
+                                                                {(viewingHistory.payload.action_recommendations ?? []).map((item, index) => (
+                                                                    <li
+                                                                        key={`${item}-${index}`}
+                                                                        className="flex items-start gap-2 text-sm leading-relaxed text-slate-600"
+                                                                    >
+                                                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#6921B7] text-xs font-bold text-white">
+                                                                            {index + 1}
+                                                                        </span>
+                                                                        <span>{item}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ol>
+                                                        </div>
+                                                    </aside>
+                                                </div>
+                                            );
+                                        })()
+                                    )}
+                                </div>
                             )}
                         </>
                     )}

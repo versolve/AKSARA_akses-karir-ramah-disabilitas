@@ -52,6 +52,15 @@ class HandleInertiaRequests extends Middleware
             'adminUnreadNotificationsCount' => fn () => ($user && $user->role === 'admin')
                 ? count(array_filter(\App\Http\Controllers\Admin\NotificationController::collectAdminNotifications($user), fn ($n) => !$n['is_read']))
                 : 0,
+            'companyNotifications' => fn () => ($user && $user->role === 'perusahaan')
+                ? array_slice(\App\Http\Controllers\Company\NotificationController::collectCompanyNotifications($user), 0, 6)
+                : [],
+            'companyUnreadNotificationsCount' => fn () => ($user && $user->role === 'perusahaan')
+                ? count(array_filter(\App\Http\Controllers\Company\NotificationController::collectCompanyNotifications($user), fn ($n) => !$n['is_read']))
+                : 0,
+            'seekerUnreadNotificationsCount' => fn () => ($user && $user->role === 'pelamar')
+                ? $user->unreadNotifications()->count()
+                : 0,
         ];
     }
 }

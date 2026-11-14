@@ -1,43 +1,40 @@
-import { Form, Head } from '@inertiajs/react';
-import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
+import ManagePasskeys from '@/components/manage-passkeys';
+import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
+import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/security';
-/* @chisel-passkeys */
-import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
-import ManagePasskeys from '@/components/manage-passkeys';
-/* @end-chisel-passkeys */
-/* @chisel-2fa */
-import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
-import ManageTwoFactor from '@/components/manage-two-factor';
-/* @end-chisel-2fa */
+import { Form, Head } from '@inertiajs/react';
+import { Check, Lock, ShieldCheck } from 'lucide-react';
+import { useRef } from 'react';
 
-// oxfmt-ignore
 type Props = {
     passwordRules: string;
-} /* @chisel-passkeys */ & ManagePasskeysProps /* @end-chisel-passkeys */ /* @chisel-2fa */ &
-    ManageTwoFactorProps /* @end-chisel-2fa */;
+} & ManagePasskeysProps &
+    ManageTwoFactorProps;
 
 export default function Security(props: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <>
-            <Head title="Security settings" />
+        <div className="space-y-6">
+            <Head title="Keamanan & Sandi - Pengaturan Profabel" />
 
-            <h1 className="sr-only">Security settings</h1>
-
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
-                />
+            {/* Kartu Perbarui Kata Sandi */}
+            <div className="space-y-6 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs sm:p-8">
+                <div className="border-b border-[#F1F5F9] pb-4">
+                    <h2 className="text-base font-bold text-[#102B4B] sm:text-lg">
+                        Perbarui Kata Sandi
+                    </h2>
+                    <p className="mt-1 text-xs text-[#64748B] sm:text-sm">
+                        Pastikan akun Anda menggunakan kata sandi yang kuat dan unik untuk menjaga keamanan akun Anda.
+                    </p>
+                </div>
 
                 <Form
                     {...SecurityController.update.form()}
@@ -59,68 +56,104 @@ export default function Security(props: Props) {
                             currentPasswordInput.current?.focus();
                         }
                     }}
-                    className="space-y-6"
+                    className="space-y-5"
                 >
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="current_password">
-                                    Current password
+                            {/* Kata Sandi Saat Ini */}
+                            <div className="space-y-1.5">
+                                <Label
+                                    htmlFor="current_password"
+                                    className="text-xs font-bold text-[#102B4B]"
+                                >
+                                    Kata Sandi Saat Ini
                                 </Label>
-
                                 <PasswordInput
                                     id="current_password"
                                     ref={currentPasswordInput}
                                     name="current_password"
-                                    className="mt-1 block w-full"
                                     autoComplete="current-password"
-                                    placeholder="Current password"
+                                    placeholder="Masukkan kata sandi saat ini"
+                                    className="h-11 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#102B4B] transition placeholder:text-slate-400 focus:border-[#007F96] focus:bg-white focus:ring-2 focus:ring-[#007F96]/20 sm:text-sm"
                                 />
-
-                                <InputError message={errors.current_password} />
+                                <InputError
+                                    className="text-xs text-rose-600"
+                                    message={errors.current_password}
+                                />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">New password</Label>
-
+                            {/* Kata Sandi Baru */}
+                            <div className="space-y-1.5">
+                                <Label
+                                    htmlFor="password"
+                                    className="text-xs font-bold text-[#102B4B]"
+                                >
+                                    Kata Sandi Baru
+                                </Label>
                                 <PasswordInput
                                     id="password"
                                     ref={passwordInput}
                                     name="password"
-                                    className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="New password"
+                                    placeholder="Minimal 8 karakter"
                                     passwordrules={props.passwordRules}
+                                    className="h-11 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#102B4B] transition placeholder:text-slate-400 focus:border-[#007F96] focus:bg-white focus:ring-2 focus:ring-[#007F96]/20 sm:text-sm"
                                 />
-
-                                <InputError message={errors.password} />
+                                <InputError
+                                    className="text-xs text-rose-600"
+                                    message={errors.password}
+                                />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
+                            {/* Konfirmasi Kata Sandi Baru */}
+                            <div className="space-y-1.5">
+                                <Label
+                                    htmlFor="password_confirmation"
+                                    className="text-xs font-bold text-[#102B4B]"
+                                >
+                                    Konfirmasi Kata Sandi Baru
                                 </Label>
-
                                 <PasswordInput
                                     id="password_confirmation"
                                     name="password_confirmation"
-                                    className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="Confirm password"
+                                    placeholder="Ulangi kata sandi baru"
                                     passwordrules={props.passwordRules}
+                                    className="h-11 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#102B4B] transition placeholder:text-slate-400 focus:border-[#007F96] focus:bg-white focus:ring-2 focus:ring-[#007F96]/20 sm:text-sm"
                                 />
-
                                 <InputError
+                                    className="text-xs text-rose-600"
                                     message={errors.password_confirmation}
                                 />
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            {/* Tips Keamanan Sandi */}
+                            <div className="rounded-2xl border border-[#D0E5F0] bg-[#F0F8FC] p-4 text-xs text-[#123B5D]">
+                                <div className="flex items-center gap-2 font-bold">
+                                    <ShieldCheck className="h-4 w-4 text-[#007F96]" />
+                                    <span>Rekomendasi Kata Sandi Aman:</span>
+                                </div>
+                                <ul className="mt-2 space-y-1 pl-6 text-[#475569]">
+                                    <li className="list-disc">Minimal 8 karakter atau lebih</li>
+                                    <li className="list-disc">Gunakan perpaduan huruf besar, huruf kecil, dan angka</li>
+                                    <li className="list-disc">Hindari menggunakan informasi pribadi seperti tanggal lahir</li>
+                                </ul>
+                            </div>
+
+                            {/* Tombol Simpan */}
+                            <div className="flex items-center justify-end pt-2">
                                 <Button
+                                    type="submit"
                                     disabled={processing}
                                     data-test="update-password-button"
+                                    className="flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#123B5D] px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#0C2742] active:bg-[#091D31] disabled:opacity-50 sm:text-sm"
                                 >
-                                    Save
+                                    <Lock className="h-4 w-4" />
+                                    <span>
+                                        {processing
+                                            ? 'Menyimpan...'
+                                            : 'Perbarui Kata Sandi'}
+                                    </span>
                                 </Button>
                             </div>
                         </>
@@ -128,28 +161,32 @@ export default function Security(props: Props) {
                 </Form>
             </div>
 
-            {/* @chisel-2fa */}
-            <ManageTwoFactor
-                canManageTwoFactor={props.canManageTwoFactor}
-                requiresConfirmation={props.requiresConfirmation}
-                twoFactorEnabled={props.twoFactorEnabled}
-            />
-            {/* @end-chisel-2fa */}
+            {/* Two-Factor Authentication */}
+            <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs sm:p-8">
+                <ManageTwoFactor
+                    canManageTwoFactor={props.canManageTwoFactor}
+                    requiresConfirmation={props.requiresConfirmation}
+                    twoFactorEnabled={props.twoFactorEnabled}
+                />
+            </div>
 
-            {/* @chisel-passkeys */}
-            <ManagePasskeys
-                canManagePasskeys={props.canManagePasskeys}
-                passkeys={props.passkeys}
-            />
-            {/* @end-chisel-passkeys */}
-        </>
+            {/* Passkeys */}
+            {props.canManagePasskeys && (
+                <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs sm:p-8">
+                    <ManagePasskeys
+                        canManagePasskeys={props.canManagePasskeys}
+                        passkeys={props.passkeys}
+                    />
+                </div>
+            )}
+        </div>
     );
 }
 
 Security.layout = {
     breadcrumbs: [
         {
-            title: 'Security settings',
+            title: 'Keamanan Akun',
             href: edit(),
         },
     ],

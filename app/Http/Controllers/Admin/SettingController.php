@@ -26,11 +26,11 @@ class SettingController extends Controller
     protected function getDefaultSettings(): array
     {
         return [
-            'app_name' => 'Aksara',
+            'app_name' => 'Profabel',
             'app_description' => 'Platform karier inklusif yang menghubungkan talenta disabilitas dengan peluang kerja yang setara bagi semua.',
             'app_version' => 'v1.0.0',
             'operational_year' => '2024',
-            'official_email' => 'info@aksara.id',
+            'official_email' => 'info@profabel.id',
             'contact_phone' => '+62 21 1234 5678',
             'logo_url' => '/images/logos/logo_biru.svg',
             'favicon_url' => '/favicon.ico',
@@ -49,7 +49,7 @@ class SettingController extends Controller
             'default_location' => 'Indonesia',
             'last_backup_at' => '12 Jun 2024, 08:30',
             'last_backup_status' => 'Berhasil',
-            'support_email' => 'support@aksara.id',
+            'support_email' => 'support@profabel.id',
             'support_whatsapp' => '+62 812 3456 7890',
             'support_operational_hours' => 'Senin - Jumat, 08:00 - 17:00',
         ];

@@ -16,6 +16,14 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
+        if ($user && ! $user->hasVerifiedEmail()) {
+            if (empty($user->verification_code) || ($user->verification_code_expires_at && now()->gt($user->verification_code_expires_at))) {
+                $user->sendEmailVerificationCode();
+            }
+
+            return redirect()->route('verification.notice');
+        }
+
         return $request->wantsJson()
             ? new JsonResponse(['two_factor' => false], 200)
             : redirect()->intended($user?->getDashboardRoute() ?? $this->redirectPathForCurrentTeam($request, Fortify::redirects('login')));

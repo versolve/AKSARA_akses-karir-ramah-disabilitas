@@ -1,9 +1,7 @@
-import type { LucideIcon } from 'lucide-react';
-import { Monitor, Moon, Sun } from 'lucide-react';
-import type { HTMLAttributes } from 'react';
 import type { Appearance } from '@/hooks/use-appearance';
 import { useAppearance } from '@/hooks/use-appearance';
-import { cn } from '@/lib/utils';
+import { CheckCircle2, Monitor, Moon, Sun } from 'lucide-react';
+import type { HTMLAttributes } from 'react';
 
 export default function AppearanceToggleTab({
     className = '',
@@ -11,35 +9,82 @@ export default function AppearanceToggleTab({
 }: HTMLAttributes<HTMLDivElement>) {
     const { appearance, updateAppearance } = useAppearance();
 
-    const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
-        { value: 'light', icon: Sun, label: 'Light' },
-        { value: 'dark', icon: Moon, label: 'Dark' },
-        { value: 'system', icon: Monitor, label: 'System' },
+    const themeOptions: {
+        value: Appearance;
+        icon: any;
+        label: string;
+        desc: string;
+        iconBg: string;
+        iconColor: string;
+    }[] = [
+        {
+            value: 'light',
+            icon: Sun,
+            label: 'Mode Terang',
+            desc: 'Latar putih bersih dengan kontras tajam untuk kenyamanan siang hari.',
+            iconBg: 'bg-amber-100',
+            iconColor: 'text-amber-600',
+        },
+        {
+            value: 'dark',
+            icon: Moon,
+            label: 'Mode Gelap',
+            desc: 'Latar gelap ramah mata untuk kenyamanan bekerja di ruangan redup.',
+            iconBg: 'bg-slate-800 text-white',
+            iconColor: 'text-indigo-300',
+        },
+        {
+            value: 'system',
+            icon: Monitor,
+            label: 'Otomatis (Sistem)',
+            desc: 'Menyesuaikan otomatis dengan setelan tema sistem operasi perangkat Anda.',
+            iconBg: 'bg-[#EBF5FA]',
+            iconColor: 'text-[#007F96]',
+        },
     ];
 
     return (
-        <div
-            className={cn(
-                'inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800',
-                className,
+        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-3 ${className}`} {...props}>
+            {themeOptions.map(
+                ({ value, icon: Icon, label, desc, iconBg, iconColor }) => {
+                    const isSelected = appearance === value;
+
+                    return (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => updateAppearance(value)}
+                            className={`relative flex flex-col justify-between rounded-2xl border p-5 text-left transition-all ${
+                                isSelected
+                                    ? 'border-[#007F96] bg-[#F0F8FC] shadow-sm ring-2 ring-[#007F96]/20'
+                                    : 'border-[#E2E8F0] bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                            }`}
+                        >
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <div
+                                        className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-2xs ${iconBg}`}
+                                    >
+                                        <Icon className={`h-5 w-5 ${iconColor}`} />
+                                    </div>
+                                    {isSelected && (
+                                        <span className="flex items-center gap-1 text-xs font-bold text-[#007F96]">
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            <span>Aktif</span>
+                                        </span>
+                                    )}
+                                </div>
+                                <h3 className="mt-4 text-sm font-bold text-[#102B4B]">
+                                    {label}
+                                </h3>
+                                <p className="mt-1 text-xs leading-relaxed text-[#64748B]">
+                                    {desc}
+                                </p>
+                            </div>
+                        </button>
+                    );
+                },
             )}
-            {...props}
-        >
-            {tabs.map(({ value, icon: Icon, label }) => (
-                <button
-                    key={value}
-                    onClick={() => updateAppearance(value)}
-                    className={cn(
-                        'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
-                        appearance === value
-                            ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
-                            : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
-                    )}
-                >
-                    <Icon className="-ml-1 h-4 w-4" />
-                    <span className="ml-1.5 text-sm">{label}</span>
-                </button>
-            ))}
         </div>
     );
 }

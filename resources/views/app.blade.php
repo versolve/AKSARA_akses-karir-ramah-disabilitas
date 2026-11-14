@@ -21,6 +21,8 @@
         <style>
             html {
                 background-color: oklch(1 0 0);
+                overflow-y: scroll;
+                scrollbar-gutter: stable;
             }
 
             html.dark {

@@ -34,19 +34,19 @@ class ApplicationMessageController extends Controller
         if ($user->isPelamar()) {
             $seeker = $user->jobSeekerProfile;
             $applicationsQuery = Application::where('job_seeker_profile_id', $seeker?->id ?? 0)
-                ->with(['vacancy.companyProfile'])
+                ->with(['vacancy.companyProfile', 'latestMessage'])
                 ->withCount(['messages as unread_messages_count' => function ($q) use ($user) {
                     $q->where('sender_id', '!=', $user->id)->where('is_read', false);
                 }]);
         } elseif ($user->isPerusahaan()) {
             $company = $user->companyProfile;
             $applicationsQuery = Application::whereHas('vacancy', fn ($q) => $q->where('company_profile_id', $company?->id ?? 0))
-                ->with(['jobSeekerProfile.user', 'vacancy'])
+                ->with(['jobSeekerProfile.user', 'vacancy', 'latestMessage'])
                 ->withCount(['messages as unread_messages_count' => function ($q) use ($user) {
                     $q->where('sender_id', '!=', $user->id)->where('is_read', false);
                 }]);
         } else {
-            $applicationsQuery = Application::with(['jobSeekerProfile.user', 'vacancy.companyProfile']);
+            $applicationsQuery = Application::with(['jobSeekerProfile.user', 'vacancy.companyProfile', 'latestMessage']);
         }
 
         $conversations = $applicationsQuery->latest('updated_at')->get();

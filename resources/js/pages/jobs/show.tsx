@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { TimeAgo } from '@/components/time-ago';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
@@ -55,18 +56,39 @@ interface VacancyDetail {
     salary_max?: number;
     is_salary_public: boolean;
     experience_level: string;
-    requirements?: string[];
-    skills_required?: string[];
+    requirements?: any;
+    skills_required?: any;
     status: string;
     deadline?: string;
     created_at: string;
-    company_profile: CompanyItem;
+    time_ago?: string;
+    company_profile?: CompanyItem | null;
     accessibilities: AccessibilityItem[];
+}
+
+function parseRequirementsList(reqs: unknown): string[] {
+    if (!reqs) return [];
+    if (Array.isArray(reqs)) {
+        return reqs.filter((r): r is string => typeof r === 'string' && r.trim().length > 0);
+    }
+    if (typeof reqs === 'string') {
+        try {
+            const parsed = JSON.parse(reqs);
+            return parseRequirementsList(parsed);
+        } catch {
+            return reqs.split('\n').map((r) => r.trim()).filter(Boolean);
+        }
+    }
+    if (typeof reqs === 'object') {
+        return Object.values(reqs as Record<string, unknown>).filter((r): r is string => typeof r === 'string' && r.trim().length > 0);
+    }
+    return [];
 }
 
 interface Props {
     vacancy: VacancyDetail;
     alreadyApplied: boolean;
+    isSaved?: boolean;
 }
 
 const ACCESSIBILITY_LABELS: Record<string, string> = {
@@ -85,16 +107,45 @@ const ACCESSIBILITY_LABELS: Record<string, string> = {
 export default function JobShow({
     vacancy,
     alreadyApplied,
+    isSaved = false,
 }: Props): ReactElement {
     const page = usePage();
-    const userRole = (page.props.auth as any)?.user?.role;
+    const user = (page.props.auth as any)?.user;
+    const userRole = user?.role;
     const isPelamar = userRole === 'pelamar';
 
     const [activeTab, setActiveTab] = useState<
         'deskripsi' | 'perusahaan' | 'aksesibilitas' | 'proses'
     >('deskripsi');
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-    const [isSaved, setIsSaved] = useState(false);
+    const [saved, setSaved] = useState(Boolean(isSaved));
+    const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+
+    useEffect(() => {
+        setSaved(Boolean(isSaved));
+    }, [isSaved]);
+
+    const handleToggleFavorite = (): void => {
+        if (!user) {
+            router.visit('/login');
+            return;
+        }
+        if (isTogglingFavorite) return;
+
+        const next = !saved;
+        setSaved(next);
+        setIsTogglingFavorite(true);
+
+        router.post(
+            `/vacancies/${vacancy.id}/favorite`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setIsTogglingFavorite(false),
+            }
+        );
+    };
     const [aiMatch, setAiMatch] = useState<any>(null);
     const [isMatchingAi, setIsMatchingAi] = useState(false);
     const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
@@ -300,15 +351,17 @@ export default function JobShow({
 
                                     <button
                                         type="button"
-                                        onClick={() => setIsSaved(!isSaved)}
-                                        aria-label="Simpan lowongan"
-                                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
-                                            isSaved
-                                                ? 'border-[#123B5D] bg-[#123B5D] text-white'
+                                        onClick={handleToggleFavorite}
+                                        disabled={isTogglingFavorite}
+                                        aria-label={saved ? "Hapus dari favorit" : "Simpan lowongan ke favorit"}
+                                        title={saved ? "Tersimpan di Favorit" : "Simpan ke Favorit"}
+                                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition cursor-pointer disabled:opacity-50 ${
+                                            saved
+                                                ? 'border-[#1769E0] bg-[#1769E0] text-white'
                                                 : 'border-[#E2E8F0] text-slate-500 hover:bg-slate-50 hover:text-[#123B5D]'
                                         }`}
                                     >
-                                        <Bookmark className="h-5 w-5" />
+                                        <Bookmark className={`h-5 w-5 ${saved ? 'fill-white' : ''}`} />
                                     </button>
 
                                     <button
@@ -394,23 +447,22 @@ export default function JobShow({
                                         </div>
 
                                         {/* Kualifikasi */}
-                                        {vacancy.requirements &&
-                                            vacancy.requirements.length > 0 && (
-                                                <div>
-                                                    <h3 className="mb-2 text-sm font-extrabold text-[#102B4B]">
-                                                        Kualifikasi
-                                                    </h3>
-                                                    <ul className="list-inside list-disc space-y-1.5 text-xs text-[#475569] sm:text-sm">
-                                                        {vacancy.requirements.map(
-                                                            (req, i) => (
-                                                                <li key={i}>
-                                                                    {req}
-                                                                </li>
-                                                            ),
-                                                        )}
-                                                    </ul>
-                                                </div>
-                                            )}
+                                        {parseRequirementsList(vacancy.requirements).length > 0 && (
+                                            <div>
+                                                <h3 className="mb-2 text-sm font-extrabold text-[#102B4B]">
+                                                    Kualifikasi
+                                                </h3>
+                                                <ul className="list-inside list-disc space-y-1.5 text-xs text-[#475569] sm:text-sm">
+                                                    {parseRequirementsList(vacancy.requirements).map(
+                                                        (req, i) => (
+                                                            <li key={i}>
+                                                                {req}
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </>
                                 )}
 
@@ -660,16 +712,21 @@ export default function JobShow({
 
                                 <button
                                     type="button"
-                                    onClick={() => setIsSaved(!isSaved)}
-                                    className="flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-xs font-bold text-[#102B4B] shadow-2xs transition hover:bg-slate-50 sm:text-sm"
+                                    onClick={handleToggleFavorite}
+                                    disabled={isTogglingFavorite}
+                                    className={`flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-xs font-bold transition sm:text-sm disabled:opacity-50 ${
+                                        saved
+                                            ? 'border-[#1769E0] bg-blue-50 text-[#1769E0] hover:bg-blue-100'
+                                            : 'border-[#E2E8F0] bg-white text-[#102B4B] shadow-2xs hover:bg-slate-50'
+                                    }`}
                                 >
                                     <Bookmark
-                                        className={`h-4 w-4 ${isSaved ? 'fill-[#123B5D] text-[#123B5D]' : 'text-slate-500'}`}
+                                        className={`h-4 w-4 ${saved ? 'fill-[#1769E0] text-[#1769E0]' : 'text-slate-500'}`}
                                     />
                                     <span>
-                                        {isSaved
+                                        {saved
                                             ? 'Tersimpan di Favorit'
-                                            : 'Simpan Lowongan'}
+                                            : 'Simpan ke Favorit'}
                                     </span>
                                 </button>
 
@@ -687,6 +744,21 @@ export default function JobShow({
 
                             {/* Job Facts List */}
                             <div className="space-y-3 border-t border-[#F1F5F9] pt-3 text-xs">
+                                <div className="flex items-start gap-3 text-[#64748B]">
+                                    <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                    <div>
+                                        <span className="block text-[11px] text-slate-400">
+                                            Waktu Tayang
+                                        </span>
+                                        <strong className="text-slate-800">
+                                            <TimeAgo
+                                                date={vacancy.created_at}
+                                                fallback={vacancy.time_ago}
+                                            />
+                                        </strong>
+                                    </div>
+                                </div>
+
                                 <div className="flex items-start gap-3 text-[#64748B]">
                                     <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                                     <div>

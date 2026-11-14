@@ -36,16 +36,23 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
+        $completeness = $seeker->calculateCompleteness();
+        $savedVacancyIds = $user->savedVacancies()->pluck('vacancy_id')->toArray();
+        $totalFavorites = count($savedVacancyIds);
+
         return Inertia::render('app/dashboard', [
             'seeker' => $seeker,
+            'profileCompleteness' => $completeness,
             'stats' => [
                 'total_applied' => $totalApplied,
                 'in_review' => $inReview,
                 'interview' => $interview,
                 'hired' => $hired,
+                'total_favorites' => $totalFavorites,
             ],
             'recentApplications' => $applications->take(4)->values(),
             'recommendedJobs' => $recommendedJobs,
+            'savedVacancyIds' => $savedVacancyIds,
             'unreadNotificationsCount' => $user->unreadNotifications()->count(),
         ]);
     }

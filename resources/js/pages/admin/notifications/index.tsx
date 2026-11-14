@@ -117,225 +117,230 @@ export default function AdminNotificationsIndex({
 
   return (
     <AdminLayout>
-      <Head title="Notifikasi Administrator - AKSARA" />
+      <Head title="Notifikasi Administrator - Profabel" />
 
-      <div className="min-h-screen bg-[#F8FBFE] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1440px] space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-black tracking-tight text-[#102B4B] sm:text-3xl">
-                Notifikasi Sistem
-              </h1>
-              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                Pantau permohonan verifikasi perusahaan, moderasi lowongan, pendaftaran pengguna, dan status sistem AKSARA.
-              </p>
+      <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 space-y-6 pb-16">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <span>Administrator</span>
+              <span>•</span>
+              <span className="text-[#1769E0]">Pusat Notifikasi</span>
             </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#102B4B] sm:text-3xl">
+              Notifikasi Sistem
+            </h1>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              Pantau permohonan verifikasi perusahaan, moderasi lowongan, pendaftaran pengguna, dan status sistem Profabel.
+            </p>
+          </div>
 
-            {unreadCount > 0 && (
+          {unreadCount > 0 && (
+            <Button
+              type="button"
+              onClick={handleMarkAllAsRead}
+              variant="outline"
+              className="flex items-center gap-2 rounded-xl border-[#1769E0] bg-white px-4 py-2 text-xs font-bold text-[#1769E0] shadow-sm hover:bg-blue-50 self-start sm:self-auto min-h-[40px]"
+            >
+              <CheckCheck className="h-4 w-4" />
+              <span>Tandai Semua Dibaca ({unreadCount})</span>
+            </Button>
+          )}
+        </div>
+
+        {/* 4 Summary Cards (Responsive: 2 cols on mobile, 4 on desktop) */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {/* Card 1: Total */}
+          <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-3.5 sm:p-5 shadow-xs">
+            <div>
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500">Total Notifikasi</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black text-[#102B4B]">{counts.all}</p>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] text-slate-400">Semua aktivitas</p>
+            </div>
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#1769E0]">
+              <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+          </article>
+
+          {/* Card 2: Belum Dibaca */}
+          <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-3.5 sm:p-5 shadow-xs">
+            <div>
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500">Belum Dibaca</p>
+              <div className="mt-1 sm:mt-2 flex flex-wrap items-baseline gap-1.5">
+                <span className="text-xl sm:text-2xl font-black text-[#102B4B]">{counts.unread}</span>
+                {counts.unread > 0 && (
+                  <span className="rounded-full bg-red-100 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold text-red-600">
+                    Aktif
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] text-slate-400">Pemberitahuan</p>
+            </div>
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+              <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+          </article>
+
+          {/* Card 3: Verifikasi Perusahaan */}
+          <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-3.5 sm:p-5 shadow-xs">
+            <div>
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500">Verifikasi Dokumen</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black text-[#102B4B]">{counts.verification}</p>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] text-slate-400">Legalitas mitra</p>
+            </div>
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+              <Building2 className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+          </article>
+
+          {/* Card 4: Moderasi Lowongan */}
+          <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-3.5 sm:p-5 shadow-xs">
+            <div>
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500">Moderasi Lowongan</p>
+              <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black text-[#102B4B]">{counts.vacancy}</p>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] text-slate-400">Lowongan baru</p>
+            </div>
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+          </article>
+        </div>
+
+        {/* Navigation Filter Tabs (Horizontally scrollable on mobile) */}
+        <nav
+          className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 border-b border-slate-200/80 flex-nowrap sm:flex-wrap"
+          aria-label="Filter Kategori Notifikasi"
+        >
+          {[
+            { id: 'all', label: 'Semua', count: counts.all },
+            { id: 'unread', label: 'Belum Dibaca', count: counts.unread },
+            { id: 'verification', label: 'Verifikasi Perusahaan', count: counts.verification },
+            { id: 'vacancy', label: 'Lowongan Kerja', count: counts.vacancy },
+            { id: 'user', label: 'Pengguna Baru', count: counts.user },
+            { id: 'system', label: 'Sistem & Backup', count: counts.system },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => applyFilter(tab.id)}
+              className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                filter === tab.id
+                  ? 'bg-[#1769E0] text-white shadow-sm'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-100'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-extrabold ${
+                  filter === tab.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Notification List */}
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-sm">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-[#1769E0]">
+              <Bell className="h-8 w-8" />
+            </div>
+            <h2 className="mt-4 text-base font-bold text-[#102B4B]">
+              Tidak Ada Notifikasi
+            </h2>
+            <p className="mt-1 text-xs text-slate-400">
+              Tidak ada notifikasi yang sesuai dengan filter yang Anda pilih saat ini.
+            </p>
+            {filter !== 'all' && (
               <Button
                 type="button"
-                onClick={handleMarkAllAsRead}
                 variant="outline"
-                className="flex items-center gap-2 rounded-xl border-[#1769E0] bg-white px-4 py-2.5 text-xs font-bold text-[#1769E0] shadow-sm hover:bg-blue-50"
+                onClick={() => applyFilter('all')}
+                className="mt-4 rounded-xl text-xs font-bold text-[#1769E0]"
               >
-                <CheckCheck className="h-4 w-4" />
-                Tandai Semua Dibaca
+                Tampilkan Semua Notifikasi
               </Button>
             )}
           </div>
+        ) : (
+          <div className="space-y-3">
+            {notifications.map((item) => {
+              const details = getCategoryDetails(item.category);
 
-          {/* 4 Summary Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Card 1: Total */}
-            <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div>
-                <p className="text-xs font-semibold text-slate-500">Total Notifikasi</p>
-                <p className="mt-2 text-2xl font-black text-[#102B4B]">{counts.all}</p>
-                <p className="mt-1 text-[11px] text-slate-400">Semua aktivitas tercatat</p>
-              </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#1769E0]">
-                <Bell className="h-6 w-6" />
-              </div>
-            </article>
-
-            {/* Card 2: Belum Dibaca */}
-            <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div>
-                <p className="text-xs font-semibold text-slate-500">Belum Dibaca</p>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#102B4B]">{counts.unread}</span>
-                  {counts.unread > 0 && (
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
-                      Perlu Perhatian
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-[11px] text-slate-400">Pemberitahuan aktif</p>
-              </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-                <Clock className="h-6 w-6" />
-              </div>
-            </article>
-
-            {/* Card 3: Verifikasi Perusahaan */}
-            <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div>
-                <p className="text-xs font-semibold text-slate-500">Verifikasi Dokumen</p>
-                <p className="mt-2 text-2xl font-black text-[#102B4B]">{counts.verification}</p>
-                <p className="mt-1 text-[11px] text-slate-400">Legalitas perusahaan</p>
-              </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
-                <Building2 className="h-6 w-6" />
-              </div>
-            </article>
-
-            {/* Card 4: Moderasi Lowongan */}
-            <article className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div>
-                <p className="text-xs font-semibold text-slate-500">Moderasi Lowongan</p>
-                <p className="mt-2 text-2xl font-black text-[#102B4B]">{counts.vacancy}</p>
-                <p className="mt-1 text-[11px] text-slate-400">Lowongan kerja baru</p>
-              </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-                <Briefcase className="h-6 w-6" />
-              </div>
-            </article>
-          </div>
-
-          {/* Navigation Filter Tabs */}
-          <nav
-            className="flex flex-wrap gap-2 border-b border-slate-200 pb-3"
-            aria-label="Filter Kategori Notifikasi"
-          >
-            {[
-              { id: 'all', label: 'Semua', count: counts.all },
-              { id: 'unread', label: 'Belum Dibaca', count: counts.unread },
-              { id: 'verification', label: 'Verifikasi Perusahaan', count: counts.verification },
-              { id: 'vacancy', label: 'Lowongan Kerja', count: counts.vacancy },
-              { id: 'user', label: 'Pengguna Baru', count: counts.user },
-              { id: 'system', label: 'Sistem & Backup', count: counts.system },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => applyFilter(tab.id)}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition shadow-xs ${
-                  filter === tab.id
-                    ? 'bg-[#1769E0] text-white shadow-sm'
-                    : 'bg-white text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold ${
-                    filter === tab.id
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-100 text-slate-500'
+              return (
+                <article
+                  key={item.id}
+                  onClick={() => {
+                    if (!item.is_read) {
+                      handleMarkAsRead(item.id);
+                    }
+                    router.visit(item.link);
+                  }}
+                  className={`group flex cursor-pointer flex-col justify-between gap-3.5 sm:gap-4 rounded-2xl border p-4 sm:p-5 transition hover:shadow-md sm:flex-row sm:items-center ${
+                    item.is_read
+                      ? 'border-slate-100 bg-white'
+                      : 'border-blue-100 bg-blue-50/20 shadow-xs'
                   }`}
                 >
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </nav>
-
-          {/* Notification List */}
-          {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-sm">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-[#1769E0]">
-                <Bell className="h-8 w-8" />
-              </div>
-              <h2 className="mt-4 text-base font-bold text-[#102B4B]">
-                Tidak Ada Notifikasi
-              </h2>
-              <p className="mt-1 text-xs text-slate-400">
-                Tidak ada notifikasi yang sesuai dengan filter yang Anda pilih saat ini.
-              </p>
-              {filter !== 'all' && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => applyFilter('all')}
-                  className="mt-4 rounded-xl text-xs font-bold text-[#1769E0]"
-                >
-                  Tampilkan Semua Notifikasi
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {notifications.map((item) => {
-                const details = getCategoryDetails(item.category);
-
-                return (
-                  <article
-                    key={item.id}
-                    onClick={() => {
-                      if (!item.is_read) {
-                        handleMarkAsRead(item.id);
-                      }
-                      router.visit(item.link);
-                    }}
-                    className={`group flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border p-4 sm:p-5 transition hover:shadow-md sm:flex-row sm:items-center ${
-                      item.is_read
-                        ? 'border-slate-100 bg-white'
-                        : 'border-blue-100 bg-blue-50/20 shadow-xs'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3.5">
-                      {/* Icon */}
-                      <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${details.bgColor}`}
-                      >
-                        {details.icon}
-                      </div>
-
-                      {/* Content */}
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span
-                            className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}`}
-                          >
-                            {details.badgeText}
-                          </span>
-                          {!item.is_read && (
-                            <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-[#1769E0]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#1769E0]" />
-                              Baru
-                            </span>
-                          )}
-                          <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                            <Clock className="h-3 w-3" />
-                            {item.time_ago}
-                          </span>
-                        </div>
-
-                        <h2 className="mt-1 text-sm font-bold text-[#102B4B] group-hover:text-[#1769E0] transition">
-                          {item.title}
-                        </h2>
-                        <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
-                          {item.message}
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3.5">
+                    {/* Icon */}
+                    <div
+                      className={`flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl ${details.bgColor}`}
+                    >
+                      {details.icon}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      <Link
-                        href={item.link}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!item.is_read) {
-                            handleMarkAsRead(item.id);
-                          }
-                        }}
-                        className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-[#102B4B] transition hover:bg-[#1769E0] hover:text-white"
-                      >
-                        <span>{details.actionText}</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Link>
+                    {/* Content */}
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}`}
+                        >
+                          {details.badgeText}
+                        </span>
+                        {!item.is_read && (
+                          <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-extrabold text-[#1769E0]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#1769E0]" />
+                            Baru
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                          <Clock className="h-3 w-3" />
+                          {item.time_ago}
+                        </span>
+                      </div>
 
+                      <h2 className="mt-1 text-sm font-bold text-[#102B4B] group-hover:text-[#1769E0] transition">
+                        {item.title}
+                      </h2>
+                      <p className="mt-0.5 text-xs text-slate-500 leading-relaxed max-w-2xl">
+                        {item.message}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions (Touch Friendly on Mobile) */}
+                  <div className="flex items-center justify-between sm:justify-end gap-2 border-t border-slate-100/80 pt-3 sm:border-0 sm:pt-0 shrink-0 w-full sm:w-auto">
+                    <Link
+                      href={item.link}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!item.is_read) {
+                          handleMarkAsRead(item.id);
+                        }
+                      }}
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-[#102B4B] transition hover:bg-[#1769E0] hover:text-white min-h-[38px]"
+                    >
+                      <span>{details.actionText}</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+
+                    <div className="flex items-center gap-1.5">
                       {!item.is_read && (
                         <button
                           type="button"
@@ -358,12 +363,12 @@ export default function AdminNotificationsIndex({
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
+  ArrowLeft,
   Building2,
   Calendar,
   Check,
@@ -9,6 +10,7 @@ import {
   ExternalLink,
   Mail,
   Megaphone,
+  MessageSquare,
   Paperclip,
   Search,
   Send,
@@ -49,6 +51,13 @@ interface ApplicationSummary {
       id: number;
       name: string;
     };
+  };
+  latest_message?: {
+    id: number;
+    body: string;
+    created_at: string;
+    sender_id: number;
+    is_read: boolean;
   };
 }
 
@@ -96,9 +105,26 @@ export default function ApplicationMessages({
   const currentUserId = auth?.user?.id;
   const isPelamar = auth?.user?.role === 'pelamar';
 
-  const [isAdminSelected, setIsAdminSelected] = useState<boolean>(
-    !activeApplication && (adminAnnouncements.length > 0 || adminDirectMessages.length > 0)
-  );
+  // Determine initial selection
+  const [isAdminSelected, setIsAdminSelected] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true') return true;
+    }
+    return !activeApplication && (adminAnnouncements.length > 0 || adminDirectMessages.length > 0);
+  });
+
+  // Mobile View Toggle: 'list' (show conversation list) | 'chat' (show active conversation thread)
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('application_id') || params.get('admin') === 'true') {
+        return 'chat';
+      }
+    }
+    // Default to 'list' on small screens so users see their choices first without getting trapped
+    return 'list';
+  });
 
   const [search, setSearch] = useState('');
   const [filterTab, setFilterTab] = useState<'all' | 'unread' | 'important'>('all');
@@ -111,7 +137,7 @@ export default function ApplicationMessages({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, adminDirectMessages]);
+  }, [messages, adminDirectMessages, activeApplication, isAdminSelected]);
 
   const handleSendMessage = (e: FormEvent): void => {
     e.preventDefault();
@@ -155,13 +181,41 @@ export default function ApplicationMessages({
     );
   };
 
+  const handleSelectAdmin = (): void => {
+    setIsAdminSelected(true);
+    setMobileView('chat');
+  };
+
   const handleSelectConversation = (appId: number): void => {
     setIsAdminSelected(false);
+    setMobileView('chat');
     router.get(
       '/messages',
       { application_id: appId },
       { preserveState: true, preserveScroll: true }
     );
+  };
+
+  const formatMessageTime = (dateStr?: string): string => {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      } else if (diffDays === 1) {
+        return 'Kemarin';
+      } else if (diffDays < 7) {
+        return date.toLocaleDateString('id-ID', { weekday: 'short' });
+      } else {
+        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      }
+    } catch {
+      return '';
+    }
   };
 
   const filteredConversations = conversations.filter((c) => {
@@ -191,25 +245,38 @@ export default function ApplicationMessages({
 
   return (
     <AppLayout>
-      <Head title="Pesan - AKSARA" />
+      <Head title="Pesan - Profabel" />
 
-      <div className="py-6 sm:py-8 space-y-6">
-        {/* Title Header */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102B4B] tracking-tight">
-            Pesan & Pengumuman
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-[#64748B]">
-            Berkomunikasi dengan HR perusahaan, melihat pesan personal, dan memantau pengumuman resmi platform AKSARA.
-          </p>
+      {/* Main Messages Container - Optimized to fit nicely within viewport without fighting window scroll */}
+      <div className="py-3 sm:py-5 flex-1 flex flex-col min-h-0 space-y-3">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between shrink-0">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-[#102B4B] tracking-tight">
+              Pesan & Pengumuman
+            </h1>
+            <p className="text-xs text-[#64748B] mt-0.5">
+              Komunikasi langsung dengan perusahaan dan pengumuman resmi platform Profabel.
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#1769E0] bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-100/80">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Kanal Pesan Aktif</span>
+          </div>
         </div>
 
-        {/* Split Chat Box Container */}
-        <div className="rounded-3xl border border-[#E2E8F0] bg-white shadow-xs overflow-hidden flex flex-col md:flex-row h-[640px]">
-          {/* ===================== LEFT PANE: CONVERSATION LIST (340PX) ===================== */}
-          <div className="w-full md:w-[350px] border-r border-[#E2E8F0] flex flex-col shrink-0 bg-white">
-            {/* Search Input Bar */}
-            <div className="p-4 border-b border-[#F1F5F9]">
+        {/* Master Chat Box - Fixed height relative to viewport, zero outer overflow bugs */}
+        <div className="flex-1 min-h-[550px] h-[calc(100vh-10.5rem)] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] bg-white shadow-xs overflow-hidden flex flex-col md:flex-row">
+          
+          {/* ===================== LEFT PANE: CONVERSATION LIST ===================== */}
+          {/* On mobile: visible when mobileView === 'list'; on md+: always visible side-by-side */}
+          <div
+            className={`w-full md:w-[340px] lg:w-[380px] border-r border-[#E2E8F0] flex flex-col shrink-0 min-h-0 bg-white ${
+              mobileView === 'chat' ? 'hidden md:flex' : 'flex'
+            }`}
+          >
+            {/* Search Input & Filter Tabs (Sticky Top of Left Pane) */}
+            <div className="p-3.5 border-b border-[#F1F5F9] shrink-0 bg-white">
               <div className="relative flex items-center">
                 <Search className="absolute left-3.5 h-4 w-4 text-slate-400 pointer-events-none" />
                 <input
@@ -221,7 +288,7 @@ export default function ApplicationMessages({
                 />
               </div>
 
-              {/* Filter Tabs Row */}
+              {/* Filter Tabs */}
               <div className="flex items-center gap-1.5 mt-3 text-xs">
                 <button
                   type="button"
@@ -266,11 +333,11 @@ export default function ApplicationMessages({
               </div>
             </div>
 
-            {/* Conversations List */}
-            <div className="flex-1 overflow-y-auto divide-y divide-[#F1F5F9]">
-              {/* PINNED ITEM: Administrator AKSARA (Official) */}
+            {/* Scrollable Conversation List with Smooth Slim Scrollbar */}
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#F1F5F9] overscroll-contain">
+              {/* PINNED ITEM: Administrator Profabel (Official) */}
               <div
-                onClick={() => setIsAdminSelected(true)}
+                onClick={handleSelectAdmin}
                 className={`flex items-start justify-between gap-3 p-3.5 transition cursor-pointer border-l-4 ${
                   isAdminSelected
                     ? 'bg-[#EBF5FA] border-l-[#1769E0]'
@@ -284,7 +351,7 @@ export default function ApplicationMessages({
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <h3 className="font-extrabold text-xs text-[#102B4B] truncate">
-                        Administrator AKSARA
+                        Administrator Profabel
                       </h3>
                       <span className="rounded bg-blue-100 text-[#1769E0] text-[9px] px-1 font-bold">
                         Resmi
@@ -304,7 +371,11 @@ export default function ApplicationMessages({
                 </div>
 
                 <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-[10px] font-medium text-[#94A3B8]">Admin</span>
+                  <span className="text-[10px] font-medium text-[#94A3B8]">
+                    {adminDirectMessages.length > 0
+                      ? adminDirectMessages[adminDirectMessages.length - 1].time_ago
+                      : 'Admin'}
+                  </span>
                   {unreadAdminCount > 0 && (
                     <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#E64B55] text-white text-[9px] font-black">
                       {unreadAdminCount}
@@ -316,7 +387,7 @@ export default function ApplicationMessages({
               {/* Application Conversations */}
               {filteredConversations.length === 0 && !isAdminSelected ? (
                 <div className="py-12 text-center text-xs text-slate-400 px-4">
-                  Belum ada percakapan lamaran pekerjaan.
+                  Belum ada percakapan lamaran pekerjaan yang sesuai.
                 </div>
               ) : (
                 filteredConversations.map((conv) => {
@@ -327,13 +398,17 @@ export default function ApplicationMessages({
                   const subtitle = conv.vacancy.title;
                   const initials = title.substring(0, 2).toUpperCase();
                   const unread = conv.unread_messages_count ?? 0;
+                  const snippet = conv.latest_message?.body || 'Klik untuk membuka percakapan...';
+                  const timeFormatted = formatMessageTime(conv.latest_message?.created_at || conv.updated_at);
 
                   return (
                     <div
                       key={conv.id}
                       onClick={() => handleSelectConversation(conv.id)}
-                      className={`flex items-start justify-between gap-3 p-3.5 transition cursor-pointer ${
-                        isSelected ? 'bg-[#EBF5FA]' : 'hover:bg-slate-50'
+                      className={`flex items-start justify-between gap-3 p-3.5 transition cursor-pointer border-l-4 ${
+                        isSelected
+                          ? 'bg-[#EBF5FA] border-l-[#1769E0]'
+                          : 'border-l-transparent hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex items-start gap-3 min-w-0">
@@ -348,13 +423,15 @@ export default function ApplicationMessages({
                             {subtitle}
                           </p>
                           <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                            Klik untuk membuka percakapan...
+                            {snippet}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
-                        <span className="text-[10px] font-medium text-[#94A3B8]">Lamaran</span>
+                        <span className="text-[10px] font-medium text-[#94A3B8]">
+                          {timeFormatted}
+                        </span>
                         {unread > 0 && (
                           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#E64B55] text-white text-[9px] font-black">
                             {unread}
@@ -369,33 +446,49 @@ export default function ApplicationMessages({
           </div>
 
           {/* ===================== RIGHT PANE: ACTIVE CONVERSATION ===================== */}
-          <div className="flex-1 flex flex-col bg-white">
+          {/* On mobile: visible when mobileView === 'chat'; on md+: always visible side-by-side */}
+          <div
+            className={`flex-1 flex flex-col min-w-0 min-h-0 bg-white ${
+              mobileView === 'list' ? 'hidden md:flex' : 'flex'
+            }`}
+          >
             {isAdminSelected ? (
               /* ================== ADMIN / ANNOUNCEMENTS THREAD ================== */
               <>
-                <div className="flex items-center justify-between p-4 border-b border-[#F1F5F9] shrink-0 bg-white">
-                  <div className="flex items-center gap-3.5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 text-[#1769E0] shrink-0">
-                      <ShieldCheck className="h-6 w-6" />
+                {/* Admin Header (Sticky Top of Right Pane) */}
+                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] shrink-0 bg-white z-10">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Back to List Button on Mobile */}
+                    <button
+                      type="button"
+                      onClick={() => setMobileView('list')}
+                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#102B4B] transition shrink-0"
+                      aria-label="Kembali ke daftar pesan"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+
+                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 text-[#1769E0] shrink-0">
+                      <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B]">
-                          Administrator AKSARA
+                        <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] truncate">
+                          Administrator Profabel
                         </h2>
-                        <span className="rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-[#1769E0]">
-                          Pemberitahuan & Dukungan Resmi
+                        <span className="rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#1769E0] shrink-0">
+                          Resmi
                         </span>
                       </div>
-                      <p className="text-xs text-[#64748B]">
-                        Saluran komunikasi resmi dan siaran pengumuman platform AKSARA
+                      <p className="text-[11px] sm:text-xs text-[#64748B] truncate">
+                        Pemberitahuan resmi & bantuan dukungan langsung platform
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Messages & Announcements List */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-[#F8FBFE]/50">
+                {/* Messages & Announcements List (Scrollable Area) */}
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-5 bg-[#F8FBFE]/50 overscroll-contain">
                   {/* Official Announcements Section */}
                   {adminAnnouncements.length > 0 && (
                     <div className="space-y-3">
@@ -450,14 +543,14 @@ export default function ApplicationMessages({
                               }`}
                             >
                               <span className="font-bold text-[#102B4B]">
-                                {isMine ? 'Saya' : 'Administrator AKSARA'}
+                                {isMine ? 'Saya' : 'Administrator Profabel'}
                               </span>
                               <span>•</span>
                               <span>{msg.time_ago}</span>
                             </div>
 
                             <div
-                              className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+                              className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                                 isMine
                                   ? 'bg-[#1769E0] text-white rounded-tr-none shadow-xs'
                                   : 'bg-white border border-[#E2E8F0] text-[#102B4B] rounded-tl-none shadow-xs'
@@ -478,24 +571,24 @@ export default function ApplicationMessages({
                   </div>
                 </div>
 
-                {/* Reply Form to Admin */}
+                {/* Reply Form to Admin (Fixed Bottom of Right Pane) */}
                 <form
                   onSubmit={handleSendAdminReply}
-                  className="p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white"
+                  className="p-3 sm:p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white shrink-0 z-10"
                 >
                   <input
                     type="text"
                     value={adminReplyBody}
                     onChange={(e) => setAdminReplyBody(e.target.value)}
-                    placeholder="Balas pesan ke Administrator AKSARA..."
-                    className="flex-1 rounded-xl border border-[#E2E8F0] px-4 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[44px]"
+                    placeholder="Balas pesan ke Administrator Profabel..."
+                    className="flex-1 rounded-xl border border-[#E2E8F0] px-3.5 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[42px]"
                     disabled={isSendingAdminReply}
                   />
 
                   <button
                     type="submit"
                     disabled={isSendingAdminReply || !adminReplyBody.trim()}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
+                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
                     aria-label="Kirim balasan ke admin"
                   >
                     <Send className="h-4 w-4" />
@@ -505,21 +598,39 @@ export default function ApplicationMessages({
             ) : activeApplication ? (
               /* ================== JOB APPLICATION CONVERSATION THREAD ================== */
               <>
-                {/* Top Conversation Header */}
-                <div className="flex items-center gap-3.5 p-4 border-b border-[#F1F5F9] shrink-0">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-sm shrink-0">
-                    {activeInitials}
+                {/* Application Header (Sticky Top of Right Pane) */}
+                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] shrink-0 bg-white z-10">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Back to List Button on Mobile */}
+                    <button
+                      type="button"
+                      onClick={() => setMobileView('list')}
+                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#102B4B] transition shrink-0"
+                      aria-label="Kembali ke daftar pesan"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+
+                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-xs sm:text-sm shrink-0">
+                      {activeInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] truncate">
+                        {activeTitle}
+                      </h2>
+                      <p className="text-[11px] sm:text-xs text-[#64748B] truncate">
+                        {activeSubtitle}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B]">
-                      {activeTitle}
-                    </h2>
-                    <p className="text-xs text-[#64748B]">{activeSubtitle}</p>
-                  </div>
+
+                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 text-[#64748B] text-[10px] font-bold px-2.5 py-1">
+                    Lamaran Aktif
+                  </span>
                 </div>
 
-                {/* Messages Thread Scroll Area */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-white">
+                {/* Messages Thread Scroll Area with Smooth Scrollbar */}
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-4 bg-white overscroll-contain">
                   {messages.length === 0 ? (
                     <div className="py-16 text-center text-xs text-slate-400">
                       Belum ada pesan dalam percakapan ini. Mulai kirimkan pesan di bawah.
@@ -553,9 +664,9 @@ export default function ApplicationMessages({
 
                           {/* Message Bubble */}
                           <div
-                            className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+                            className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                               isMine
-                                ? 'bg-[#EBF5FA] text-[#102B4B] rounded-tr-none'
+                                ? 'bg-[#1769E0] text-white rounded-tr-none shadow-xs'
                                 : 'bg-[#F8FAFC] border border-[#F1F5F9] text-[#102B4B] rounded-tl-none'
                             }`}
                           >
@@ -568,24 +679,24 @@ export default function ApplicationMessages({
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Bottom Input Form */}
+                {/* Bottom Input Form (Fixed Bottom of Right Pane) */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white"
+                  className="p-3 sm:p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white shrink-0 z-10"
                 >
                   <input
                     type="text"
                     value={inputBody}
                     onChange={(e) => setInputBody(e.target.value)}
                     placeholder="Tulis pesan ke perusahaan..."
-                    className="flex-1 rounded-xl border border-[#E2E8F0] px-4 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#007F96] focus:ring-2 focus:ring-[#007F96]/20 outline-none transition min-h-[44px]"
+                    className="flex-1 rounded-xl border border-[#E2E8F0] px-3.5 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[42px]"
                     disabled={isSending}
                   />
 
                   <button
                     type="submit"
                     disabled={isSending || !inputBody.trim()}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#123B5D] hover:bg-[#0C2742] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
+                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
                     aria-label="Kirim pesan"
                   >
                     <Send className="h-4 w-4" />
@@ -593,8 +704,17 @@ export default function ApplicationMessages({
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-xs text-slate-400">
-                Pilih salah satu percakapan di sebelah kiri untuk melihat pesan.
+              /* ================== EMPTY STATE (NO CHAT SELECTED) ================== */
+              <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center p-8 bg-[#F8FBFE]/40">
+                <div className="h-16 w-16 rounded-3xl bg-blue-50 border border-blue-200 text-[#1769E0] flex items-center justify-center shadow-xs mb-4">
+                  <MessageSquare className="h-8 w-8" />
+                </div>
+                <h3 className="font-extrabold text-base text-[#102B4B]">
+                  Pilih Percakapan
+                </h3>
+                <p className="mt-1 max-w-sm text-xs text-[#64748B]">
+                  Pilih salah satu kontak di kolom sebelah kiri untuk mulai membaca atau membalas pesan.
+                </p>
               </div>
             )}
           </div>
@@ -603,4 +723,3 @@ export default function ApplicationMessages({
     </AppLayout>
   );
 }
-

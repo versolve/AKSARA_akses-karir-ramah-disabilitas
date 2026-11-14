@@ -29,6 +29,9 @@ export default defineConfig({
         }),
     ]),
     server: {
+        allowedHosts: true,
+        cors: true,
+        origin: 'https://doctors-privileges-river-prefers.trycloudflare.com',
         watch: {
             ignored: [
                 '**/.agents/**',
@@ -39,6 +42,7 @@ export default defineConfig({
             ],
         },
     },
+
     lint: {
         ignorePatterns: [
             'vendor/**',

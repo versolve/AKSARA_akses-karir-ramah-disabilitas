@@ -112,9 +112,20 @@ class FortifyServiceProvider extends ServiceProvider
         ]));
 
         /* @chisel-email-verification */
-        Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::verifyEmailView(function (Request $request) {
+            $user = $request->user();
+
+            if ($user && (empty($user->verification_code) || ($user->verification_code_expires_at && now()->gt($user->verification_code_expires_at)))) {
+                $user->sendEmailVerificationCode();
+            }
+
+            return Inertia::render('auth/verify-email', [
+                'userEmail' => $user?->email,
+                'status' => $request->session()->get('status'),
+                'expiresAt' => $user?->verification_code_expires_at?->toISOString(),
+                'devCode' => app()->environment('local') ? $user?->verification_code : null,
+            ]);
+        });
         /* @end-chisel-email-verification */
 
         /* @chisel-registration */

@@ -1,31 +1,34 @@
-import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
-import Heading from '@/components/heading';
 import { edit as editAppearance } from '@/routes/appearance';
+import { Head } from '@inertiajs/react';
+import { Palette } from 'lucide-react';
 
 export default function Appearance() {
     return (
-        <>
-            <Head title="Appearance settings" />
+        <div className="space-y-6">
+            <Head title="Tema & Tampilan - Pengaturan Profabel" />
 
-            <h1 className="sr-only">Appearance settings</h1>
+            {/* Kartu Tema & Tampilan */}
+            <div className="space-y-6 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xs sm:p-8">
+                <div className="border-b border-[#F1F5F9] pb-4">
+                    <h2 className="text-base font-bold text-[#102B4B] sm:text-lg">
+                        Preferensi Tema & Tampilan
+                    </h2>
+                    <p className="mt-1 text-xs text-[#64748B] sm:text-sm">
+                        Pilih mode antarmuka yang paling nyaman digunakan saat bernavigasi dan mencari kerja di Profabel.
+                    </p>
+                </div>
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Appearance settings"
-                    description="Update the appearance settings for your account"
-                />
                 <AppearanceTabs />
             </div>
-        </>
+        </div>
     );
 }
 
 Appearance.layout = {
     breadcrumbs: [
         {
-            title: 'Appearance settings',
+            title: 'Pengaturan Tampilan',
             href: editAppearance(),
         },
     ],

@@ -50,7 +50,7 @@ class ApplicationController extends Controller
 
         $cvPath = $request->file('cv')->store('cvs', 'public');
 
-        Application::create([
+        $application = Application::create([
             'vacancy_id' => $vacancy->id,
             'job_seeker_profile_id' => $seeker->id,
             'cover_letter' => $validated['cover_letter'] ?? null,
@@ -58,6 +58,15 @@ class ApplicationController extends Controller
             'status' => 'submitted',
             'applied_at' => now(),
         ]);
+
+        try {
+            $companyUser = $vacancy->companyProfile?->user;
+            if ($companyUser) {
+                $companyUser->notify(new \App\Notifications\NewApplicationReceived($application));
+            }
+        } catch (\Throwable $e) {
+            // Silently continue if notification fails
+        }
 
         return back()->with('status', 'Lamaran Anda berhasil dikirim.');
     }

@@ -8,19 +8,19 @@ type ScaleValue = 80 | 90 | 100 | 110 | 125;
 export function AccessibilityToolbar(): ReactElement {
     const [textScale, setTextScale] = useState<number>(() => {
         if (typeof window === 'undefined') return 100;
-        const stored = localStorage.getItem('aksara-text-scale');
+        const stored = localStorage.getItem('profabel-text-scale');
         return stored ? Number.parseInt(stored, 10) : 100;
     });
 
     const [highContrast, setHighContrast] = useState<boolean>(() => {
         if (typeof window === 'undefined') return false;
-        return localStorage.getItem('aksara-high-contrast') === 'true';
+        return localStorage.getItem('profabel-high-contrast') === 'true';
     });
 
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [ttsEnabled, setTtsEnabled] = useState<boolean>(() => {
         if (typeof window === 'undefined') return false;
-        return localStorage.getItem('aksara-tts-enabled') === 'true';
+        return localStorage.getItem('profabel-tts-enabled') === 'true';
     });
 
     const applyFontScale = useCallback((scale: number): void => {
@@ -28,20 +28,20 @@ export function AccessibilityToolbar(): ReactElement {
             '--font-scale',
             `${scale / 100}`,
         );
-        localStorage.setItem('aksara-text-scale', String(scale));
+        localStorage.setItem('profabel-text-scale', String(scale));
         setTextScale(scale);
     }, []);
 
     const toggleHighContrast = useCallback(() => {
         const newValue = !highContrast;
         document.body.classList.toggle('high-contrast', newValue);
-        localStorage.setItem('aksara-high-contrast', String(newValue));
+        localStorage.setItem('profabel-high-contrast', String(newValue));
         setHighContrast(newValue);
     }, [highContrast]);
 
     const toggleTts = useCallback(() => {
         const newValue = !ttsEnabled;
-        localStorage.setItem('aksara-tts-enabled', String(newValue));
+        localStorage.setItem('profabel-tts-enabled', String(newValue));
         setTtsEnabled(newValue);
 
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {

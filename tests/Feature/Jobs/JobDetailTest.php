@@ -15,7 +15,7 @@ class JobDetailTest extends TestCase
 
     public function test_can_view_active_job_detail_page(): void
     {
-        $company = CompanyProfile::factory()->create(['company_name' => 'PT Aksara Inklusif']);
+        $company = CompanyProfile::factory()->create(['company_name' => 'PT Profabel Inklusif']);
         $vacancy = Vacancy::factory()->create([
             'company_profile_id' => $company->id,
             'status' => 'active',
@@ -32,7 +32,7 @@ class JobDetailTest extends TestCase
         $response = $this->get('/jobs/customer-care-disabilitas');
         $response->assertOk();
         $response->assertSee('Customer Care Disabilitas');
-        $response->assertSee('PT Aksara Inklusif');
+        $response->assertSee('PT Profabel Inklusif');
         $response->assertSee('Gedung kantor memiliki ram lantai 1');
     }
 

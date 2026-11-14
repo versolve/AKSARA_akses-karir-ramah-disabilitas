@@ -16,6 +16,10 @@ class RegisterResponse implements RegisterResponseContract
     {
         $user = $request->user();
 
+        if ($user && ! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
         return $request->wantsJson()
             ? new JsonResponse(['two_factor' => false], 201)
             : redirect()->intended($user?->getDashboardRoute() ?? $this->redirectPathForCurrentTeam($request, Fortify::redirects('register')));

@@ -360,7 +360,7 @@ export default function AdminSettingsIndex({
 
   return (
     <AdminLayout>
-      <Head title="Pengaturan Sistem - AKSARA" />
+      <Head title="Pengaturan Sistem - Profabel" />
 
       {/* Toast Alert */}
       {successToast && (
@@ -384,7 +384,7 @@ export default function AdminSettingsIndex({
           {/* Page Header */}
           <div>
             <h1 className="text-2xl font-black tracking-tight text-[#102B4B] sm:text-3xl">Pengaturan</h1>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">Kelola konfigurasi sistem AKSARA.</p>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">Kelola konfigurasi sistem Profabel.</p>
           </div>
 
           {/* Tabs */}
@@ -533,7 +533,7 @@ export default function AdminSettingsIndex({
                       value={settings.official_email}
                       onChange={(e) => setSettings({ ...settings, official_email: e.target.value })}
                       className="mt-1.5 h-10 rounded-xl text-xs"
-                      placeholder="info@aksara.id"
+                      placeholder="info@profabel.id"
                     />
                   </div>
 
@@ -1042,7 +1042,7 @@ export default function AdminSettingsIndex({
                       value={settings.support_email}
                       onChange={(e) => setSettings({ ...settings, support_email: e.target.value })}
                       className="mt-1.5 h-10 rounded-xl text-xs"
-                      placeholder="support@aksara.id"
+                      placeholder="support@profabel.id"
                     />
                   </div>
 
@@ -1376,7 +1376,7 @@ export default function AdminSettingsIndex({
               <div>
                 <h2 className="text-sm font-bold text-[#102B4B]">Tema Tampilan</h2>
                 <p className="text-[11px] text-slate-400">
-                  Pilih mode tampilan antarmuka AKSARA yang paling nyaman untuk Anda.
+                  Pilih mode tampilan antarmuka Profabel yang paling nyaman untuk Anda.
                 </p>
               </div>
             </div>
@@ -1469,7 +1469,7 @@ export default function AdminSettingsIndex({
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-[#102B4B]">Kelola Warna Tema</DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Pilih warna preset atau masukkan kode HEX warna kustom untuk branding platform AKSARA.
+              Pilih warna preset atau masukkan kode HEX warna kustom untuk branding platform Profabel.
             </DialogDescription>
           </DialogHeader>
 
@@ -1543,7 +1543,7 @@ export default function AdminSettingsIndex({
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-[#102B4B]">Kelola Bahasa Platform</DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Atur status aktif bahasa dan prioritas tampilan translasi di platform AKSARA.
+              Atur status aktif bahasa dan prioritas tampilan translasi di platform Profabel.
             </DialogDescription>
           </DialogHeader>
 
@@ -1639,7 +1639,7 @@ export default function AdminSettingsIndex({
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-[#102B4B]">Riwayat Pencadangan Data</DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Daftar pencadangan database dan berkas sistem AKSARA terakhir.
+              Daftar pencadangan database dan berkas sistem Profabel terakhir.
             </DialogDescription>
           </DialogHeader>
 

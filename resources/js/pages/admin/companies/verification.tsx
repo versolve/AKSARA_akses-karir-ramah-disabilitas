@@ -76,10 +76,10 @@ export default function CompanyVerification({ companies, filters, counts }: Prop
 
   return (
     <AdminLayout>
-      <Head title="Verifikasi Perusahaan - AKSARA" />
+      <Head title="Verifikasi Perusahaan - Profabel" />
       <main className="min-h-screen bg-[#F5F9FD] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1440px]">
-          <header className="mb-6"><p className="mb-2 text-sm font-semibold text-blue-600">Manajemen platform</p><h1 className="text-3xl font-extrabold tracking-tight text-[#102B4B] sm:text-4xl">Verifikasi perusahaan</h1><p className="mt-2 max-w-3xl text-sm text-slate-500">Tinjau akun perusahaan sebelum mereka mendapat akses penuh ke fitur rekrutmen AKSARA.</p></header>
+          <header className="mb-6"><p className="mb-2 text-sm font-semibold text-blue-600">Manajemen platform</p><h1 className="text-3xl font-extrabold tracking-tight text-[#102B4B] sm:text-4xl">Verifikasi perusahaan</h1><p className="mt-2 max-w-3xl text-sm text-slate-500">Tinjau akun perusahaan sebelum mereka mendapat akses penuh ke fitur rekrutmen Profabel.</p></header>
 
           <section className="mb-6 grid gap-4 sm:grid-cols-3" aria-label="Ringkasan verifikasi">
             {[

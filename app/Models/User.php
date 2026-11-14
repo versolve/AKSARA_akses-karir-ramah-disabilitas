@@ -34,8 +34,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
  */
-#[Fillable(['name', 'email', 'avatar', 'password', 'current_team_id', 'role', 'is_verified', 'is_disabled', 'disabled_at', 'scheduled_deletion_at'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Fillable(['name', 'email', 'avatar', 'password', 'current_team_id', 'role', 'is_verified', 'is_disabled', 'disabled_at', 'scheduled_deletion_at', 'verification_code', 'verification_code_expires_at'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'verification_code'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -50,6 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'is_verified' => 'boolean',
             'is_disabled' => 'boolean',
@@ -59,6 +60,77 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
             /* @end-chisel-2fa */
         ];
+    }
+
+    /**
+     * Generate and store a fresh 6-digit verification code.
+     */
+    public function generateEmailVerificationCode(): string
+    {
+        $code = sprintf('%06d', random_int(100000, 999999));
+
+        $this->forceFill([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(15),
+        ])->save();
+
+        return $code;
+    }
+
+    /**
+     * Send the 6-digit email verification code.
+     */
+    public function sendEmailVerificationCode(): void
+    {
+        $code = $this->generateEmailVerificationCode();
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\VerifyEmailCodeMail($this, $code));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email verifikasi ke {$this->email}: " . $e->getMessage());
+        }
+
+        \Illuminate\Support\Facades\Log::info("Kode Verifikasi Profabel untuk [{$this->email}]: {$code}");
+    }
+
+    /**
+     * Override standard Laravel notification to use our 6-digit code email.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->sendEmailVerificationCode();
+    }
+
+    /**
+     * Verify the supplied 6-digit code.
+     */
+    public function verifyEmailCode(string $code): bool
+    {
+        if (empty($this->verification_code) || empty($this->verification_code_expires_at)) {
+            return false;
+        }
+
+        if (trim($this->verification_code) !== trim($code)) {
+            return false;
+        }
+
+        if (now()->gt($this->verification_code_expires_at)) {
+            return false;
+        }
+
+        // Successfully verified
+        $this->markEmailAsVerified();
+
+        if ($this->role === 'pelamar') {
+            $this->is_verified = true;
+        }
+
+        $this->forceFill([
+            'verification_code' => null,
+            'verification_code_expires_at' => null,
+        ])->save();
+
+        return true;
     }
 
     /**
@@ -116,5 +188,21 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function preference(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(UserPreference::class);
+    }
+
+    public function savedVacancies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SavedVacancy::class);
+    }
+
+    public function favoriteVacancies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Vacancy::class, 'saved_vacancies')->withTimestamps();
+    }
+
+    public function hasFavorited(int|Vacancy $vacancy): bool
+    {
+        $vacancyId = $vacancy instanceof Vacancy ? $vacancy->id : $vacancy;
+        return $this->savedVacancies()->where('vacancy_id', $vacancyId)->exists();
     }
 }

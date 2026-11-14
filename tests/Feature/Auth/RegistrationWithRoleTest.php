@@ -26,7 +26,7 @@ class RegistrationWithRoleTest extends TestCase
             'role' => 'pelamar',
         ]);
 
-        $response->assertRedirect('/app/dashboard');
+        $response->assertRedirect(route('verification.notice'));
     }
 
     public function test_new_perusahaan_users_can_register_with_role(): void
@@ -39,7 +39,7 @@ class RegistrationWithRoleTest extends TestCase
             'role' => 'perusahaan',
         ]);
 
-        $response->assertRedirect('/company/dashboard');
+        $response->assertRedirect(route('verification.notice'));
     }
 
     public function test_invalid_email_format_rejected_gracefully(): void
@@ -94,7 +94,7 @@ class RegistrationWithRoleTest extends TestCase
         $response->assertInvalid('password');
     }
 
-    public function test_pelamar_has_is_verified_true_by_default(): void
+    public function test_pelamar_is_not_verified_until_code_submitted(): void
     {
         $this->post('/register', [
             'name' => 'Pelamar User',
@@ -106,7 +106,17 @@ class RegistrationWithRoleTest extends TestCase
 
         /** @var \App\Models\User */
         $user = \App\Models\User::where('email', 'user@seeker.id')->first();
-        $this->assertTrue($user->is_verified);
+        $this->assertFalse($user->is_verified);
+        $this->assertNull($user->email_verified_at);
+        $this->assertNotNull($user->verification_code);
+
+        // Verify with code
+        $this->actingAs($user)->post('/email/verify-code', [
+            'code' => $user->verification_code,
+        ]);
+
+        $this->assertTrue($user->fresh()->is_verified);
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
     }
 
     public function test_registration_creates_personal_team(): void

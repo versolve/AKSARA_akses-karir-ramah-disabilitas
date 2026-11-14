@@ -53,12 +53,12 @@ class MessageController extends Controller
             $defaults = [
                 [
                     'id' => 'anc_' . time() . '_init',
-                    'title' => 'Selamat Datang di Platform Karir Inklusif AKSARA',
-                    'content' => 'Selamat datang di AKSARA! Platform ini dirancang untuk menghubungkan talenta penyandang disabilitas dengan perusahaan-perusahaan inklusif terkemuka. Pastikan profil Anda telah lengkap dan terverifikasi untuk mendapatkan peluang kerja terbaik.',
+                    'title' => 'Selamat Datang di Platform Karir Inklusif Profabel',
+                    'content' => 'Selamat datang di Profabel! Platform ini dirancang untuk menghubungkan talenta penyandang disabilitas dengan perusahaan-perusahaan inklusif terkemuka. Pastikan profil Anda telah lengkap dan terverifikasi untuk mendapatkan peluang kerja terbaik.',
                     'target' => 'all',
                     'target_label' => 'Semua Pengguna',
                     'priority' => 'important',
-                    'sender_name' => 'Administrator AKSARA',
+                    'sender_name' => 'Administrator Profabel',
                     'created_at' => now()->subDays(2)->toIso8601String(),
                     'time_ago' => '2 hari yang lalu',
                     'recipient_count' => 12,
@@ -281,9 +281,9 @@ class MessageController extends Controller
                 'notifiable_type' => User::class,
                 'notifiable_id' => $recipient->id,
                 'data' => json_encode([
-                    'title' => 'Pesan Baru dari Administrator AKSARA',
+                    'title' => 'Pesan Baru dari Administrator Profabel',
                     'message' => Str::limit($validated['body'], 100),
-                    'sender_name' => 'Administrator AKSARA',
+                    'sender_name' => 'Administrator Profabel',
                     'category' => 'system',
                     'link' => '/messages',
                 ]),
@@ -331,7 +331,7 @@ class MessageController extends Controller
         $newAnnouncement = [
             'id' => 'anc_' . time() . '_' . Str::random(6),
             'admin_id' => $admin->id,
-            'sender_name' => 'Administrator AKSARA',
+            'sender_name' => 'Administrator Profabel',
             'target' => $validated['target'],
             'target_label' => $targetLabels[$validated['target']],
             'title' => $validated['title'],
@@ -358,7 +358,7 @@ class MessageController extends Controller
                     'data' => json_encode([
                         'title' => 'Pengumuman: ' . $validated['title'],
                         'message' => Str::limit($validated['content'], 120),
-                        'sender_name' => 'Administrator AKSARA',
+                        'sender_name' => 'Administrator Profabel',
                         'priority' => $validated['priority'],
                         'category' => 'system',
                         'link' => '/messages',
