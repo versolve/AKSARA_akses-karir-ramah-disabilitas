@@ -66,7 +66,7 @@ export function AdminHeader({
 
             <div className="flex items-center gap-1 sm:gap-2">
                 {/* Admin Notifications Dropdown */}
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                         <button
                             type="button"
@@ -81,7 +81,8 @@ export function AdminHeader({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="end"
-                        className="w-80 sm:w-96 rounded-2xl border border-slate-100 p-0 shadow-2xl"
+                        sideOffset={8}
+                        className="w-80 sm:w-96 rounded-2xl border border-slate-100 p-0 shadow-2xl z-50 bg-white"
                     >
                         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                             <div className="flex items-center gap-2">
@@ -190,7 +191,7 @@ export function AdminHeader({
                     <Mail className="h-5 w-5" aria-hidden="true" />
                 </Link>
 
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                         <button type="button" className="ml-1 flex min-h-11 items-center gap-2 rounded-full px-1.5 py-1 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] sm:pr-3">
                             <Avatar className="h-9 w-9 border border-slate-200">
@@ -201,7 +202,7 @@ export function AdminHeader({
                             <ChevronDown className="hidden h-4 w-4 text-slate-400 sm:block" aria-hidden="true" />
                         </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 rounded-xl"><UserMenuContent user={user} /></DropdownMenuContent>
+                    <DropdownMenuContent align="end" sideOffset={8} className="w-60 rounded-xl z-50 bg-white"><UserMenuContent user={user} /></DropdownMenuContent>
                 </DropdownMenu>
             </div>
         </header>

@@ -17,7 +17,9 @@ class GeminiAiProvider implements AiProviderInterface
         private string $apiKey,
         private string $model = 'gemini-1.5-flash',
         private string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
-        private int $timeout = 15
+        private int $timeout = 15,
+        private float $temperature = 0.2,
+        private int $maxTokens = 1200
     ) {
         $this->fallback = new MockAiProvider();
     }
@@ -254,8 +256,8 @@ PROMPT;
                     ],
                 ],
                 'generationConfig' => [
-                    'temperature' => 0.2,
-                    'maxOutputTokens' => 1200,
+                    'temperature' => $this->temperature,
+                    'maxOutputTokens' => $this->maxTokens,
                 ],
             ]);
 

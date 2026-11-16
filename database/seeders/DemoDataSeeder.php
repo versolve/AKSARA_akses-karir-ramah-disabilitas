@@ -52,6 +52,7 @@ class DemoDataSeeder extends Seeder
                 'industry' => 'Teknologi Informasi & Perangkat Lunak',
                 'address' => 'Gedung Cyber 2 Lantai 15, Jl. H.R. Rasuna Said, Kuningan, Jakarta Selatan',
                 'website' => 'https://inklusiftech.id',
+                'logo_path' => 'company_logos/KoQAbwnvNOM3CCSZM2raPybRZF9iLvzPRg6KRSVZ.png',
                 'description' => 'Perusahaan konsultan perangkat lunak dengan budaya kerja ramah disabilitas dan infrastruktur aksesibel.',
                 'is_approved' => true,
             ]
@@ -75,6 +76,7 @@ class DemoDataSeeder extends Seeder
                 'industry' => 'Layanan Pelanggan & Alih Daya',
                 'address' => 'Jl. Gatot Subroto No. 88, Bandung, Jawa Barat',
                 'website' => 'https://karyasama.id',
+                'logo_path' => 'company_logos/karya_bersama_logo.png',
                 'description' => 'Penyedia layanan contact center dan administrasi berbasis digital yang mengutamakan keberagaman karyawan.',
                 'is_approved' => true,
             ]

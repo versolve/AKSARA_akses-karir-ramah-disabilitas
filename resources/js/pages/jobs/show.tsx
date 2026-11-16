@@ -42,6 +42,8 @@ interface CompanyItem {
     address: string;
     website?: string;
     description?: string;
+    logo_url?: string | null;
+    logo_path?: string | null;
 }
 
 interface VacancyDetail {
@@ -278,10 +280,18 @@ export default function JobShow({
                                     {/* Company Info Row */}
                                     <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B]">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCFCE7] bg-[#F0FDF4] text-xs font-extrabold text-[#16A36B]">
-                                                {vacancy.company_profile.company_name
-                                                    .substring(0, 2)
-                                                    .toUpperCase()}
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#DCFCE7] bg-[#F0FDF4] text-xs font-extrabold text-[#16A36B] overflow-hidden">
+                                                {vacancy.company_profile?.logo_url ? (
+                                                    <img
+                                                        src={vacancy.company_profile.logo_url}
+                                                        alt={vacancy.company_profile?.company_name || 'Perusahaan'}
+                                                        className="h-full w-full object-cover object-center"
+                                                    />
+                                                ) : (
+                                                    (vacancy.company_profile?.company_name || 'Perusahaan')
+                                                        .substring(0, 2)
+                                                        .toUpperCase()
+                                                )}
                                             </div>
                                             <span className="text-sm font-bold text-slate-800">
                                                 {
@@ -575,10 +585,18 @@ export default function JobShow({
 
                                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                                     <div className="flex items-start gap-3.5">
-                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D0E5F0] bg-[#EBF5FA] text-lg font-black text-[#123B5D]">
-                                            {vacancy.company_profile.company_name
-                                                .substring(0, 2)
-                                                .toUpperCase()}
+                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D0E5F0] bg-[#EBF5FA] text-lg font-black text-[#123B5D] overflow-hidden">
+                                            {vacancy.company_profile?.logo_url ? (
+                                                <img
+                                                    src={vacancy.company_profile.logo_url}
+                                                    alt={vacancy.company_profile?.company_name || 'Perusahaan'}
+                                                    className="h-full w-full object-cover object-center"
+                                                />
+                                            ) : (
+                                                (vacancy.company_profile?.company_name || 'Perusahaan')
+                                                    .substring(0, 2)
+                                                    .toUpperCase()
+                                            )}
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-1.5">

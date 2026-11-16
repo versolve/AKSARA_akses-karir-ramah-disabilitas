@@ -89,19 +89,45 @@ export default function ApplicationShow({ application }: Props): ReactElement {
   });
 
   const getStepStatus = (stepKey: string): 'done' | 'current' | 'upcoming' => {
-    const order = ['submitted', 'reviewed', 'interview', 'hired'];
-    const currentIdx = order.indexOf(app.status);
-    const stepIdx = order.indexOf(stepKey);
+    if (app.status === 'hired') {
+      return 'done';
+    }
 
     if (app.status === 'rejected') {
-      if (stepKey === 'submitted') return 'done';
-      if (stepKey === 'reviewed') return 'done';
+      if (stepKey === 'submitted' || stepKey === 'reviewed') return 'done';
       return 'upcoming';
     }
 
-    if (stepIdx < currentIdx) return 'done';
-    if (stepIdx === currentIdx) return 'current';
+    if (app.status === 'interview') {
+      if (stepKey === 'submitted' || stepKey === 'reviewed') return 'done';
+      if (stepKey === 'interview') return 'current';
+      return 'upcoming';
+    }
+
+    // Default: status === 'submitted' || status === 'reviewed'
+    if (stepKey === 'submitted') return 'done';
+    if (stepKey === 'reviewed') return 'current';
     return 'upcoming';
+  };
+
+  const renderStepIcon = (status: 'done' | 'current' | 'upcoming') => {
+    if (status === 'done') {
+      return (
+        <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#16A36B] text-white">
+          <Check className="h-4 w-4 stroke-[3]" />
+        </div>
+      );
+    }
+    if (status === 'current') {
+      return (
+        <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#1674D1] text-white">
+          <Clock className="h-4 w-4" />
+        </div>
+      );
+    }
+    return (
+      <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-white border-2 border-slate-300 text-slate-300" />
+    );
   };
 
   const getStatusBadge = () => {
@@ -227,9 +253,7 @@ export default function ApplicationShow({ application }: Props): ReactElement {
               <div className="relative pl-8 space-y-8 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E2E8F0]">
                 {/* Step 1: Lamaran Dikirim */}
                 <div className="relative">
-                  <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#16A36B] text-white">
-                    <Check className="h-4 w-4 stroke-[3]" />
-                  </div>
+                  {renderStepIcon(getStepStatus('submitted'))}
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-1">
                       <h4 className="font-extrabold text-sm text-[#102B4B]">Lamaran Dikirim</h4>
@@ -270,13 +294,7 @@ export default function ApplicationShow({ application }: Props): ReactElement {
 
                 {/* Step 2: Ditinjau oleh HR */}
                 <div className="relative">
-                  {getStepStatus('reviewed') === 'done' || getStepStatus('reviewed') === 'current' ? (
-                    <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#1674D1] text-white">
-                      <Clock className="h-4 w-4" />
-                    </div>
-                  ) : (
-                    <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-white border-2 border-slate-300 text-slate-300" />
-                  )}
+                  {renderStepIcon(getStepStatus('reviewed'))}
 
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-1">
@@ -286,7 +304,9 @@ export default function ApplicationShow({ application }: Props): ReactElement {
                       )}
                     </div>
                     <p className="text-xs text-[#64748B] mt-0.5">
-                      Lamaran kamu sedang ditinjau oleh tim rekrutmen.
+                      {getStepStatus('reviewed') === 'done'
+                        ? 'Lamaran kamu telah selesai ditinjau oleh tim rekrutmen.'
+                        : 'Lamaran kamu sedang ditinjau oleh tim rekrutmen.'}
                     </p>
 
                     {/* Catatan dari HR container */}
@@ -305,17 +325,13 @@ export default function ApplicationShow({ application }: Props): ReactElement {
 
                 {/* Step 3: Wawancara */}
                 <div className="relative">
-                  {getStepStatus('interview') === 'done' || getStepStatus('interview') === 'current' ? (
-                    <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#16A36B] text-white">
-                      <Check className="h-4 w-4 stroke-[3]" />
-                    </div>
-                  ) : (
-                    <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-white border-2 border-slate-300 text-slate-300" />
-                  )}
+                  {renderStepIcon(getStepStatus('interview'))}
                   <div>
                     <h4 className="font-extrabold text-sm text-[#102B4B]">Wawancara</h4>
                     <p className="text-xs text-[#64748B] mt-0.5">
-                      {app.status === 'interview'
+                      {getStepStatus('interview') === 'done'
+                        ? 'Tahap wawancara telah selesai dilakukan.'
+                        : app.status === 'interview'
                         ? 'Jadwal wawancara telah diatur. Periksa pesan atau email untuk tautan meeting.'
                         : 'Menunggu jadwal wawancara dari perusahaan.'}
                     </p>

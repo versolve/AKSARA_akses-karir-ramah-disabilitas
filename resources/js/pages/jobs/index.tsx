@@ -33,6 +33,8 @@ interface CompanyItem {
     id: number;
     company_name: string;
     industry?: string;
+    logo_url?: string | null;
+    logo_path?: string | null;
 }
 
 interface VacancyItem {
@@ -59,17 +61,49 @@ interface VacancyItem {
 function parseSkillList(skills: unknown): string[] {
     if (!skills) return [];
     if (Array.isArray(skills)) {
-        return skills.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+        return skills
+            .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+            .map((s) => (s.length > 24 ? s.substring(0, 22) + '...' : s));
     }
     if (typeof skills === 'object') {
         const obj = skills as Record<string, unknown>;
+
+        // 1. If explicit skills array exists, prioritize it
+        if (Array.isArray(obj.skills) && obj.skills.length > 0) {
+            return obj.skills
+                .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+                .map((s) => (s.length > 24 ? s.substring(0, 22) + '...' : s));
+        }
+
+        const list: string[] = [];
+
+        // 2. If category exists, use category as a clean tag
+        if (typeof obj.category === 'string' && obj.category.trim()) {
+            list.push(obj.category.trim());
+        }
+
+        // 3. If responsibilities exist, extract clean concise phrases
         if (Array.isArray(obj.responsibilities)) {
-            return obj.responsibilities.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+            for (const r of obj.responsibilities) {
+                if (typeof r === 'string' && r.trim().length > 0) {
+                    if (r.length <= 24) {
+                        list.push(r.trim());
+                    } else {
+                        const firstComma = r.indexOf(',');
+                        if (firstComma > 3 && firstComma <= 22) {
+                            list.push(r.substring(0, firstComma).trim());
+                        } else {
+                            list.push(r.substring(0, 20) + '...');
+                        }
+                    }
+                }
+            }
+            return list;
         }
-        if (Array.isArray(obj.skills)) {
-            return obj.skills.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
-        }
-        return Object.values(obj).filter((s): s is string => typeof s === 'string' && s.trim().length > 0 && s.length < 50);
+
+        return Object.values(obj)
+            .filter((s): s is string => typeof s === 'string' && s.trim().length > 0 && s.length < 35)
+            .map((s) => (s.length > 24 ? s.substring(0, 22) + '...' : s));
     }
     if (typeof skills === 'string') {
         try {
@@ -211,6 +245,7 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                 work_model: workModel || undefined,
                 job_type: jobType || undefined,
                 accessibility: accessibility || undefined,
+                location: location || undefined,
                 only_favorites: onlyFavorites ? true : undefined,
             },
             { preserveState: true },
@@ -668,7 +703,7 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                                     );
                                                 }
                                             }}
-                                            className={`relative cursor-pointer rounded-2xl border bg-white p-4 transition sm:p-5 ${
+                                            className={`relative cursor-pointer rounded-2xl border bg-white p-4 transition sm:p-5 overflow-hidden ${
                                                 isSelected
                                                     ? 'border-[#20B8C1] shadow-md ring-2 ring-[#20B8C1]/30'
                                                     : 'border-[#E2E8F0] shadow-2xs hover:border-slate-300'
@@ -677,10 +712,18 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex items-start gap-3">
                                                     {/* Company Logo Badge */}
-                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#DCFCE7] bg-[#F0FDF4] text-sm font-extrabold text-[#16A36B]">
-                                                        {(job.company_profile?.company_name || 'Perusahaan')
-                                                            .substring(0, 2)
-                                                            .toUpperCase()}
+                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#DCFCE7] bg-[#F0FDF4] text-sm font-extrabold text-[#16A36B] overflow-hidden">
+                                                        {job.company_profile?.logo_url ? (
+                                                            <img
+                                                                src={job.company_profile.logo_url}
+                                                                alt={job.company_profile.company_name}
+                                                                className="h-full w-full object-cover object-center"
+                                                            />
+                                                        ) : (
+                                                            (job.company_profile?.company_name || 'Perusahaan')
+                                                                .substring(0, 2)
+                                                                .toUpperCase()
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <Link
@@ -774,25 +817,26 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                             </div>
 
                                             {/* Tags & Time */}
-                                            <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-[#F1F5F9] pt-3">
-                                                <div className="flex flex-wrap items-center gap-1.5">
-                                                    <span className="flex items-center gap-1 rounded-md bg-[#DCFCE7] px-2 py-0.5 text-[10px] font-bold text-[#15803D]">
-                                                        <CheckCircle2 className="h-3 w-3" />
-                                                        Ramah Disabilitas
+                                            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-y-2.5 gap-x-3 border-t border-[#F1F5F9] pt-3">
+                                                <div className="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                                                    <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[#DCFCE7] px-2 py-0.5 text-[10px] font-bold text-[#15803D]">
+                                                        <CheckCircle2 className="h-3 w-3 shrink-0" />
+                                                        <span>Ramah Disabilitas</span>
                                                     </span>
                                                     {parseSkillList(job.skills_required)
                                                         .slice(0, 2)
                                                         .map((s, i) => (
                                                             <span
                                                                 key={i}
-                                                                className="rounded-md bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#475569]"
+                                                                title={s}
+                                                                className="inline-block max-w-[120px] sm:max-w-[150px] truncate rounded-md bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#475569]"
                                                             >
                                                                 {s}
                                                             </span>
                                                         ))}
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="flex shrink-0 items-center gap-1 text-[10px] text-[#94A3B8]">
+                                                <div className="flex shrink-0 items-center gap-2 ml-auto pl-1">
+                                                    <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-[#94A3B8] whitespace-nowrap">
                                                         <Clock className="h-3 w-3 shrink-0" />
                                                         <TimeAgo
                                                             date={job.created_at}
@@ -804,7 +848,7 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                                         onClick={(e) =>
                                                             e.stopPropagation()
                                                         }
-                                                        className="flex items-center gap-0.5 rounded-lg bg-[#EBF5FA] px-2 py-1 text-[10px] font-bold text-[#123B5D] transition hover:bg-[#D0E5F0] lg:hidden"
+                                                        className="flex items-center gap-0.5 rounded-lg bg-[#EBF5FA] px-2 py-1 text-[10px] font-bold text-[#123B5D] transition hover:bg-[#D0E5F0] lg:hidden shrink-0"
                                                     >
                                                         <span>Detail</span>
                                                         <ArrowRight className="h-2.5 w-2.5" />
@@ -824,10 +868,18 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                             <div className="space-y-5 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
                                 {/* Company Header */}
                                 <div className="flex items-center gap-3 border-b border-[#F1F5F9] pb-4">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#DCFCE7] bg-[#F0FDF4] text-base font-extrabold text-[#16A36B]">
-                                        {(selectedJob.company_profile?.company_name || 'Perusahaan')
-                                            .substring(0, 2)
-                                            .toUpperCase()}
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#DCFCE7] bg-[#F0FDF4] text-base font-extrabold text-[#16A36B] overflow-hidden">
+                                        {selectedJob.company_profile?.logo_url ? (
+                                            <img
+                                                src={selectedJob.company_profile.logo_url}
+                                                alt={selectedJob.company_profile.company_name}
+                                                className="h-full w-full object-cover object-center"
+                                            />
+                                        ) : (
+                                            (selectedJob.company_profile?.company_name || 'Perusahaan')
+                                                .substring(0, 2)
+                                                .toUpperCase()
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-bold text-[#102B4B]">

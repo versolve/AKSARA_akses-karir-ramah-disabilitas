@@ -29,9 +29,10 @@ export default defineConfig({
         }),
     ]),
     server: {
+        host: '127.0.0.1',
         allowedHosts: true,
         cors: true,
-        origin: 'https://doctors-privileges-river-prefers.trycloudflare.com',
+        ...(process.env.VITE_DEV_SERVER_URL ? { origin: process.env.VITE_DEV_SERVER_URL } : {}),
         watch: {
             ignored: [
                 '**/.agents/**',

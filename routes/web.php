@@ -22,6 +22,7 @@ Route::prefix('app')
         Route::post('/profile/portfolio', [App\Http\Controllers\Seeker\ProfilePortfolioController::class, 'update'])->name('app.profile.portfolio.update');
         Route::post('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'update'])->name('app.profile.cv.update');
         Route::delete('/profile/cv', [App\Http\Controllers\Seeker\ProfileCvController::class, 'destroy'])->name('app.profile.cv.destroy');
+        Route::post('/profile/certification/upload', [App\Http\Controllers\Seeker\ProfileController::class, 'uploadCertificateFile'])->name('app.profile.certification.upload');
         Route::get('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'edit'])->name('app.accessibility-profile.edit');
         Route::post('/accessibility-profile', [App\Http\Controllers\Seeker\AccessibilityProfileController::class, 'update'])->name('app.accessibility-profile.update');
         Route::get('/applications', [\App\Http\Controllers\Seeker\ApplicationController::class, 'index'])->name('app.applications.index');
@@ -98,6 +99,24 @@ Route::prefix('admin')
         Route::post('/settings/backup', [\App\Http\Controllers\Admin\SettingController::class, 'backup'])->name('admin.settings.backup');
         Route::patch('/settings/admin-profile', [\App\Http\Controllers\Admin\SettingController::class, 'updateProfile'])->name('admin.settings.profile');
         Route::put('/settings/admin-password', [\App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('admin.settings.password');
+        Route::get('/ai-management', [\App\Http\Controllers\Admin\AiManagementController::class, 'index'])->name('admin.ai.index');
+        Route::post('/ai-management', [\App\Http\Controllers\Admin\AiManagementController::class, 'store'])->name('admin.ai.store');
+        Route::put('/ai-management/{config}', [\App\Http\Controllers\Admin\AiManagementController::class, 'update'])->name('admin.ai.update');
+        Route::delete('/ai-management/{config}', [\App\Http\Controllers\Admin\AiManagementController::class, 'destroy'])->name('admin.ai.destroy');
+        Route::post('/ai-management/{config}/toggle-active', [\App\Http\Controllers\Admin\AiManagementController::class, 'toggleActive'])->name('admin.ai.toggleActive');
+        Route::post('/ai-management/{config}/primary', [\App\Http\Controllers\Admin\AiManagementController::class, 'setPrimary'])->name('admin.ai.setPrimary');
+        Route::post('/ai-management/{config}/reset-stats', [\App\Http\Controllers\Admin\AiManagementController::class, 'resetStats'])->name('admin.ai.resetStats');
+        Route::post('/ai-management/test-connection', [\App\Http\Controllers\Admin\AiManagementController::class, 'testConnection'])->name('admin.ai.testConnection');
+        Route::post('/ai-management/{config}/test', [\App\Http\Controllers\Admin\AiManagementController::class, 'testConnection'])->name('admin.ai.testSavedConnection');
+        Route::post('/ai-management/fetch-models', [\App\Http\Controllers\Admin\AiManagementController::class, 'fetchModels'])->name('admin.ai.fetchModels');
+        Route::post('/ai-management/{config}/switch-model', [\App\Http\Controllers\Admin\AiManagementController::class, 'switchModel'])->name('admin.ai.switchModel');
+        Route::post('/ai-management/{config}/reveal-key', [\App\Http\Controllers\Admin\AiManagementController::class, 'revealKey'])->name('admin.ai.revealKey');
+        Route::delete('/ai-management/logs/clear', [\App\Http\Controllers\Admin\AiManagementController::class, 'clearLogs'])->name('admin.ai.clearLogs');
+        Route::post('/ai-management/routing-settings', [\App\Http\Controllers\Admin\AiManagementController::class, 'updateRoutingSettings'])->name('admin.ai.updateRoutingSettings');
+        Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activityLogs.index');
+        Route::get('/activity-logs/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'exportCsv'])->name('admin.activityLogs.export');
+        Route::delete('/activity-logs/prune', [\App\Http\Controllers\Admin\ActivityLogController::class, 'prune'])->name('admin.activityLogs.prune');
+        Route::get('/activity-logs/{activityLog}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('admin.activityLogs.show');
         Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
         Route::post('/notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('admin.notifications.readAll');
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('admin.notifications.read');
@@ -106,6 +125,12 @@ Route::prefix('admin')
         Route::post('/messages/direct', [\App\Http\Controllers\Admin\MessageController::class, 'storeDirectMessage'])->name('admin.messages.direct');
         Route::post('/messages/announcement', [\App\Http\Controllers\Admin\MessageController::class, 'storeAnnouncement'])->name('admin.messages.announcement');
         Route::delete('/messages/announcement/{id}', [\App\Http\Controllers\Admin\MessageController::class, 'destroyAnnouncement'])->name('admin.messages.announcement.destroy');
+        Route::get('/banners', [\App\Http\Controllers\Admin\BannerController::class, 'index'])->name('admin.banners.index');
+        Route::post('/banners', [\App\Http\Controllers\Admin\BannerController::class, 'store'])->name('admin.banners.store');
+        Route::put('/banners/{banner}', [\App\Http\Controllers\Admin\BannerController::class, 'update'])->name('admin.banners.update');
+        Route::post('/banners/{banner}/toggle', [\App\Http\Controllers\Admin\BannerController::class, 'toggle'])->name('admin.banners.toggle');
+        Route::post('/banners/reorder', [\App\Http\Controllers\Admin\BannerController::class, 'reorder'])->name('admin.banners.reorder');
+        Route::delete('/banners/{banner}', [\App\Http\Controllers\Admin\BannerController::class, 'destroy'])->name('admin.banners.destroy');
     });
 
 Route::prefix('{current_team}')

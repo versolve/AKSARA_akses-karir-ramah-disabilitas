@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { DashboardBannerCarousel, type DashboardBannerItem } from '@/components/app/dashboard-banner-carousel';
 import { TimeAgo } from '@/components/time-ago';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -72,6 +73,7 @@ interface VacancyItem {
     company_profile: {
         company_name: string;
         industry?: string;
+        logo_url?: string | null;
     };
     accessibilities: Array<{
         id: number;
@@ -108,6 +110,7 @@ interface Props {
     recommendedJobs: VacancyItem[];
     savedVacancyIds?: number[];
     unreadNotificationsCount: number;
+    banners?: DashboardBannerItem[];
 }
 
 const STATUS_CONFIG: Record<
@@ -140,6 +143,7 @@ export default function SeekerDashboard({
     recentApplications,
     recommendedJobs,
     savedVacancyIds = [],
+    banners = [],
 }: Props): ReactElement {
     const page = usePage();
     const auth = (page.props as any).auth;
@@ -232,60 +236,11 @@ export default function SeekerDashboard({
                 <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
                     {/* ===================== LEFT COLUMN (8 COLS) ===================== */}
                     <div className="space-y-6 lg:col-span-8">
-                        {/* 1. Hero Greeting Banner */}
-                        <div className="relative overflow-hidden rounded-3xl border border-[#D0E5F0] bg-gradient-to-r from-[#EBF5FA] via-[#E1EFF6] to-[#D5E9F4] p-6 shadow-xs sm:p-8">
-                            <div className="max-w-xl">
-                                <h1 className="text-2xl font-extrabold tracking-tight text-[#102B4B] sm:text-3xl">
-                                    Halo, {userName}!
-                                </h1>
-                                <p className="mt-2 text-xs leading-relaxed text-[#475569] sm:text-sm">
-                                    Terus semangat dalam mencari peluang karier
-                                    terbaik bersama Profabel. Setiap langkahmu
-                                    berarti.
-                                </p>
-
-                                {/* Search Bar */}
-                                <form
-                                    onSubmit={handleSearch}
-                                    className="mt-6 flex items-center rounded-2xl bg-[#0C2742] p-1.5 shadow-md"
-                                >
-                                    <Search className="ml-3.5 h-5 w-5 shrink-0 text-slate-300" />
-                                    <input
-                                        type="text"
-                                        value={keyword}
-                                        onChange={(e) =>
-                                            setKeyword(e.target.value)
-                                        }
-                                        placeholder="Cari lowongan pekerjaan, posisi atau perusahaan"
-                                        aria-label="Cari lowongan pekerjaan"
-                                        className="w-full bg-transparent px-3 py-2 text-xs text-white placeholder:text-slate-300 focus:outline-none sm:text-sm"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="shrink-0 cursor-pointer rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-[#102B4B] transition hover:bg-slate-100 sm:px-6 sm:text-sm"
-                                    >
-                                        Cari
-                                    </button>
-                                </form>
-
-                                {/* Carousel Dots */}
-                                <div className="mt-5 flex items-center gap-1.5">
-                                    {[0, 1, 2, 3].map((dot) => (
-                                        <button
-                                            key={dot}
-                                            type="button"
-                                            onClick={() => setActiveDot(dot)}
-                                            className={`h-2 rounded-full transition-all ${
-                                                activeDot === dot
-                                                    ? 'w-5 bg-[#0C2742]'
-                                                    : 'w-2 bg-[#94A3B8]/50 hover:bg-[#94A3B8]'
-                                            }`}
-                                            aria-label={`Slide ${dot + 1}`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                        {/* 1. Dynamic Hero Greeting Banner Carousel (Dikelola oleh Admin) */}
+                        <DashboardBannerCarousel
+                            banners={banners}
+                            userName={userName}
+                        />
 
                         {/* 2. Lowongan Rekomendasi Untukmu Section */}
                         <div>
@@ -315,10 +270,18 @@ export default function SeekerDashboard({
                                             {/* Company Header */}
                                             <div className="flex items-start justify-between gap-2">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DCFCE7] bg-[#F0FDF4] text-sm font-bold text-[#16A36B]">
-                                                        {job.company_profile.company_name
-                                                            .substring(0, 2)
-                                                            .toUpperCase()}
+                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DCFCE7] bg-[#F0FDF4] text-sm font-bold text-[#16A36B] overflow-hidden">
+                                                        {job.company_profile?.logo_url ? (
+                                                            <img
+                                                                src={job.company_profile.logo_url}
+                                                                alt={job.company_profile.company_name}
+                                                                className="h-full w-full object-cover object-center"
+                                                            />
+                                                        ) : (
+                                                            (job.company_profile?.company_name || 'Perusahaan')
+                                                                .substring(0, 2)
+                                                                .toUpperCase()
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-1">
@@ -326,14 +289,14 @@ export default function SeekerDashboard({
                                                                 {
                                                                     job
                                                                         .company_profile
-                                                                        .company_name
+                                                                        ?.company_name || 'Perusahaan'
                                                                 }
                                                             </span>
                                                             <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#1674D1]" />
                                                         </div>
                                                         <span className="line-clamp-1 text-[10px] text-[#64748B]">
                                                             {job.company_profile
-                                                                .industry ??
+                                                                ?.industry ??
                                                                 'Teknologi Informasi'}
                                                         </span>
                                                     </div>
@@ -676,13 +639,21 @@ export default function SeekerDashboard({
                                                         className="group flex items-center justify-between rounded-xl px-1.5 py-2.5 transition hover:bg-slate-50"
                                                     >
                                                         <div className="flex min-w-0 items-center gap-2.5">
-                                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EBF5FA] text-xs font-bold text-[#123B5D]">
-                                                                {app.vacancy.company_profile.company_name
-                                                                    .substring(
-                                                                        0,
-                                                                        2,
-                                                                    )
-                                                                    .toUpperCase()}
+                                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EBF5FA] text-xs font-bold text-[#123B5D] overflow-hidden">
+                                                                {app.vacancy?.company_profile?.logo_url ? (
+                                                                    <img
+                                                                        src={app.vacancy.company_profile.logo_url}
+                                                                        alt={app.vacancy.company_profile.company_name}
+                                                                        className="h-full w-full object-cover object-center"
+                                                                    />
+                                                                ) : (
+                                                                    (app.vacancy?.company_profile?.company_name || 'Perusahaan')
+                                                                        .substring(
+                                                                            0,
+                                                                            2,
+                                                                        )
+                                                                        .toUpperCase()
+                                                                )}
                                                             </div>
                                                             <div className="min-w-0">
                                                                 <h4 className="truncate text-xs font-bold text-[#102B4B] group-hover:text-[#1674D1]">

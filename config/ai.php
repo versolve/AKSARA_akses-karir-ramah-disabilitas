@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => env('AI_PROVIDER', 'gemini'),
+    'default' => env('AI_PROVIDER', 'configured'),
 
     'providers' => [
         'gemini' => [

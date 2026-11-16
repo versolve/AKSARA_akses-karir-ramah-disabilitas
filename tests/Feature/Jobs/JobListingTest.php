@@ -34,6 +34,20 @@ class JobListingTest extends TestCase
         $response->assertDontSee('Graphic Designer');
     }
 
+    public function test_can_filter_jobs_by_company_name(): void
+    {
+        $comp1 = CompanyProfile::factory()->create(['company_name' => 'PT Karya Bersama Inklusif']);
+        $comp2 = CompanyProfile::factory()->create(['company_name' => 'PT Inklusif Teknologi Nusantara']);
+
+        Vacancy::factory()->create(['status' => 'active', 'title' => 'Staf Administrasi', 'company_profile_id' => $comp1->id]);
+        Vacancy::factory()->create(['status' => 'active', 'title' => 'UI/UX Design', 'company_profile_id' => $comp2->id]);
+
+        $response = $this->get('/jobs?search=pt+karya');
+        $response->assertOk();
+        $response->assertSee('Staf Administrasi');
+        $response->assertDontSee('UI/UX Design');
+    }
+
     public function test_can_filter_jobs_by_work_model(): void
     {
         Vacancy::factory()->create(['status' => 'active', 'title' => 'Remote Typist', 'work_model' => 'remote']);

@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import {
     AlertCircle,
+    ArrowDown,
     ArrowLeft,
     ArrowRight,
     Bookmark,
@@ -14,6 +15,7 @@ import {
     FileSearch,
     FileText,
     History,
+    Info,
     Lightbulb,
     MapPin,
     Minus,
@@ -285,6 +287,219 @@ function BulletList({
     );
 }
 
+function CvInsightList({
+    items,
+    type,
+    emptyText,
+}: {
+    items: CvDetail[];
+    type: 'strength' | 'improvement';
+    emptyText: string;
+}): ReactElement {
+    const isStrength = type === 'strength';
+    return items.length > 0 ? (
+        <ul className="mt-3 space-y-3">
+            {items.map((item, index) => (
+                <li
+                    key={`${item.title ?? ''}-${index}`}
+                    className="flex items-start gap-3 text-sm"
+                >
+                    {isStrength ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
+                    ) : (
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#EF4444]" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                        <p className="font-bold text-[#102B4B]">
+                            {item.title || (isStrength ? 'Kekuatan CV' : 'Area perbaikan')}
+                        </p>
+                        {item.description && (
+                            <p className="mt-0.5 leading-relaxed text-slate-600">
+                                {item.description}
+                            </p>
+                        )}
+                    </div>
+                </li>
+            ))}
+        </ul>
+    ) : (
+        <p className="mt-3 text-sm text-slate-500">{emptyText}</p>
+    );
+}
+
+function SkillGapCard({
+    skillGap,
+    vacancyTitle,
+    overallMatchScore,
+    competencyScore,
+    accessibilityScore,
+}: {
+    skillGap: SkillGapResult;
+    vacancyTitle?: string;
+    overallMatchScore: number;
+    competencyScore: number;
+    accessibilityScore: number;
+}): ReactElement {
+    const matched = skillGap.matched_skills ?? [];
+    const missing = skillGap.missing_skills ?? [];
+    const totalRequired = matched.length + missing.length;
+    const matchScore = clampScore(skillGap.match_score) ?? 0;
+    const recommendations = skillGap.learning_recommendations ?? [];
+
+    return (
+        <section className="mt-6 rounded-2xl border border-[#CFE6F7] bg-white p-5 shadow-sm sm:p-6 space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCEFFB] px-3 py-1 text-xs font-bold text-[#15527E]">
+                        <Zap className="h-3.5 w-3.5 text-[#1674D1]" />
+                        Pemetaan Keterampilan Teknis (Hard Skills)
+                    </span>
+                    <h2 className="mt-2 text-2xl font-extrabold text-[#102B4B]">
+                        Analisis Skill Gap
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-600">
+                        Perbandingan langsung antara keahlian yang tercantum di profilmu dengan kebutuhan lowongan{' '}
+                        <strong className="text-[#102B4B]">{vacancyTitle || 'ini'}</strong>.
+                    </p>
+                </div>
+                <div className="flex flex-col items-center shrink-0">
+                    <ScoreRing
+                        value={matchScore}
+                        label="Kecocokan"
+                    />
+                    <span className="mt-1 text-[11px] font-semibold text-slate-400">
+                        Keahlian Teknis
+                    </span>
+                </div>
+            </div>
+
+            {/* Kotak Penjelasan Kriteria Penilaian */}
+            <div className="rounded-xl border border-[#CFE6F7] bg-[#F3FAFF] p-4 text-xs sm:text-sm">
+                <div className="flex items-start gap-3">
+                    <Info className="mt-0.5 h-5 w-5 shrink-0 text-[#1674D1]" />
+                    <div className="space-y-2 flex-1">
+                        <p className="font-bold text-[#15527E] text-sm">
+                            Panduan Kriteria Penilaian:
+                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2 text-slate-600">
+                            <div className="rounded-lg bg-white p-3 border border-[#DCEAF2] shadow-xs">
+                                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
+                                    <span className="font-bold text-[#15527E] text-xs">
+                                        Skor Job Matching
+                                    </span>
+                                    <span className="rounded-full bg-[#DCEFFB] px-2 py-0.5 text-xs font-extrabold text-[#15527E]">
+                                        {overallMatchScore}%
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    <strong>Evaluasi Menyeluruh (Holistik):</strong> Menggabungkan latar belakang umum pelamar (pendidikan S1 IT & pengalaman: {competencyScore}%) dengan kesesuaian fasilitas aksesibilitas ramah disabilitas ({accessibilityScore}%).
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-white p-3 border border-[#DCEAF2] shadow-xs">
+                                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
+                                    <span className="font-bold text-[#15527E] text-xs">
+                                        Skor Skill Gap
+                                    </span>
+                                    <span className="rounded-full bg-[#F3FAFF] border border-[#CFE6F7] px-2 py-0.5 text-xs font-extrabold text-[#1674D1]">
+                                        {matchScore}%
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    <strong>Evaluasi Keterampilan Spesifik (Hard Skills):</strong> Mengukur berapa banyak skill wajib lowongan yang sudah ada di profil pelamar (<strong>{matched.length} dari {totalRequired > 0 ? totalRequired : 1} skill terpenuhi</strong>).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Matched vs Missing Skills */}
+            <div className="grid gap-5 md:grid-cols-2">
+                {/* 1. Skill yang Cocok */}
+                <div className="rounded-xl border border-[#BDEAD9] bg-[#F4FFFA] p-4">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-[#087A5E]">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Skill yang Cocok ({matched.length})
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                        Keahlian di profilmu yang sesuai dengan kriteria lowongan ini.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {matched.map((skill) => (
+                            <span
+                                key={skill}
+                                className="rounded-full bg-[#DDF7EA] px-3 py-1.5 text-xs font-semibold text-[#087A5E]"
+                            >
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                    {matched.length === 0 && (
+                        <p className="mt-3 text-xs text-slate-500 italic">
+                            Belum ada skill teknis lowongan ini yang tercantum di profilmu.
+                        </p>
+                    )}
+                </div>
+
+                {/* 2. Skill yang Perlu Ditingkatkan */}
+                <div className="rounded-xl border border-[#F3D8D8] bg-[#FFF8F8] p-4">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-[#D53939]">
+                        <AlertCircle className="h-4 w-4" />
+                        Skill yang Perlu Ditingkatkan ({missing.length})
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                        Keahlian wajib lowongan yang belum terdata di profilmu.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {missing.map((skill) => (
+                            <span
+                                key={skill}
+                                className="rounded-full bg-[#FFF0F0] px-3 py-1.5 text-xs font-semibold text-[#D53939]"
+                            >
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                    {missing.length === 0 && (
+                        <p className="mt-3 text-xs text-slate-500 italic">
+                            Hebat! Semua skill yang dibutuhkan lowongan ini telah kamu miliki.
+                        </p>
+                    )}
+                </div>
+            </div>
+
+            {/* 3. Rekomendasi Pengembangan Belajar */}
+            <div className="rounded-xl border border-[#DCEAF2] bg-[#FAFDFE] p-4 sm:p-5">
+                <h3 className="flex items-center gap-2 text-base font-extrabold text-[#102B4B]">
+                    <Lightbulb className="h-5 w-5 text-[#F59E0B]" />
+                    Rekomendasi Pengembangan Keterampilan
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
+                    Langkah terarah untuk mengisi kesenjangan skill agar lebih siap melamar posisi ini:
+                </p>
+                <ol className="mt-3 space-y-2.5">
+                    {recommendations.map((recommendation, index) => (
+                        <li
+                            key={`${recommendation}-${index}`}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-600"
+                        >
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#15527E] text-xs font-bold text-white mt-0.5">
+                                {index + 1}
+                            </span>
+                            <span>{recommendation}</span>
+                        </li>
+                    ))}
+                </ol>
+                {recommendations.length === 0 && (
+                    <p className="mt-3 text-xs text-slate-500 italic">
+                        Tidak ada rekomendasi tambahan.
+                    </p>
+                )}
+            </div>
+        </section>
+    );
+}
+
 function ProgressDelta({
     current,
     previous,
@@ -320,7 +535,6 @@ function FeatureCard({
     eyebrow,
     description,
     bullets,
-    tone,
     onClick,
 }: {
     icon: ReactElement;
@@ -328,23 +542,22 @@ function FeatureCard({
     eyebrow: string;
     description: string;
     bullets: string[];
-    tone: 'purple' | 'blue';
+    tone?: 'teal' | 'blue' | 'purple';
     onClick: () => void;
 }): ReactElement {
-    const purple = tone === 'purple';
     return (
         <article
-            className={`flex min-h-[330px] flex-col justify-between rounded-2xl border p-6 ${purple ? 'border-[#E6D4FA] bg-[#FCF8FF]' : 'border-[#CFE6F7] bg-[#F3FAFF]'}`}
+            className="flex min-h-[330px] flex-col justify-between rounded-2xl border border-[#CFE6F7] bg-[#F3FAFF] p-6 shadow-xs"
         >
             <div>
                 <div className="mb-5 flex items-start justify-between gap-4">
                     <div
-                        className={`flex h-14 w-14 items-center justify-center rounded-xl ${purple ? 'bg-[#EEDFEC] text-[#6921B7]' : 'bg-[#DCEFFB] text-[#1674D1]'}`}
+                        className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#DCEFFB] text-[#1674D1]"
                     >
                         {icon}
                     </div>
                     <span
-                        className={`rounded-full px-3 py-1.5 text-[11px] font-bold ${purple ? 'bg-[#EEDFEC] text-[#6921B7]' : 'bg-[#DCEFFB] text-[#15527E]'}`}
+                        className="rounded-full bg-[#DCEFFB] px-3 py-1.5 text-[11px] font-bold text-[#15527E]"
                     >
                         {eyebrow}
                     </span>
@@ -359,7 +572,7 @@ function FeatureCard({
                     {bullets.map((bullet) => (
                         <li key={bullet} className="flex items-start gap-2">
                             <Check
-                                className={`mt-0.5 h-4 w-4 shrink-0 ${purple ? 'text-[#6921B7]' : 'text-[#1674D1]'}`}
+                                className="mt-0.5 h-4 w-4 shrink-0 text-[#1674D1]"
                             />
                             {bullet}
                         </li>
@@ -369,9 +582,9 @@ function FeatureCard({
             <button
                 type="button"
                 onClick={onClick}
-                className={`mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1] ${purple ? 'bg-[#6921B7] hover:bg-[#541891]' : 'bg-[#15527E] hover:bg-[#123B5D]'}`}
+                className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#15527E] px-5 text-sm font-bold text-white transition hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
             >
-                {purple ? 'Mulai Analisis CV' : 'Mulai Job Matching'}{' '}
+                {title.includes('CV') ? 'Mulai Analisis CV' : 'Mulai Job Matching'}{' '}
                 <ArrowRight className="h-4 w-4" />
             </button>
         </article>
@@ -713,7 +926,7 @@ export default function AiAssistantIndex({
                                 </p>
                                 <div className="mt-6 grid gap-5 lg:grid-cols-2">
                                     <FeatureCard
-                                        tone="purple"
+                                        tone="blue"
                                         icon={<FileText className="h-7 w-7" />}
                                         title="AI CV Analysis"
                                         eyebrow="Persiapkan lamaran terbaik"
@@ -744,12 +957,14 @@ export default function AiAssistantIndex({
                                 <button
                                     type="button"
                                     onClick={() => openTab('history')}
-                                    className="mt-5 flex w-full items-center justify-between rounded-xl border border-[#DCEAF2] bg-[#F5FAFD] px-5 py-4 text-left transition hover:border-[#9CCAE2] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
+                                    className="mt-5 flex w-full items-center justify-between rounded-2xl border border-[#CFE6F7] bg-[#F3FAFF] px-5 py-4 text-left transition hover:border-[#1674D1] hover:shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
                                 >
-                                    <span className="flex items-center gap-3">
-                                        <History className="h-5 w-5 text-[#1674D1]" />
+                                    <span className="flex items-center gap-3.5">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#DCEFFB] text-[#1674D1]">
+                                            <History className="h-5 w-5" />
+                                        </div>
                                         <span>
-                                            <strong className="block text-sm text-[#102B4B]">
+                                            <strong className="block text-sm font-bold text-[#102B4B]">
                                                 Riwayat Analisis
                                             </strong>
                                             <span className="text-xs text-slate-500">
@@ -783,11 +998,7 @@ export default function AiAssistantIndex({
                                         </button>
                                         <div className="flex items-start sm:items-center gap-3">
                                             <div
-                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                                                    viewingHistory.type === 'cv_analysis'
-                                                        ? 'bg-[#F2E7FE] text-[#6921B7]'
-                                                        : 'bg-[#EAF4FF] text-[#1674D1]'
-                                                }`}
+                                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF4FF] text-[#1674D1]"
                                             >
                                                 {viewingHistory.type === 'cv_analysis' ? (
                                                     <FileSearch className="h-6 w-6" />
@@ -835,7 +1046,7 @@ export default function AiAssistantIndex({
                                                     setViewingHistory(null);
                                                     openTab('cvReview');
                                                 }}
-                                                className="inline-flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-xl bg-[#6921B7] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#581b9b] transition"
+                                                className="inline-flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-xl bg-[#15527E] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-[#123B5D] transition"
                                             >
                                                 <Sparkles className="h-4 w-4" />
                                                 Analisis CV Baru
@@ -879,7 +1090,7 @@ export default function AiAssistantIndex({
                                             {activeTab === 'matches' ? (
                                                 <BriefcaseBusiness className="h-8 w-8 text-[#1674D1]" />
                                             ) : activeTab === 'cvReview' ? (
-                                                <FileSearch className="h-8 w-8 text-[#6921B7]" />
+                                                <FileSearch className="h-8 w-8 text-[#1674D1]" />
                                             ) : activeTab === 'history' ? (
                                                 <History className="h-8 w-8 text-[#1674D1]" />
                                             ) : (
@@ -914,7 +1125,7 @@ export default function AiAssistantIndex({
                                         <button
                                             type="button"
                                             onClick={() => openTab('cvReview')}
-                                            className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'cvReview' ? 'bg-[#6921B7] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                                            className={`rounded-full px-3 py-2 text-xs font-bold ${activeTab === 'cvReview' ? 'bg-[#15527E] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
                                         >
                                             Analisis CV
                                         </button>
@@ -1339,7 +1550,8 @@ export default function AiAssistantIndex({
                                     </section>
 
                                     {currentMatch && (
-                                        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.8fr)]">
+                                        <>
+                                            <section className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.8fr)]">
                                             <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
                                                 <div className="flex flex-col gap-5 border-b border-[#EDF3F7] pb-5 sm:flex-row sm:items-center sm:justify-between">
                                                     <div>
@@ -1367,11 +1579,17 @@ export default function AiAssistantIndex({
                                                             }
                                                         </p>
                                                     </div>
-                                                    <ScoreRing
-                                                        value={clampScore(
-                                                            currentMatch.match_percentage,
-                                                        )}
-                                                    />
+                                                    <div className="flex flex-col items-center shrink-0">
+                                                        <ScoreRing
+                                                            value={clampScore(
+                                                                currentMatch.match_percentage,
+                                                            )}
+                                                            label="Kecocokan"
+                                                        />
+                                                        <span className="mt-1 text-[11px] font-semibold text-slate-400">
+                                                            Profil & Aksesibilitas
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <p className="mt-5 text-sm leading-relaxed text-slate-600">
                                                     {currentMatch.summary ||
@@ -1379,7 +1597,7 @@ export default function AiAssistantIndex({
                                                 </p>
                                                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                                     <MetricBar
-                                                        label="Skill"
+                                                        label="Kompetensi Umum"
                                                         value={
                                                             currentMatch.competency_score
                                                         }
@@ -1453,22 +1671,49 @@ export default function AiAssistantIndex({
                                                     aksesibilitas yang tersedia
                                                     pada profilmu.
                                                 </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setGapResult(
-                                                            currentMatch.skill_gap ??
-                                                                null,
-                                                        );
-                                                        openTab('skillGap');
-                                                    }}
-                                                    className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#15527E] px-4 text-sm font-bold text-white hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
-                                                >
-                                                    Lihat Analisis Skill Gap{' '}
-                                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                                </button>
+                                                {currentMatch.skill_gap && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            document
+                                                                .getElementById('live-skill-gap-section')
+                                                                ?.scrollIntoView({ behavior: 'smooth' });
+                                                        }}
+                                                        className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#15527E] px-4 text-sm font-bold text-white hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
+                                                    >
+                                                        Lihat Analisis Skill Gap{' '}
+                                                        <ArrowDown className="ml-2 h-4 w-4" />
+                                                    </button>
+                                                )}
                                             </aside>
                                         </section>
+                                        {currentMatch.skill_gap && (
+                                            <div id="live-skill-gap-section" className="scroll-mt-6">
+                                                <SkillGapCard
+                                                    skillGap={currentMatch.skill_gap}
+                                                    vacancyTitle={
+                                                        resultVacancy?.title ??
+                                                        currentMatch.vacancy?.title
+                                                    }
+                                                    overallMatchScore={
+                                                        clampScore(
+                                                            currentMatch.match_percentage,
+                                                        ) ?? 0
+                                                    }
+                                                    competencyScore={
+                                                        clampScore(
+                                                            currentMatch.competency_score,
+                                                        ) ?? 0
+                                                    }
+                                                    accessibilityScore={
+                                                        clampScore(
+                                                            currentMatch.accessibility_score,
+                                                        ) ?? 0
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                    </>
                                     )}
 
                                     <section className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
@@ -1548,234 +1793,49 @@ export default function AiAssistantIndex({
                             )}
 
                             {activeTab === 'skillGap' && (
-                                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.7fr)]">
-                                    <section className="space-y-5">
-                                        {gapResult ? (
-                                            <>
-                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
-                                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                                        <div>
-                                                            <p className="text-sm text-slate-500">
-                                                                AI Job Matching
-                                                                &gt; Analisis
-                                                                Skill Gap
-                                                            </p>
-                                                            <h2 className="mt-2 text-3xl font-extrabold text-[#102B4B]">
-                                                                Analisis Skill
-                                                                Gap
-                                                            </h2>
-                                                            <p className="mt-1 text-sm text-slate-600">
-                                                                Analisis detail
-                                                                kesesuaian
-                                                                profilmu dengan{' '}
-                                                                {resultVacancy?.title ??
-                                                                    'lowongan terpilih'}
-                                                                .
-                                                            </p>
-                                                        </div>
-                                                        <ScoreRing
-                                                            value={clampScore(
-                                                                gapResult.match_score,
-                                                            )}
-                                                            label="Kecocokan"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
-                                                    <h3 className="flex items-center gap-2 text-xl font-extrabold text-[#102B4B]">
-                                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#12B981] text-sm text-white">
-                                                            1
-                                                        </span>
-                                                        Kekuatan Utama
-                                                    </h3>
-                                                    <p className="mt-1 text-sm text-slate-600">
-                                                        Skill yang sudah sesuai
-                                                        dengan kebutuhan posisi
-                                                        ini.
-                                                    </p>
-                                                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                                        <div className="rounded-xl border border-[#BDEAD9] bg-[#F4FFFA] p-4">
-                                                            <h4 className="text-sm font-bold text-[#087A5E]">
-                                                                Skill yang cocok
-                                                            </h4>
-                                                            <div className="mt-3 flex flex-wrap gap-2">
-                                                                {(
-                                                                    gapResult.matched_skills ??
-                                                                    []
-                                                                ).map(
-                                                                    (skill) => (
-                                                                        <span
-                                                                            key={
-                                                                                skill
-                                                                            }
-                                                                            className="rounded-full bg-[#DDF7EA] px-3 py-1.5 text-xs font-semibold text-[#087A5E]"
-                                                                        >
-                                                                            {
-                                                                                skill
-                                                                            }
-                                                                        </span>
-                                                                    ),
-                                                                )}
-                                                            </div>
-                                                            {(
-                                                                gapResult.matched_skills ??
-                                                                []
-                                                            ).length === 0 && (
-                                                                <p className="mt-2 text-sm text-slate-500">
-                                                                    Belum ada
-                                                                    skill yang
-                                                                    cocok.
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div className="rounded-xl border border-[#BDEAD9] bg-[#F4FFFA] p-4">
-                                                            <h4 className="text-sm font-bold text-[#087A5E]">
-                                                                Kesiapan profil
-                                                            </h4>
-                                                            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                                Skill cocok
-                                                                membantu kamu
-                                                                memahami bagian
-                                                                profil yang
-                                                                sudah kuat.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
-                                                    <h3 className="flex items-center gap-2 text-xl font-extrabold text-[#102B4B]">
-                                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EF4444] text-sm text-white">
-                                                            2
-                                                        </span>
-                                                        Area Perbaikan
-                                                    </h3>
-                                                    <p className="mt-1 text-sm text-slate-600">
-                                                        Skill yang masih kurang
-                                                        dan dapat kamu
-                                                        kembangkan.
-                                                    </p>
-                                                    <div className="mt-4 flex flex-wrap gap-2">
-                                                        {(
-                                                            gapResult.missing_skills ??
-                                                            []
-                                                        ).map((skill) => (
-                                                            <span
-                                                                key={skill}
-                                                                className="rounded-lg bg-[#FFF0F0] px-3 py-2 text-sm font-semibold text-[#D53939]"
-                                                            >
-                                                                {skill}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                    {(
-                                                        gapResult.missing_skills ??
-                                                        []
-                                                    ).length === 0 && (
-                                                        <p className="mt-3 text-sm text-slate-500">
-                                                            Tidak ada skill yang
-                                                            tertinggal.
-                                                        </p>
-                                                    )}
-                                                    <div className="mt-4 rounded-xl border border-[#F5DEAA] bg-[#FFFCF3] p-4">
-                                                        <p className="text-sm leading-relaxed text-[#9A6700]">
-                                                            Kembangkan skill
-                                                            yang hilang melalui
-                                                            kursus, proyek
-                                                            nyata, atau latihan
-                                                            yang ramah
-                                                            aksesibilitas.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="rounded-2xl border border-[#DCEAF2] bg-white p-6 shadow-sm">
-                                                <h2 className="text-xl font-extrabold text-[#102B4B]">
-                                                    Pilih lowongan terlebih
-                                                    dahulu
-                                                </h2>
-                                                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                    Analisis Skill Gap muncul
-                                                    setelah AI Job Matching
-                                                    selesai. Tidak perlu
-                                                    memasukkan skill atau
-                                                    melakukan matching ulang.
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        openTab('matches')
-                                                    }
-                                                    className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#15527E] px-5 text-sm font-bold text-white"
-                                                >
-                                                    Kembali ke AI Job Matching{' '}
-                                                    <ArrowRight className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </section>
-                                    <aside className="h-fit space-y-4">
-                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
-                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
-                                                Ringkasan Analisis
+                                <div className="space-y-6">
+                                    {gapResult ? (
+                                        <SkillGapCard
+                                            skillGap={gapResult}
+                                            vacancyTitle={resultVacancy?.title}
+                                            overallMatchScore={
+                                                clampScore(
+                                                    currentMatch?.match_percentage,
+                                                ) ?? 0
+                                            }
+                                            competencyScore={
+                                                clampScore(
+                                                    currentMatch?.competency_score,
+                                                ) ?? 0
+                                            }
+                                            accessibilityScore={
+                                                clampScore(
+                                                    currentMatch?.accessibility_score,
+                                                ) ?? 0
+                                            }
+                                        />
+                                    ) : (
+                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-6 shadow-sm">
+                                            <h2 className="text-xl font-extrabold text-[#102B4B]">
+                                                Pilih lowongan terlebih dahulu
                                             </h2>
                                             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                Hasil berikut memakai lowongan
-                                                yang sama dari AI Job Matching.
+                                                Analisis Skill Gap kini otomatis
+                                                tampil langsung di bawah hasil AI
+                                                Job Matching.
                                             </p>
-                                            <div className="mt-5 space-y-3">
-                                                <MetricBar
-                                                    label="Kesesuaian skill"
-                                                    value={
-                                                        gapResult?.match_score
-                                                    }
-                                                    color="#12B981"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
-                                            <h2 className="text-lg font-extrabold text-[#102B4B]">
-                                                Rekomendasi Pengembangan
-                                            </h2>
-                                            <ol className="mt-4 space-y-3">
-                                                {(
-                                                    gapResult?.learning_recommendations ??
-                                                    []
-                                                ).map(
-                                                    (recommendation, index) => (
-                                                        <li
-                                                            key={`${recommendation}-${index}`}
-                                                            className="flex items-start gap-2 text-sm leading-relaxed text-slate-600"
-                                                        >
-                                                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1674D1] text-xs font-bold text-white">
-                                                                {index + 1}
-                                                            </span>
-                                                            <span>
-                                                                {recommendation}
-                                                            </span>
-                                                        </li>
-                                                    ),
-                                                )}
-                                            </ol>
-                                            {(
-                                                gapResult?.learning_recommendations ??
-                                                []
-                                            ).length === 0 && (
-                                                <p className="mt-3 text-sm text-slate-500">
-                                                    Belum ada rekomendasi.
-                                                </p>
-                                            )}
-                                        </div>
-                                        {resultVacancy && (
-                                            <Link
-                                                href={`/jobs/${resultVacancy.slug}`}
-                                                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#1674D1] bg-white px-4 text-sm font-bold text-[#1674D1]"
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    openTab('matches')
+                                                }
+                                                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#15527E] px-5 text-sm font-bold text-white hover:bg-[#123B5D]"
                                             >
-                                                Lihat Detail Lowongan{' '}
+                                                Kembali ke AI Job Matching{' '}
                                                 <ArrowRight className="h-4 w-4" />
-                                            </Link>
-                                        )}
-                                    </aside>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -1794,7 +1854,7 @@ export default function AiAssistantIndex({
                                                         analisis ATS sementara.
                                                     </p>
                                                 </div>
-                                                <FileSearch className="h-7 w-7 text-[#6921B7]" />
+                                                <FileSearch className="h-7 w-7 text-[#1674D1]" />
                                             </div>
                                             <form
                                                 onSubmit={handleScanCv}
@@ -1806,7 +1866,7 @@ export default function AiAssistantIndex({
                                                     </legend>
                                                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                                                         <label
-                                                            className={`cursor-pointer rounded-xl border p-4 ${cvSource === 'profile' ? 'border-[#6921B7] bg-[#FCF8FF] ring-2 ring-[#EEDFEC]' : 'border-[#DCEAF2] bg-white'}`}
+                                                            className={`cursor-pointer rounded-xl border p-4 ${cvSource === 'profile' ? 'border-[#15527E] bg-[#F3FAFF] ring-2 ring-[#CFE6F7]' : 'border-[#DCEAF2] bg-white'}`}
                                                         >
                                                             <input
                                                                 type="radio"
@@ -1824,7 +1884,7 @@ export default function AiAssistantIndex({
                                                                 className="sr-only"
                                                             />
                                                             <span className="flex items-center gap-2 text-sm font-bold text-[#102B4B]">
-                                                                <FileText className="h-4 w-4 text-[#6921B7]" />
+                                                                <FileText className="h-4 w-4 text-[#1674D1]" />
                                                                 Gunakan CV dari
                                                                 profil
                                                             </span>
@@ -1835,7 +1895,7 @@ export default function AiAssistantIndex({
                                                             </span>
                                                         </label>
                                                         <label
-                                                            className={`cursor-pointer rounded-xl border p-4 ${cvSource === 'upload' ? 'border-[#6921B7] bg-[#FCF8FF] ring-2 ring-[#EEDFEC]' : 'border-[#DCEAF2] bg-white'}`}
+                                                            className={`cursor-pointer rounded-xl border p-4 ${cvSource === 'upload' ? 'border-[#15527E] bg-[#F3FAFF] ring-2 ring-[#CFE6F7]' : 'border-[#DCEAF2] bg-white'}`}
                                                         >
                                                             <input
                                                                 type="radio"
@@ -1853,7 +1913,7 @@ export default function AiAssistantIndex({
                                                                 className="sr-only"
                                                             />
                                                             <span className="flex items-center gap-2 text-sm font-bold text-[#102B4B]">
-                                                                <Upload className="h-4 w-4 text-[#6921B7]" />
+                                                                <Upload className="h-4 w-4 text-[#1674D1]" />
                                                                 Unggah CV baru
                                                             </span>
                                                             <span className="mt-1 block text-xs text-slate-500">
@@ -1877,7 +1937,7 @@ export default function AiAssistantIndex({
                                                             onChange={
                                                                 handleCvFileChange
                                                             }
-                                                            className="mt-2 block min-h-11 w-full rounded-xl border border-[#CFE1EA] p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#F0E5F8] file:px-3 file:py-2 file:font-semibold file:text-[#6921B7]"
+                                                            className="mt-2 block min-h-11 w-full rounded-xl border border-[#CFE1EA] p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#DCEFFB] file:px-3 file:py-2 file:font-semibold file:text-[#15527E]"
                                                         />
                                                         {uploadedFileName && (
                                                             <span className="mt-1 block text-xs font-normal text-slate-500">
@@ -1913,7 +1973,7 @@ export default function AiAssistantIndex({
                                                             )
                                                         }
                                                         placeholder="Contoh: Frontend, React, TypeScript"
-                                                        className="mt-2 min-h-11 w-full rounded-xl border border-[#CFE1EA] px-3 text-sm outline-none focus:border-[#6921B7] focus:ring-2 focus:ring-[#20B8C1]/30"
+                                                        className="mt-2 min-h-11 w-full rounded-xl border border-[#CFE1EA] px-3 text-sm outline-none focus:border-[#15527E] focus:ring-2 focus:ring-[#1674D1]/30"
                                                     />
                                                 </label>
                                                 <button
@@ -1924,7 +1984,7 @@ export default function AiAssistantIndex({
                                                             ? !profileCv.has_cv
                                                             : !uploadedFile)
                                                     }
-                                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#6921B7] px-5 text-sm font-bold text-white hover:bg-[#541891] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1] disabled:opacity-50"
+                                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#15527E] px-5 text-sm font-bold text-white hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1] disabled:opacity-50"
                                                 >
                                                     <Upload className="h-4 w-4" />
                                                     {isScanningCv
@@ -2152,38 +2212,11 @@ export default function AiAssistantIndex({
                                                                             Kekuatan
                                                                             Utama
                                                                         </h3>
-                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
-                                                                            {strengths.map(
-                                                                                (
-                                                                                    item,
-                                                                                    index,
-                                                                                ) => (
-                                                                                    <div
-                                                                                        key={`${item.title}-${index}`}
-                                                                                        className="rounded-xl border border-[#D8F0E8] bg-[#F5FFFB] p-4"
-                                                                                    >
-                                                                                        <p className="text-sm font-bold text-[#102B4B]">
-                                                                                            {item.title ||
-                                                                                                'Kekuatan CV'}
-                                                                                        </p>
-                                                                                        <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                                                            {item.description ||
-                                                                                                'Kekuatan ini terdeteksi dari isi CV.'}
-                                                                                        </p>
-                                                                                    </div>
-                                                                                ),
-                                                                            )}
-                                                                        </div>
-                                                                        {strengths.length ===
-                                                                            0 && (
-                                                                            <p className="mt-3 text-sm text-slate-500">
-                                                                                Belum
-                                                                                ada
-                                                                                kekuatan
-                                                                                yang
-                                                                                terdeteksi.
-                                                                            </p>
-                                                                        )}
+                                                                        <CvInsightList
+                                                                            items={strengths}
+                                                                            type="strength"
+                                                                            emptyText="Belum ada kekuatan yang terdeteksi."
+                                                                        />
                                                                     </div>
                                                                     <div className="mt-6">
                                                                         <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
@@ -2193,37 +2226,11 @@ export default function AiAssistantIndex({
                                                                             Perlu
                                                                             Ditingkatkan
                                                                         </h3>
-                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
-                                                                            {improvements.map(
-                                                                                (
-                                                                                    item,
-                                                                                    index,
-                                                                                ) => (
-                                                                                    <div
-                                                                                        key={`${item.title}-${index}`}
-                                                                                        className="rounded-xl border border-[#F3D8D8] bg-[#FFF8F8] p-4"
-                                                                                    >
-                                                                                        <p className="text-sm font-bold text-[#102B4B]">
-                                                                                            {item.title ||
-                                                                                                'Area perbaikan'}
-                                                                                        </p>
-                                                                                        <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                                                            {item.description ||
-                                                                                                'Perlu ditinjau lebih lanjut berdasarkan isi CV.'}
-                                                                                        </p>
-                                                                                    </div>
-                                                                                ),
-                                                                            )}
-                                                                        </div>
-                                                                        {improvements.length ===
-                                                                            0 && (
-                                                                            <p className="mt-3 text-sm text-slate-500">
-                                                                                Belum
-                                                                                ada
-                                                                                saran
-                                                                                perbaikan.
-                                                                            </p>
-                                                                        )}
+                                                                        <CvInsightList
+                                                                            items={improvements}
+                                                                            type="improvement"
+                                                                            emptyText="Belum ada saran perbaikan."
+                                                                        />
                                                                     </div>
                                                                 </>
                                                             )}
@@ -2315,7 +2322,7 @@ export default function AiAssistantIndex({
                                                                                                 key
                                                                                             ]
                                                                                         }
-                                                                                        color="#6921B7"
+                                                                                        color="#1674D1"
                                                                                     />
                                                                                 ),
                                                                             )}
@@ -2663,7 +2670,7 @@ export default function AiAssistantIndex({
                                                                 [],
                                                             );
                                                         }}
-                                                        className={`rounded-full px-4 py-2 text-xs font-bold ${historyFilter === type ? (type === 'cv_analysis' ? 'bg-[#6921B7] text-white' : 'bg-[#15527E] text-white') : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
+                                                        className={`rounded-full px-4 py-2 text-xs font-bold ${historyFilter === type ? 'bg-[#15527E] text-white' : 'bg-white text-slate-600 ring-1 ring-[#DCEAF2]'}`}
                                                     >
                                                         {type === 'cv_analysis'
                                                             ? 'Analisis CV'
@@ -2962,7 +2969,8 @@ export default function AiAssistantIndex({
                             {activeTab === 'historyDetail' && viewingHistory && (
                                 <div className="space-y-6">
                                     {viewingHistory.type === 'job_match' ? (
-                                        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.8fr)]">
+                                        <>
+                                            <section className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.8fr)]">
                                             <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm sm:p-6">
                                                 <div className="flex flex-col gap-5 border-b border-[#EDF3F7] pb-5 sm:flex-row sm:items-center sm:justify-between">
                                                     <div>
@@ -2978,11 +2986,17 @@ export default function AiAssistantIndex({
                                                             {viewingHistory.payload.vacancy?.work_model ? ` · ${viewingHistory.payload.vacancy.work_model}` : ''}
                                                         </p>
                                                     </div>
-                                                    <ScoreRing
-                                                        value={clampScore(
-                                                            viewingHistory.payload.match_percentage,
-                                                        )}
-                                                    />
+                                                    <div className="flex flex-col items-center shrink-0">
+                                                        <ScoreRing
+                                                            value={clampScore(
+                                                                viewingHistory.payload.match_percentage,
+                                                            )}
+                                                            label="Kecocokan"
+                                                        />
+                                                        <span className="mt-1 text-[11px] font-semibold text-slate-400">
+                                                            Profil & Aksesibilitas
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <p className="mt-5 text-sm leading-relaxed text-slate-600">
                                                     {viewingHistory.payload.summary ||
@@ -2990,7 +3004,7 @@ export default function AiAssistantIndex({
                                                 </p>
                                                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                                     <MetricBar
-                                                        label="Skill"
+                                                        label="Kompetensi Umum"
                                                         value={viewingHistory.payload.competency_score}
                                                     />
                                                     <MetricBar
@@ -3055,15 +3069,14 @@ export default function AiAssistantIndex({
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                setGapResult(
-                                                                    viewingHistory.payload.skill_gap ?? null,
-                                                                );
-                                                                openTab('skillGap');
+                                                                document
+                                                                    .getElementById('history-skill-gap-section')
+                                                                    ?.scrollIntoView({ behavior: 'smooth' });
                                                             }}
                                                             className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#15527E] px-4 text-sm font-bold text-white hover:bg-[#123B5D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#20B8C1]"
                                                         >
                                                             Lihat Analisis Skill Gap{' '}
-                                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                                            <ArrowDown className="ml-2 h-4 w-4" />
                                                         </button>
                                                     )}
                                                 </div>
@@ -3110,6 +3123,30 @@ export default function AiAssistantIndex({
                                                 </div>
                                             </aside>
                                         </section>
+                                        {viewingHistory.payload.skill_gap && (
+                                            <div id="history-skill-gap-section" className="scroll-mt-6">
+                                                <SkillGapCard
+                                                    skillGap={viewingHistory.payload.skill_gap}
+                                                    vacancyTitle={viewingHistory.payload.vacancy?.title}
+                                                    overallMatchScore={
+                                                        clampScore(
+                                                            viewingHistory.payload.match_percentage,
+                                                        ) ?? 0
+                                                    }
+                                                    competencyScore={
+                                                        clampScore(
+                                                            viewingHistory.payload.competency_score,
+                                                        ) ?? 0
+                                                    }
+                                                    accessibilityScore={
+                                                        clampScore(
+                                                            viewingHistory.payload.accessibility_score,
+                                                        ) ?? 0
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                        </>
                                     ) : (
                                         (() => {
                                             const categoryLabels: Array<
@@ -3143,7 +3180,7 @@ export default function AiAssistantIndex({
                                                     <section className="space-y-4">
                                                         <div className="flex items-center justify-between rounded-xl border border-[#DCEAF2] bg-white px-4 py-3 shadow-sm">
                                                             <div className="flex min-w-0 items-center gap-3">
-                                                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F2E7FE] text-[#6921B7]">
+                                                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EAF4FF] text-[#1674D1]">
                                                                     <FileText className="h-6 w-6" />
                                                                 </div>
                                                                 <div className="min-w-0">
@@ -3197,8 +3234,8 @@ export default function AiAssistantIndex({
                                                                         onClick={() => setHistoryCvResultTab(tab)}
                                                                         className={`min-h-12 flex-1 border-b-2 px-2 text-xs font-bold transition sm:text-sm ${
                                                                             historyCvResultTab === tab
-                                                                                ? 'border-[#6921B7] text-[#6921B7]'
-                                                                                : 'border-transparent text-slate-600 hover:text-[#6921B7]'
+                                                                                ? 'border-[#15527E] text-[#15527E]'
+                                                                                : 'border-transparent text-slate-600 hover:text-[#15527E]'
                                                                         }`}
                                                                     >
                                                                         {label}
@@ -3211,7 +3248,7 @@ export default function AiAssistantIndex({
                                                             {historyCvResultTab === 'summary' && (
                                                                 <>
                                                                     <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
-                                                                        <FileText className="h-5 w-5 text-[#6921B7]" />
+                                                                        <FileText className="h-5 w-5 text-[#1674D1]" />
                                                                         Ringkasan Analisis
                                                                     </h3>
                                                                     <p className="mt-3 text-sm leading-relaxed text-slate-600">
@@ -3223,52 +3260,22 @@ export default function AiAssistantIndex({
                                                                             <CheckCircle2 className="h-5 w-5 text-[#12B981]" />
                                                                             Kekuatan Utama
                                                                         </h3>
-                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
-                                                                            {strengths.map((item, index) => (
-                                                                                <div
-                                                                                    key={`${item.title}-${index}`}
-                                                                                    className="rounded-xl border border-[#D8F0E8] bg-[#F5FFFB] p-4"
-                                                                                >
-                                                                                    <p className="text-sm font-bold text-[#102B4B]">
-                                                                                        {item.title || 'Kekuatan CV'}
-                                                                                    </p>
-                                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                                                        {item.description || 'Kekuatan ini terdeteksi dari isi CV.'}
-                                                                                    </p>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                        {strengths.length === 0 && (
-                                                                            <p className="mt-3 text-sm text-slate-500">
-                                                                                Belum ada kekuatan yang terdeteksi.
-                                                                            </p>
-                                                                        )}
+                                                                        <CvInsightList
+                                                                            items={strengths}
+                                                                            type="strength"
+                                                                            emptyText="Belum ada kekuatan yang terdeteksi."
+                                                                        />
                                                                     </div>
                                                                     <div className="mt-6">
                                                                         <h3 className="flex items-center gap-2 text-lg font-extrabold text-[#102B4B]">
                                                                             <AlertCircle className="h-5 w-5 text-[#EF4444]" />
                                                                             Area yang Perlu Ditingkatkan
                                                                         </h3>
-                                                                        <div className="mt-3 grid gap-3 md:grid-cols-3">
-                                                                            {improvements.map((item, index) => (
-                                                                                <div
-                                                                                    key={`${item.title}-${index}`}
-                                                                                    className="rounded-xl border border-[#F3D8D8] bg-[#FFF8F8] p-4"
-                                                                                >
-                                                                                    <p className="text-sm font-bold text-[#102B4B]">
-                                                                                        {item.title || 'Area perbaikan'}
-                                                                                    </p>
-                                                                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                                                                        {item.description || 'Perlu ditinjau lebih lanjut berdasarkan isi CV.'}
-                                                                                    </p>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                        {improvements.length === 0 && (
-                                                                            <p className="mt-3 text-sm text-slate-500">
-                                                                                Belum ada saran perbaikan.
-                                                                            </p>
-                                                                        )}
+                                                                        <CvInsightList
+                                                                            items={improvements}
+                                                                            type="improvement"
+                                                                            emptyText="Belum ada saran perbaikan."
+                                                                        />
                                                                     </div>
                                                                 </>
                                                             )}
@@ -3286,7 +3293,7 @@ export default function AiAssistantIndex({
                                                                                 key={key}
                                                                                 label={label}
                                                                                 value={viewingHistory.payload.category_scores?.[key]}
-                                                                                color="#6921B7"
+                                                                                color="#1674D1"
                                                                             />
                                                                         ))}
                                                                     </div>
@@ -3312,7 +3319,7 @@ export default function AiAssistantIndex({
                                                                                 key={key}
                                                                                 label={label}
                                                                                 value={viewingHistory.payload.category_scores?.[key]}
-                                                                                color="#6921B7"
+                                                                                color="#1674D1"
                                                                             />
                                                                         ))}
                                                                     </div>
@@ -3362,7 +3369,7 @@ export default function AiAssistantIndex({
                                                                                 key={`${item}-${index}`}
                                                                                 className="flex items-start gap-3 text-sm leading-relaxed text-slate-600"
                                                                             >
-                                                                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#6921B7] text-xs font-bold text-white">
+                                                                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#15527E] text-xs font-bold text-white">
                                                                                     {index + 1}
                                                                                 </span>
                                                                                 <span>{item}</span>
@@ -3429,7 +3436,7 @@ export default function AiAssistantIndex({
                                                                         key={key}
                                                                         label={label}
                                                                         value={viewingHistory.payload.category_scores?.[key]}
-                                                                        color="#6921B7"
+                                                                        color="#1674D1"
                                                                     />
                                                                 ))}
                                                             </div>
@@ -3466,7 +3473,7 @@ export default function AiAssistantIndex({
                                                                         key={`${item}-${index}`}
                                                                         className="flex items-start gap-2 text-sm leading-relaxed text-slate-600"
                                                                     >
-                                                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#6921B7] text-xs font-bold text-white">
+                                                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#15527E] text-xs font-bold text-white">
                                                                             {index + 1}
                                                                         </span>
                                                                         <span>{item}</span>

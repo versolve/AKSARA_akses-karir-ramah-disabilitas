@@ -37,15 +37,18 @@ class CompanyProfile extends Model
     public function getLogoUrlAttribute(): ?string
     {
         if ($this->logo_path) {
-            return str_starts_with($this->logo_path, 'http')
-                ? $this->logo_path
-                : \Illuminate\Support\Facades\Storage::url($this->logo_path);
+            if (str_starts_with($this->logo_path, 'http')) {
+                return $this->logo_path;
+            }
+            return asset('storage/' . ltrim($this->logo_path, '/'));
         }
 
-        if ($this->relationLoaded('user') && $this->user?->avatar) {
-            return str_starts_with($this->user->avatar, 'http')
-                ? $this->user->avatar
-                : \Illuminate\Support\Facades\Storage::url($this->user->avatar);
+        $user = $this->relationLoaded('user') ? $this->user : ($this->user_id ? $this->user()->first() : null);
+        if ($user && $user->avatar) {
+            if (str_starts_with($user->avatar, 'http')) {
+                return $user->avatar;
+            }
+            return asset('storage/' . ltrim($user->avatar, '/'));
         }
 
         return null;

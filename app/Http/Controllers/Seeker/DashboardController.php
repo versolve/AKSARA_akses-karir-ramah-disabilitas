@@ -40,9 +40,33 @@ class DashboardController extends Controller
         $savedVacancyIds = $user->savedVacancies()->pluck('vacancy_id')->toArray();
         $totalFavorites = count($savedVacancyIds);
 
+        $banners = \App\Models\Banner::active()
+            ->forRole('pelamar')
+            ->ordered()
+            ->get()
+            ->map(function ($banner) use ($user) {
+                return [
+                    'id' => $banner->id,
+                    'title' => $banner->getFormattedTitle($user->name),
+                    'subtitle' => $banner->subtitle,
+                    'type' => $banner->type,
+                    'image_url' => $banner->display_image_url,
+                    'image_position' => $banner->image_position ?: '50% 50%',
+                    'image_scale' => $banner->image_scale ?: 100,
+                    'link_url' => $banner->link_url,
+                    'link_target' => $banner->link_target ?: '_self',
+                    'cta_text' => $banner->cta_text,
+                    'search_placeholder' => $banner->search_placeholder ?: 'Cari lowongan pekerjaan, posisi atau perusahaan',
+                    'bg_gradient' => $banner->bg_gradient ?: 'blue',
+                    'text_color' => $banner->text_color ?: 'dark',
+                    'order' => $banner->order,
+                ];
+            });
+
         return Inertia::render('app/dashboard', [
             'seeker' => $seeker,
             'profileCompleteness' => $completeness,
+            'banners' => $banners,
             'stats' => [
                 'total_applied' => $totalApplied,
                 'in_review' => $inReview,

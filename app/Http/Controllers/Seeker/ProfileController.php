@@ -103,6 +103,10 @@ class ProfileController extends Controller
             'certifications.*.issuer' => ['nullable', 'string', 'max:255'],
             'certifications.*.year' => ['nullable'],
             'certifications.*.credential_url' => ['nullable', 'url', 'max:255'],
+            'certifications.*.file_path' => ['nullable', 'string', 'max:255'],
+            'certifications.*.file_url' => ['nullable', 'string', 'max:500'],
+            'certifications.*.file_name' => ['nullable', 'string', 'max:255'],
+            'certifications.*.file_type' => ['nullable', 'string', 'max:50'],
         ]);
 
         if ($request->has('name') && $request->filled('name')) {
@@ -117,6 +121,29 @@ class ProfileController extends Controller
         $profile->calculateCompleteness();
 
         return redirect('/app/profile')->with('status', 'Profil berhasil disimpan.');
+    }
+
+    public function uploadCertificateFile(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'certificate' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:10240'],
+        ]);
+
+        $file = $request->file('certificate');
+        $originalName = $file->getClientOriginalName();
+        $mime = $file->getMimeType();
+        $extension = strtolower($file->getClientOriginalExtension());
+        $isPdf = str_contains($mime, 'pdf') || $extension === 'pdf';
+
+        $path = $file->store('certifications', 'public');
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'file_path' => $path,
+            'file_url' => $url,
+            'file_name' => $originalName,
+            'file_type' => $isPdf ? 'pdf' : 'image',
+        ]);
     }
 
     private function avatarUrl(?string $avatar): ?string

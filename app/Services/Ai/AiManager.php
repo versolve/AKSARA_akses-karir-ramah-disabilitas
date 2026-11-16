@@ -9,7 +9,12 @@ class AiManager extends Manager
 {
     public function getDefaultDriver(): string
     {
-        return $this->config->get('ai.default', 'gemini');
+        return 'configured';
+    }
+
+    protected function createConfiguredDriver(): AiProviderInterface
+    {
+        return new ConfiguredAiProvider();
     }
 
     protected function createGeminiDriver(): AiProviderInterface

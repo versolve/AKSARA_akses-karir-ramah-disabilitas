@@ -1,8 +1,11 @@
 import { Link } from '@inertiajs/react';
 import {
     BarChart3,
+    Bot,
     Briefcase,
     FileText,
+    History,
+    Image,
     LayoutDashboard,
     PanelLeftClose,
     PanelLeftOpen,
@@ -48,6 +51,7 @@ export function AdminSidebar({
                 { title: 'Verifikasi Perusahaan', href: '/admin/companies/verification', icon: ShieldCheck },
                 { title: 'Kelola Lowongan', href: '/admin/vacancies', icon: Briefcase },
                 { title: 'Pesan & Pengumuman', href: '/admin/messages', icon: MessageSquare },
+                { title: 'Kelola Banner', href: '/admin/banners', icon: Image },
             ],
         },
         {
@@ -57,7 +61,14 @@ export function AdminSidebar({
                 { title: 'Laporan', href: '/admin/reporting', icon: FileText },
             ],
         },
-        { label: 'Sistem', items: [{ title: 'Pengaturan', href: '/admin/settings', icon: Settings }] },
+        {
+            label: 'Sistem',
+            items: [
+                { title: 'AI API Management', href: '/admin/ai-management', icon: Bot },
+                { title: 'Audit Log Aktivitas', href: '/admin/activity-logs', icon: History },
+                { title: 'Pengaturan', href: '/admin/settings', icon: Settings },
+            ],
+        },
     ];
 
     return (

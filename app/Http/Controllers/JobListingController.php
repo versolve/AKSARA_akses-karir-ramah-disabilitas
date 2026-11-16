@@ -17,11 +17,45 @@ class JobListingController extends Controller
             ? $request->user()->savedVacancies()->pluck('vacancy_id')->toArray()
             : [];
 
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
+        if ($search = trim($request->input('search', ''))) {
+            $terms = array_filter(explode(' ', $search));
+
+            $query->where(function ($q) use ($search, $terms) {
+                // Exact full search match across vacancy and company
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhereHas('companyProfile', function ($cq) use ($search) {
+                      $cq->where('company_name', 'like', "%{$search}%")
+                         ->orWhere('industry', 'like', "%{$search}%");
+                  });
+
+                // Also match individual terms if multi-word search (e.g. "pt karya")
+                if (count($terms) > 1) {
+                    $q->orWhere(function ($subQ) use ($terms) {
+                        foreach ($terms as $term) {
+                            $subQ->where(function ($termQ) use ($term) {
+                                $termQ->where('title', 'like', "%{$term}%")
+                                      ->orWhere('description', 'like', "%{$term}%")
+                                      ->orWhere('location', 'like', "%{$term}%")
+                                      ->orWhereHas('companyProfile', function ($cq) use ($term) {
+                                          $cq->where('company_name', 'like', "%{$term}%")
+                                             ->orWhere('industry', 'like', "%{$term}%");
+                                      });
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        if ($location = $request->input('location')) {
+            $query->where('location', 'like', "%{$location}%");
+        }
+
+        if ($industry = $request->input('industry')) {
+            $query->whereHas('companyProfile', function ($q) use ($industry) {
+                $q->where('industry', 'like', "%{$industry}%");
             });
         }
 
@@ -47,7 +81,7 @@ class JobListingController extends Controller
 
         return Inertia::render('jobs/index', [
             'vacancies' => $vacancies,
-            'filters' => $request->only(['search', 'work_model', 'job_type', 'accessibility', 'only_favorites']),
+            'filters' => $request->only(['search', 'work_model', 'job_type', 'accessibility', 'location', 'industry', 'only_favorites']),
             'savedVacancyIds' => $savedVacancyIds,
         ]);
     }

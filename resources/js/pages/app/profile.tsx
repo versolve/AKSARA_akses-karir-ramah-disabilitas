@@ -1,10 +1,35 @@
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import {
-  Award, BriefcaseBusiness, Calendar, Download, Eye, FileText, FolderKanban, GraduationCap, HeartHandshake, Info, Link2, Mail, MapPin, Phone, User, X,
+  Award,
+  BriefcaseBusiness,
+  Calendar,
+  Download,
+  ExternalLink,
+  Eye,
+  FileText,
+  FolderKanban,
+  GraduationCap,
+  HeartHandshake,
+  Image as ImageIcon,
+  Info,
+  Link2,
+  Mail,
+  MapPin,
+  Maximize2,
+  Phone,
+  User,
+  X,
 } from 'lucide-react';
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 
 interface WorkExperience {
   company: string;
@@ -33,8 +58,12 @@ interface Project {
 interface Certification {
   name: string;
   issuer?: string;
-  year?: number;
+  year?: number | '';
   credential_url?: string;
+  file_path?: string;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
 }
 
 interface ProfileData {
@@ -82,6 +111,11 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
   const projects = profile.projects ?? [];
   const certifications = profile.certifications ?? [];
   const completion = Math.min(100, Math.max(0, profile.profile_completed_percentage ?? 0));
+  const [previewDocModal, setPreviewDocModal] = useState<{
+    url: string;
+    name: string;
+    type: string;
+  } | null>(null);
 
   return (
     <AppLayout>
@@ -136,7 +170,25 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
 
               <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Proyek</h2>{!projects.length && <EmptyState text="Belum ada proyek ditampilkan." />}<div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">{projects.map((project, index) => <ProjectCard key={index} project={project} />)}</div></section>
 
-              <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Sertifikasi</h2>{!certifications.length && <EmptyState text="Belum ada sertifikasi atau pelatihan." />}<div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">{certifications.map((cert, index) => <CertificationCard key={index} certification={cert} />)}</div></section>
+              <section className="rounded-xl bg-white p-5 sm:p-6">
+                <h2 className="text-2xl font-extrabold text-[#102B4D]">Sertifikasi</h2>
+                {!certifications.length && <EmptyState text="Belum ada sertifikasi atau pelatihan." />}
+                <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">
+                  {certifications.map((cert, index) => (
+                    <CertificationCard
+                      key={index}
+                      certification={cert}
+                      onPreview={(c) =>
+                        setPreviewDocModal({
+                          url: c.file_url || '',
+                          name: c.file_name || c.name,
+                          type: c.file_type || (c.file_url?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'),
+                        })
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
             </div>
 
             <aside className="space-y-5 lg:sticky lg:top-6">
@@ -146,13 +198,77 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
 
               <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Informasi Singkat</h2><div className="mt-5 space-y-4"><SummaryRow icon={<User />} label="Nama" value={profileUser.name || '-'} /><SummaryRow icon={<Mail />} label="Email" value={userEmail || '-'} /><SummaryRow icon={<Phone />} label="Telepon" value={profile.phone || '-'} /><SummaryRow icon={<MapPin />} label="Domisili" value={profile.domicile || '-'} /><SummaryRow icon={<Calendar />} label="Tanggal Lahir" value={formatBirthDate(profile.birth_date)} /><SummaryRow icon={<User />} label="Jenis Kelamin" value={profile.gender || '-'} /><SummaryRow icon={<BriefcaseBusiness />} label="Profesi / Judul Profesional" value={profile.current_job_title || '-'} /><SummaryRow icon={<HeartHandshake />} label="Status Mencari Pekerjaan" value="Sedang mencari pekerjaan" /></div></section>
 
-              <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Accessibility Profile</h2><p className="mt-1.5 text-sm leading-5 text-[#718494]">Informasi untuk membantu perusahaan memahami cara terbaik untuk mendukung dan menyesuaikan lingkungan kerja.</p><div className="mt-4 flex flex-wrap gap-2">{accessibility.accommodations_needed?.length ? accessibility.accommodations_needed.map((acc) => <span key={acc} className="inline-flex items-center rounded-md border border-[#D8E3EA] bg-[#F7FBFD] px-3 py-1.5 text-xs font-medium text-[#173A55]">{translateAccommodation(acc)}</span>) : <span className="text-sm text-[#9DAFBF]">Tidak ada preferensi aksesibilitas.</span>}</div>{accessibility.notes && <div className="mt-4 flex gap-2 rounded-lg bg-[#EEF6FB] p-3 text-xs leading-5 text-[#52677A]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[#176C98]" /><div><p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#176C98]">Informasi Tambahan</p><p>{accessibility.notes}</p></div></div>}</section>
+              <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Accessibility Profile</h2><p className="mt-1.5 text-sm leading-5 text-[#718494]">Informasi untuk membantu perusahaan memahami cara terbaik untuk mendukung dan menyesuaikan lingkungan kerja.</p><div className="mt-4 flex flex-wrap gap-2">{accessibility.accommodations_needed?.length ? accessibility.accommodations_needed.map((acc) => <span key={acc} className="inline-flex items-center rounded-md border border-[#D8E3EA] bg-[#F7FBFD] px-3 py-1.5 text-xs font-medium text-[#176C98]">{translateAccommodation(acc)}</span>) : <span className="text-sm text-[#9DAFBF]">Tidak ada preferensi aksesibilitas.</span>}</div>{accessibility.notes && <div className="mt-4 flex gap-2 rounded-lg bg-[#EEF6FB] p-3 text-xs leading-5 text-[#52677A]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[#176C98]" /><div><p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#176C98]">Informasi Tambahan</p><p>{accessibility.notes}</p></div></div>}</section>
 
               <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">CV yang Tersimpan</h2>{profile.cv_url ? <><div className="mt-4 flex items-center gap-3 rounded-lg bg-[#EEF6FB] p-3"><FileText className="h-7 w-7 shrink-0 text-rose-500" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#173A55]">{profile.cv_name || 'CV Tersimpan'}</p><p className="text-xs text-[#718494]">Diunggah pada {profile.cv_updated_at ? formatDateFromIso(profile.cv_updated_at) : '-'}</p></div></div><div className="mt-3 grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Eye className="h-4 w-4" />Lihat CV</a><a href={profile.cv_url} download className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Download className="h-4 w-4" />Unduh CV</a></div></> : <p className="mt-4 text-sm text-[#9DAFBF]">Belum ada CV tersimpan.</p>}</section>
             </aside>
           </div>
         </div>
       </main>
+
+      {/* ===================== MODAL PRATINJAU DOKUMEN SERTIFIKAT ===================== */}
+      <Dialog open={!!previewDocModal} onOpenChange={(open) => !open && setPreviewDocModal(null)}>
+        <DialogContent className="max-w-4xl sm:max-w-5xl bg-white rounded-3xl p-6 shadow-2xl border border-[#E2E8F0] max-h-[92vh] flex flex-col">
+          <DialogHeader className="shrink-0 pb-3 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between gap-4 pr-6">
+              <div className="min-w-0">
+                <DialogTitle className="text-lg font-extrabold text-[#102B4D] truncate flex items-center gap-2">
+                  {previewDocModal?.type === 'pdf' ? (
+                    <FileText className="h-5 w-5 text-rose-500 shrink-0" />
+                  ) : (
+                    <ImageIcon className="h-5 w-5 text-blue-500 shrink-0" />
+                  )}
+                  <span className="truncate">{previewDocModal?.name || 'Pratinjau Sertifikat'}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs text-[#64748B] mt-0.5">
+                  Pratinjau berkas sertifikat resolusi penuh
+                </DialogDescription>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {previewDocModal?.url && (
+                  <>
+                    <a
+                      href={previewDocModal.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD8E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#176C98] hover:bg-[#EEF6FB] transition"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Buka di Tab Baru</span>
+                    </a>
+                    <a
+                      href={previewDocModal.url}
+                      download
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#123F60] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0D304A] transition"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Unduh</span>
+                    </a>
+                  </>
+                )}
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="flex-1 min-h-[350px] max-h-[68vh] overflow-auto py-3">
+            {previewDocModal?.type === 'pdf' ? (
+              <iframe
+                src={`${previewDocModal.url}#toolbar=1`}
+                className="w-full h-[65vh] rounded-xl border border-[#CBD8E1] bg-white"
+                title="Pratinjau Dokumen PDF Penuh"
+              />
+            ) : (
+              <div className="flex items-center justify-center min-h-[350px] p-2 bg-slate-50 rounded-xl border border-[#CBD8E1]">
+                <img
+                  src={previewDocModal?.url}
+                  alt={previewDocModal?.name}
+                  className="max-h-[65vh] object-contain rounded-lg shadow-sm"
+                />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
@@ -161,7 +277,84 @@ function DetailRow({ icon, label, value }: { icon: ReactElement; label: string; 
 function TimelineItem({ icon, children }: { icon: ReactElement; children: ReactElement | ReactElement[] }) { return <div className="relative flex gap-3.5"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F7FBFD]">{icon}</div><div className="flex-1 pt-1">{children}</div></div>; }
 function ContactPill({ icon, url, label }: { icon: ReactElement; url: string; label: string }) { return <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#D8E3EA] bg-[#F7FBFD] px-4 py-2.5 text-sm font-semibold text-[#176C98] hover:border-[#1677A5] hover:bg-[#EFF9FD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1677A5]"><span>{icon}</span><span className="max-w-[140px] truncate">{label}: {url}</span></a>; }
 function ProjectCard({ project }: { project: Project }) { return <div className="flex flex-col gap-3 rounded-lg border border-[#CBD8E1] bg-white p-4"><div><h3 className="text-base font-extrabold text-[#102B4D]">{project.name}</h3><p className="mt-1 text-sm leading-relaxed text-[#3D5265]">{project.description || '-'}</p></div>{project.skills?.length ? <div className="flex flex-wrap gap-2 pt-2">{project.skills.map((skill) => <span key={skill} className="inline-flex items-center rounded-md bg-[#DDEFFC] px-2.5 py-1 text-[10px] font-bold text-[#176C98]">{skill}</span>)}</div> : null}</div>; }
-function CertificationCard({ certification }: { certification: Certification }) { return <div className="flex items-start gap-3 rounded-lg border border-[#CBD8E1] bg-white p-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#EEF6FB] text-[#176C98]"><Award className="h-5 w-5" /></div><div className="min-w-0"><p className="text-sm font-extrabold text-[#102B4D]">{certification.name}</p><p className="text-xs text-[#718494]">{certification.issuer || 'Platform terbuka'} · {certification.year || 'N/A'}</p>{certification.credential_url && <a href={certification.credential_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-[#176C98] hover:underline">Verifikasi Credential</a>}</div></div>; }
+function CertificationCard({
+  certification,
+  onPreview,
+}: {
+  certification: Certification;
+  onPreview?: (cert: Certification) => void;
+}) {
+  const isPdf = certification.file_type === 'pdf' || certification.file_url?.toLowerCase().endsWith('.pdf');
+  return (
+    <div className="flex flex-col justify-between rounded-xl border border-[#CBD8E1] bg-white p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#EEF6FB] text-[#176C98]">
+          <Award className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-extrabold text-[#102B4D]">{certification.name}</p>
+          <p className="text-xs text-[#718494]">
+            {certification.issuer || 'Platform terbuka'} · {certification.year || 'N/A'}
+          </p>
+          {certification.credential_url && (
+            <a
+              href={certification.credential_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#176C98] hover:underline"
+            >
+              <Link2 className="h-3 w-3" /> Verifikasi Credential
+            </a>
+          )}
+        </div>
+      </div>
+
+      {certification.file_url && (
+        <div className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-[#F7FBFD] border border-[#E2E8F0] p-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            {isPdf ? (
+              <FileText className="h-4 w-4 text-rose-500 shrink-0" />
+            ) : (
+              <ImageIcon className="h-4 w-4 text-blue-500 shrink-0" />
+            )}
+            <span className="truncate text-xs font-semibold text-[#173A55]">
+              {certification.file_name || 'Lampiran Berkas Sertifikat'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onPreview ? (
+              <button
+                type="button"
+                onClick={() => onPreview(certification)}
+                className="inline-flex items-center gap-1 rounded-md bg-[#EEF6FB] px-2.5 py-1 text-xs font-bold text-[#176C98] hover:bg-[#DDEFFC] transition cursor-pointer"
+                title="Lihat Pratinjau Sertifikat"
+              >
+                <Eye className="h-3.5 w-3.5" /> Lihat
+              </button>
+            ) : (
+              <a
+                href={certification.file_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-md bg-[#EEF6FB] px-2.5 py-1 text-xs font-bold text-[#176C98] hover:bg-[#DDEFFC] transition"
+              >
+                <Eye className="h-3.5 w-3.5" /> Lihat
+              </a>
+            )}
+            <a
+              href={certification.file_url}
+              download
+              className="inline-flex items-center gap-1 rounded-md border border-[#CBD8E1] bg-white px-2 py-1 text-xs font-semibold text-[#52677A] hover:bg-slate-50 transition"
+              title="Unduh Berkas Sertifikat"
+            >
+              <Download className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 function EmptyState({ text }: { text: string }) { return <p className="rounded-lg border border-dashed border-[#B9CAD5] bg-[#F8FBFD] px-4 py-5 text-center text-sm text-[#718494]">{text}</p>; }
 function SummaryRow({ icon, label, value }: { icon: ReactElement; label: string; value: string }) { return <div className="flex items-start gap-3"><span className="mt-0.5 text-[#6C8192] [&>svg]:h-5 [&>svg]:w-5">{icon}</span><div className="min-w-0"><p className="text-sm text-[#718494]">{label}</p><p className="break-words text-sm font-semibold text-[#173A55]">{value}</p></div></div>; }
 function formatBirthDate(value?: string): string { if (!value) return '-'; return new Date(`${value}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }); }
