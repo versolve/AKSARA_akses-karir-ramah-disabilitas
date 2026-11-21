@@ -103,6 +103,21 @@ class VacancyController extends Controller
     {
         $company = $this->getCompanyProfile($request);
 
+        // Auto-activate scheduled vacancies whose publication time has arrived
+        $company->vacancies()
+            ->where('status', 'draft')
+            ->get()
+            ->each(function ($vac) {
+                $skills = (array) ($vac->skills_required ?? []);
+                if (($skills['publish_type'] ?? '') === 'scheduled' && !empty($skills['scheduled_at'])) {
+                    try {
+                        if (Carbon::parse($skills['scheduled_at'])->isPast()) {
+                            $vac->update(['status' => 'active']);
+                        }
+                    } catch (\Exception $e) {}
+                }
+            });
+
         // 1. Calculate KPI Metrics for this company
         $totalVacancies = $company->vacancies()->count();
         $activeVacancies = $company->vacancies()->where('status', 'active')->count();
@@ -176,6 +191,21 @@ class VacancyController extends Controller
             $v->category_bg = $cat['bgColor'];
             $v->category_icon = $cat['icon'];
             $v->formatted_created_at = Carbon::parse($v->created_at)->translatedFormat('d M Y');
+
+            $skills = (array) ($v->skills_required ?? []);
+            $v->is_featured = (bool) ($skills['is_featured'] ?? false);
+            $v->show_accessibility = (bool) ($skills['show_accessibility'] ?? true);
+            $v->publish_type = $skills['publish_type'] ?? 'immediate';
+            $v->scheduled_at = $skills['scheduled_at'] ?? null;
+            $v->is_scheduled = false;
+            if ($v->status === 'draft' && ($skills['publish_type'] ?? '') === 'scheduled' && !empty($skills['scheduled_at'])) {
+                try {
+                    if (Carbon::parse($skills['scheduled_at'])->isFuture()) {
+                        $v->is_scheduled = true;
+                    }
+                } catch (\Exception $e) {}
+            }
+
             return $v;
         });
 
@@ -247,9 +277,14 @@ class VacancyController extends Controller
             'accessibilities' => ['nullable', 'array'],
             'accessibilities.*.accommodation_type' => ['required', 'string'],
             'accessibilities.*.description' => ['nullable', 'string'],
+            'custom_physical_access' => ['nullable', 'string', 'max:255'],
+            'custom_comm_access' => ['nullable', 'string', 'max:255'],
+            'custom_tech_access' => ['nullable', 'string', 'max:255'],
+            'custom_interpreter_access' => ['nullable', 'string', 'max:255'],
             'accessibility_notes' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:draft,active,closed'],
             'publish_type' => ['nullable', 'string'],
+            'scheduled_at' => ['nullable', 'string'],
             'show_accessibility' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
         ]);
@@ -265,12 +300,30 @@ class VacancyController extends Controller
             'quota' => $validated['quota'] ?? 1,
             'accessibility_enabled' => $validated['accessibility_enabled'] ?? true,
             'accessibility_notes' => $validated['accessibility_notes'] ?? null,
+            'custom_physical_access' => $validated['custom_physical_access'] ?? null,
+            'custom_comm_access' => $validated['custom_comm_access'] ?? null,
+            'custom_tech_access' => $validated['custom_tech_access'] ?? null,
+            'custom_interpreter_access' => $validated['custom_interpreter_access'] ?? null,
             'show_accessibility' => $validated['show_accessibility'] ?? true,
             'is_featured' => $validated['is_featured'] ?? false,
             'publish_type' => $validated['publish_type'] ?? 'immediate',
+            'scheduled_at' => $validated['scheduled_at'] ?? null,
         ];
 
-        DB::transaction(function () use ($company, $validated, $cleanRequirements, $skillsRequiredPayload) {
+        // Determine final initial status
+        $finalStatus = $validated['status'];
+        if ($validated['status'] === 'active' && ($validated['publish_type'] ?? '') === 'scheduled' && !empty($validated['scheduled_at'])) {
+            try {
+                $scheduledAt = Carbon::parse($validated['scheduled_at']);
+                if ($scheduledAt->isFuture()) {
+                    $finalStatus = 'draft';
+                }
+            } catch (\Exception $e) {
+                $finalStatus = 'draft';
+            }
+        }
+
+        DB::transaction(function () use ($company, $validated, $cleanRequirements, $skillsRequiredPayload, $finalStatus) {
             $vacancy = $company->vacancies()->create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -283,7 +336,7 @@ class VacancyController extends Controller
                 'experience_level' => $validated['experience_level'],
                 'requirements' => $cleanRequirements,
                 'skills_required' => $skillsRequiredPayload,
-                'status' => $validated['status'],
+                'status' => $finalStatus,
                 'deadline' => $validated['deadline'] ?? null,
             ]);
 
@@ -297,7 +350,12 @@ class VacancyController extends Controller
             }
         });
 
-        $msg = $validated['status'] === 'draft' ? 'Lowongan berhasil disimpan sebagai draft.' : 'Lowongan berhasil dipublikasikan.';
+        if (($validated['publish_type'] ?? '') === 'scheduled' && $finalStatus === 'draft' && !empty($validated['scheduled_at'])) {
+            $formattedDate = Carbon::parse($validated['scheduled_at'])->translatedFormat('d M Y, H:i');
+            return redirect()->route('company.vacancies.index')->with('status', "Lowongan berhasil dijadwalkan untuk publikasi pada {$formattedDate}.");
+        }
+
+        $msg = $finalStatus === 'draft' ? 'Lowongan berhasil disimpan sebagai draft.' : 'Lowongan berhasil dipublikasikan.';
         return redirect()->route('company.vacancies.index')->with('status', $msg);
     }
 
@@ -338,9 +396,14 @@ class VacancyController extends Controller
             'accessibilities' => ['nullable', 'array'],
             'accessibilities.*.accommodation_type' => ['required', 'string'],
             'accessibilities.*.description' => ['nullable', 'string'],
+            'custom_physical_access' => ['nullable', 'string', 'max:255'],
+            'custom_comm_access' => ['nullable', 'string', 'max:255'],
+            'custom_tech_access' => ['nullable', 'string', 'max:255'],
+            'custom_interpreter_access' => ['nullable', 'string', 'max:255'],
             'accessibility_notes' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:draft,active,closed'],
             'publish_type' => ['nullable', 'string'],
+            'scheduled_at' => ['nullable', 'string'],
             'show_accessibility' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
         ]);
@@ -354,12 +417,30 @@ class VacancyController extends Controller
             'quota' => $validated['quota'] ?? 1,
             'accessibility_enabled' => $validated['accessibility_enabled'] ?? true,
             'accessibility_notes' => $validated['accessibility_notes'] ?? null,
+            'custom_physical_access' => $validated['custom_physical_access'] ?? null,
+            'custom_comm_access' => $validated['custom_comm_access'] ?? null,
+            'custom_tech_access' => $validated['custom_tech_access'] ?? null,
+            'custom_interpreter_access' => $validated['custom_interpreter_access'] ?? null,
             'show_accessibility' => $validated['show_accessibility'] ?? true,
             'is_featured' => $validated['is_featured'] ?? false,
             'publish_type' => $validated['publish_type'] ?? 'immediate',
+            'scheduled_at' => $validated['scheduled_at'] ?? null,
         ];
 
-        DB::transaction(function () use ($vacancy, $validated, $cleanRequirements, $skillsRequiredPayload) {
+        // Determine final updated status
+        $finalStatus = $validated['status'];
+        if ($validated['status'] === 'active' && ($validated['publish_type'] ?? '') === 'scheduled' && !empty($validated['scheduled_at'])) {
+            try {
+                $scheduledAt = Carbon::parse($validated['scheduled_at']);
+                if ($scheduledAt->isFuture()) {
+                    $finalStatus = 'draft';
+                }
+            } catch (\Exception $e) {
+                $finalStatus = 'draft';
+            }
+        }
+
+        DB::transaction(function () use ($vacancy, $validated, $cleanRequirements, $skillsRequiredPayload, $finalStatus) {
             $vacancy->update([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -372,7 +453,7 @@ class VacancyController extends Controller
                 'experience_level' => $validated['experience_level'],
                 'requirements' => $cleanRequirements,
                 'skills_required' => $skillsRequiredPayload,
-                'status' => $validated['status'],
+                'status' => $finalStatus,
                 'deadline' => $validated['deadline'] ?? null,
             ]);
 
@@ -387,6 +468,11 @@ class VacancyController extends Controller
             }
         });
 
+        if (($validated['publish_type'] ?? '') === 'scheduled' && $finalStatus === 'draft' && !empty($validated['scheduled_at'])) {
+            $formattedDate = Carbon::parse($validated['scheduled_at'])->translatedFormat('d M Y, H:i');
+            return redirect()->route('company.vacancies.index')->with('status', "Perubahan disimpan dan lowongan dijadwalkan untuk publikasi pada {$formattedDate}.");
+        }
+
         return redirect()->route('company.vacancies.index')->with('status', 'Lowongan berhasil diperbarui.');
     }
 
@@ -399,7 +485,17 @@ class VacancyController extends Controller
             'status' => ['required', 'in:draft,active,closed'],
         ]);
 
-        $vacancy->update(['status' => $validated['status']]);
+        if ($validated['status'] === 'active') {
+            $skills = (array) ($vacancy->skills_required ?? []);
+            if (($skills['publish_type'] ?? '') === 'scheduled') {
+                $skills['publish_type'] = 'immediate';
+                $vacancy->update(['skills_required' => $skills, 'status' => 'active']);
+            } else {
+                $vacancy->update(['status' => $validated['status']]);
+            }
+        } else {
+            $vacancy->update(['status' => $validated['status']]);
+        }
 
         return redirect()->route('company.vacancies.index')->with('status', "Status lowongan berhasil diubah menjadi {$validated['status']}.");
     }

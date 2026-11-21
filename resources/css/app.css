@@ -3,9 +3,10 @@
 @import 'tw-animate-css';
 
 @source '../views';
+@source '../js';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans:
@@ -98,38 +99,38 @@
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --background: #020B3C;
+    --foreground: #F8FAFC;
+    --card: #071336;
+    --card-foreground: #F8FAFC;
+    --popover: #071336;
+    --popover-foreground: #F8FAFC;
+    --primary: #1D64EC;
+    --primary-foreground: #FFFFFF;
+    --secondary: #0F1E4A;
+    --secondary-foreground: #F8FAFC;
+    --muted: #0F1E4A;
+    --muted-foreground: #94A3B8;
+    --accent: #0F1E4A;
+    --accent-foreground: #F8FAFC;
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --border: #1E2B4D;
+    --input: #1E2B4D;
+    --ring: #38BDF8;
+    --chart-1: #38BDF8;
+    --chart-2: #22C55E;
+    --chart-3: #FBBF24;
+    --chart-4: #818CF8;
+    --chart-5: #F43F5E;
+    --sidebar: #050E2E;
+    --sidebar-foreground: #F8FAFC;
+    --sidebar-primary: #1D64EC;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #0F1E4A;
+    --sidebar-accent-foreground: #F8FAFC;
+    --sidebar-border: #1E2B4D;
+    --sidebar-ring: #38BDF8;
 }
 
 @layer base {
@@ -153,56 +154,369 @@
 
     /* Accessible focus ring for keyboard navigation */
     :focus-visible {
-        outline: 2px solid #059669 !important;
+        outline: 3px solid #1769E0 !important;
         outline-offset: 2px !important;
     }
 
-    /* Accessibility: High contrast overrides (WCAG AAA target) */
-    body.high-contrast,
-    body.high-contrast div,
-    body.high-contrast form,
-    body.high-contrast section,
-    body.high-contrast article,
-    body.high-contrast fieldset,
-    body.high-contrast legend {
-        background-color: #000000 !important;
-        color: #ffffff !important;
-        border-color: #ffffff !important;
+    /* ==========================================================================
+       ACCESSIBILITY: ENHANCED HIGH CONTRAST (WCAG AAA)
+       Preserves brand identity & vibes while maximizing clarity and sharpness.
+       Adapts automatically based on whether user is in Light or Dark Mode.
+       ========================================================================== */
+
+    /* --------------------------------------------------------------------------
+       1. HIGH CONTRAST - LIGHT MODE (Default / Light Theme)
+       Keeps clean white/blue Profabel vibes, but sharpens borders & text contrast
+       -------------------------------------------------------------------------- */
+    body.high-contrast {
+        background-color: #F4F8FD !important;
+        color: #0F172A !important;
     }
 
+    /* Headings & Text: Deep, crisp, ultra-readable */
     body.high-contrast h1,
     body.high-contrast h2,
     body.high-contrast h3,
     body.high-contrast h4,
     body.high-contrast h5,
-    body.high-contrast h6,
-    body.high-contrast p,
-    body.high-contrast span,
-    body.high-contrast label,
-    body.high-contrast li,
-    body.high-contrast td,
-    body.high-contrast th {
-        color: #ffffff !important;
+    body.high-contrast h6 {
+        color: #06152B !important;
+        font-weight: 800 !important;
     }
 
-    body.high-contrast a,
-    body.high-contrast button,
+    body.high-contrast p,
+    body.high-contrast li,
+    body.high-contrast dt,
+    body.high-contrast dd,
+    body.high-contrast td,
+    body.high-contrast th,
+    body.high-contrast label {
+        color: #0F172A !important;
+    }
+
+    /* Strengthen muted/faint text (eliminating washed-out gray text) */
+    body.high-contrast .text-slate-400,
+    body.high-contrast .text-slate-500,
+    body.high-contrast .text-slate-600,
+    body.high-contrast .text-muted-foreground,
+    body.high-contrast .text-gray-400,
+    body.high-contrast .text-gray-500 {
+        color: #1E293B !important;
+        font-weight: 600 !important;
+    }
+
+    /* Solidify Cards, Panels, Modals, Drawers & Containers */
+    body.high-contrast article,
+    body.high-contrast section,
+    body.high-contrast aside,
+    body.high-contrast .bg-white,
+    body.high-contrast [role="dialog"],
+    body.high-contrast .rounded-2xl,
+    body.high-contrast .rounded-xl,
+    body.high-contrast .rounded-lg {
+        border-color: #94A3B8 !important;
+    }
+
+    body.high-contrast .border-slate-100,
+    body.high-contrast .border-slate-200,
+    body.high-contrast .border-gray-100,
+    body.high-contrast .border-gray-200,
+    body.high-contrast .border-border {
+        border-color: #94A3B8 !important;
+    }
+
+    /* Tables: Crisp headers and clear row borders */
+    body.high-contrast table {
+        border-color: #94A3B8 !important;
+    }
+
+    body.high-contrast th {
+        background-color: #E2ECF8 !important;
+        color: #06152B !important;
+        font-weight: 700 !important;
+        border-bottom: 2px solid #94A3B8 !important;
+    }
+
+    body.high-contrast tr {
+        border-bottom: 1.5px solid #CBD5E1 !important;
+    }
+
+    body.high-contrast tr:hover {
+        background-color: #EBF3FD !important;
+    }
+
+    /* Form Inputs & Controls: Solid border & clear distinction */
     body.high-contrast input,
     body.high-contrast select,
     body.high-contrast textarea {
-        background-color: #000000 !important;
-        color: #ffff00 !important;
-        border: 2px solid #ffff00 !important;
-        outline: 2px solid #ffff00 !important;
-        outline-offset: 2px !important;
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border: 2px solid #334155 !important;
+        font-weight: 500 !important;
+    }
+
+    body.high-contrast input::placeholder,
+    body.high-contrast textarea::placeholder {
+        color: #475569 !important;
+        opacity: 1 !important;
     }
 
     body.high-contrast input:focus,
     body.high-contrast select:focus,
-    body.high-contrast textarea:focus,
-    body.high-contrast button:focus-visible,
-    body.high-contrast a:focus-visible {
-        outline: 4px solid #ffffff !important;
+    body.high-contrast textarea:focus {
+        border-color: #0C4DB3 !important;
+        outline: 3px solid #1769E0 !important;
+        outline-offset: 2px !important;
+    }
+
+    /* Buttons: Strong solid Profabel Blue & clear outline buttons */
+    body.high-contrast button.bg-\[\#1769E0\],
+    body.high-contrast .bg-blue-600,
+    body.high-contrast .bg-primary,
+    body.high-contrast .bg-blue-700 {
+        background-color: #0D5ECC !important;
+        color: #FFFFFF !important;
+        border: 2px solid #083B82 !important;
+        font-weight: 700 !important;
+    }
+
+    body.high-contrast button.bg-\[\#1769E0\] *,
+    body.high-contrast .bg-blue-600 *,
+    body.high-contrast .bg-primary *,
+    body.high-contrast .bg-blue-700 * {
+        color: #FFFFFF !important;
+    }
+
+    body.high-contrast button:hover.bg-\[\#1769E0\],
+    body.high-contrast .bg-blue-600:hover,
+    body.high-contrast .bg-primary:hover {
+        background-color: #083B82 !important;
+    }
+
+    body.high-contrast button.bg-white,
+    body.high-contrast button.border-slate-200,
+    body.high-contrast button.border-slate-300 {
+        border: 1.5px solid #475569 !important;
+        color: #0F172A !important;
+        font-weight: 600 !important;
+    }
+
+    /* Links: Clear underline and high contrast blue */
+    body.high-contrast a {
+        text-decoration-thickness: 1.5px !important;
+        text-underline-offset: 3px !important;
+    }
+
+    body.high-contrast a:hover {
+        text-decoration: underline !important;
+    }
+
+    body.high-contrast a.text-\[\#1769E0\],
+    body.high-contrast a.text-blue-600,
+    body.high-contrast a.text-blue-700 {
+        color: #0C4DB3 !important;
+        font-weight: 700 !important;
+        text-decoration: underline !important;
+    }
+
+    /* Badges & Status Chips: Distinct backgrounds with solid borders */
+    body.high-contrast .bg-emerald-50,
+    body.high-contrast [class*="bg-emerald-"] {
+        background-color: #DCFCE7 !important;
+        border: 1.5px solid #059669 !important;
+        color: #064E3B !important;
+        font-weight: 800 !important;
+    }
+    body.high-contrast .bg-emerald-50 *,
+    body.high-contrast [class*="bg-emerald-"] * {
+        color: #064E3B !important;
+    }
+
+    body.high-contrast .bg-amber-50,
+    body.high-contrast [class*="bg-amber-"] {
+        background-color: #FEF3C7 !important;
+        border: 1.5px solid #D97706 !important;
+        color: #78350F !important;
+        font-weight: 800 !important;
+    }
+    body.high-contrast .bg-amber-50 *,
+    body.high-contrast [class*="bg-amber-"] * {
+        color: #78350F !important;
+    }
+
+    body.high-contrast .bg-rose-50,
+    body.high-contrast .bg-red-50,
+    body.high-contrast [class*="bg-rose-"],
+    body.high-contrast [class*="bg-red-"] {
+        background-color: #FFE4E6 !important;
+        border: 1.5px solid #E11D48 !important;
+        color: #881337 !important;
+        font-weight: 800 !important;
+    }
+    body.high-contrast .bg-rose-50 *,
+    body.high-contrast .bg-red-50 *,
+    body.high-contrast [class*="bg-rose-"] *,
+    body.high-contrast [class*="bg-red-"] * {
+        color: #881337 !important;
+    }
+
+    body.high-contrast .bg-blue-50,
+    body.high-contrast [class*="bg-blue-50"] {
+        background-color: #DBEAFE !important;
+        border: 1.5px solid #2563EB !important;
+        color: #1E3A8A !important;
+        font-weight: 800 !important;
+    }
+    body.high-contrast .bg-blue-50 *,
+    body.high-contrast [class*="bg-blue-50"] * {
+        color: #1E3A8A !important;
+    }
+
+    /* --------------------------------------------------------------------------
+       2. HIGH CONTRAST - DARK MODE (When user uses Dark Theme)
+       Keeps deep navy/black vibes with luminous crisp text and bright borders
+       -------------------------------------------------------------------------- */
+    html.dark body.high-contrast,
+    body.high-contrast[data-contrast-theme="dark"] {
+        background-color: #060C16 !important;
+        color: #F8FAFC !important;
+    }
+
+    html.dark body.high-contrast h1,
+    html.dark body.high-contrast h2,
+    html.dark body.high-contrast h3,
+    html.dark body.high-contrast h4,
+    html.dark body.high-contrast h5,
+    html.dark body.high-contrast h6,
+    body.high-contrast[data-contrast-theme="dark"] h1,
+    body.high-contrast[data-contrast-theme="dark"] h2,
+    body.high-contrast[data-contrast-theme="dark"] h3,
+    body.high-contrast[data-contrast-theme="dark"] h4,
+    body.high-contrast[data-contrast-theme="dark"] h5,
+    body.high-contrast[data-contrast-theme="dark"] h6 {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+    }
+
+    html.dark body.high-contrast p,
+    html.dark body.high-contrast li,
+    html.dark body.high-contrast dt,
+    html.dark body.high-contrast dd,
+    html.dark body.high-contrast td,
+    html.dark body.high-contrast th,
+    html.dark body.high-contrast label,
+    body.high-contrast[data-contrast-theme="dark"] p,
+    body.high-contrast[data-contrast-theme="dark"] li,
+    body.high-contrast[data-contrast-theme="dark"] dt,
+    body.high-contrast[data-contrast-theme="dark"] dd,
+    body.high-contrast[data-contrast-theme="dark"] td,
+    body.high-contrast[data-contrast-theme="dark"] th,
+    body.high-contrast[data-contrast-theme="dark"] label {
+        color: #F1F5F9 !important;
+    }
+
+    html.dark body.high-contrast .text-slate-400,
+    html.dark body.high-contrast .text-slate-500,
+    html.dark body.high-contrast .text-slate-600,
+    html.dark body.high-contrast .text-muted-foreground,
+    body.high-contrast[data-contrast-theme="dark"] .text-slate-400,
+    body.high-contrast[data-contrast-theme="dark"] .text-slate-500,
+    body.high-contrast[data-contrast-theme="dark"] .text-slate-600,
+    body.high-contrast[data-contrast-theme="dark"] .text-muted-foreground {
+        color: #CBD5E1 !important;
+        font-weight: 600 !important;
+    }
+
+    html.dark body.high-contrast article,
+    html.dark body.high-contrast section,
+    html.dark body.high-contrast aside,
+    html.dark body.high-contrast .bg-white,
+    html.dark body.high-contrast [role="dialog"],
+    body.high-contrast[data-contrast-theme="dark"] article,
+    body.high-contrast[data-contrast-theme="dark"] section,
+    body.high-contrast[data-contrast-theme="dark"] aside,
+    body.high-contrast[data-contrast-theme="dark"] .bg-white,
+    body.high-contrast[data-contrast-theme="dark"] [role="dialog"] {
+        background-color: #0A1628 !important;
+        border-color: #475569 !important;
+    }
+
+    html.dark body.high-contrast th,
+    body.high-contrast[data-contrast-theme="dark"] th {
+        background-color: #0F1E36 !important;
+        color: #FFFFFF !important;
+        border-bottom: 2px solid #475569 !important;
+    }
+
+    html.dark body.high-contrast tr,
+    body.high-contrast[data-contrast-theme="dark"] tr {
+        border-bottom-color: #334155 !important;
+    }
+
+    html.dark body.high-contrast tr:hover,
+    body.high-contrast[data-contrast-theme="dark"] tr:hover {
+        background-color: #13233F !important;
+    }
+
+    html.dark body.high-contrast input,
+    html.dark body.high-contrast select,
+    html.dark body.high-contrast textarea,
+    body.high-contrast[data-contrast-theme="dark"] input,
+    body.high-contrast[data-contrast-theme="dark"] select,
+    body.high-contrast[data-contrast-theme="dark"] textarea {
+        background-color: #07101E !important;
+        color: #FFFFFF !important;
+        border: 2px solid #64748B !important;
+    }
+
+    html.dark body.high-contrast input:focus,
+    html.dark body.high-contrast select:focus,
+    html.dark body.high-contrast textarea:focus,
+    body.high-contrast[data-contrast-theme="dark"] input:focus,
+    body.high-contrast[data-contrast-theme="dark"] select:focus,
+    body.high-contrast[data-contrast-theme="dark"] textarea:focus {
+        border-color: #38BDF8 !important;
+        outline: 3px solid #38BDF8 !important;
+    }
+
+    html.dark body.high-contrast button.bg-\[\#1769E0\],
+    html.dark body.high-contrast .bg-blue-600,
+    html.dark body.high-contrast .bg-primary,
+    body.high-contrast[data-contrast-theme="dark"] button.bg-\[\#1769E0\],
+    body.high-contrast[data-contrast-theme="dark"] .bg-blue-600,
+    body.high-contrast[data-contrast-theme="dark"] .bg-primary {
+        background-color: #1D6AE5 !important;
+        color: #FFFFFF !important;
+        border: 2px solid #60A5FA !important;
+    }
+
+    html.dark body.high-contrast a.text-\[\#1769E0\],
+    html.dark body.high-contrast a.text-blue-600,
+    body.high-contrast[data-contrast-theme="dark"] a.text-\[\#1769E0\],
+    body.high-contrast[data-contrast-theme="dark"] a.text-blue-600 {
+        color: #38BDF8 !important;
+        text-decoration: underline !important;
+    }
+
+    html.dark body.high-contrast .bg-emerald-50,
+    body.high-contrast[data-contrast-theme="dark"] .bg-emerald-50 {
+        background-color: #064E3B !important;
+        border: 1.5px solid #34D399 !important;
+        color: #A7F3D0 !important;
+    }
+
+    html.dark body.high-contrast .bg-amber-50,
+    body.high-contrast[data-contrast-theme="dark"] .bg-amber-50 {
+        background-color: #78350F !important;
+        border: 1.5px solid #FBBF24 !important;
+        color: #FDE68A !important;
+    }
+
+    html.dark body.high-contrast .bg-rose-50,
+    body.high-contrast[data-contrast-theme="dark"] .bg-rose-50 {
+        background-color: #881337 !important;
+        border: 1.5px solid #F43F5E !important;
+        color: #FECDD3 !important;
     }
 }
 
@@ -225,4 +539,402 @@
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
 }
+
+/* ==========================================================================
+   Comprehensive Dark Mode Palette Overrides
+   Ensures consistent deep navy midnight theme across all portal pages
+   ========================================================================== */
+html.dark {
+    color-scheme: dark;
+}
+
+html.dark,
+html.dark body {
+    background-color: #020B3C !important;
+    color: #F8FAFC !important;
+}
+
+/* Card and Container Backgrounds in Dark Mode */
+html.dark .bg-white:not([data-keep-light]) {
+    background-color: #071336 !important;
+}
+
+html.dark .bg-\[\#F7FAFD\],
+html.dark .bg-\[\#F8FBFE\],
+html.dark .bg-\[\#F8FAFD\],
+html.dark .bg-\[\#FAFCFE\],
+html.dark .bg-\[\#F5F9FF\],
+html.dark [class*="bg-\[\#F5F9FF\]"],
+html.dark .bg-\[\#F5F9FD\],
+html.dark [class*="bg-\[\#F5F9FD\]"],
+html.dark .bg-\[\#F4F8FC\],
+html.dark [class*="bg-\[\#F4F8FC\]"],
+html.dark .bg-\[\#FAFBFD\],
+html.dark [class*="bg-\[\#FAFBFD\]"],
+html.dark .bg-\[\#FBFDFF\],
+html.dark [class*="bg-\[\#FBFDFF\]"],
+html.dark .bg-slate-50:not([data-keep-light]),
+html.dark .bg-\[\#F8FAFC\],
+html.dark [class*="bg-\[\#F8FAFC\]"],
+html.dark [class*="bg-\[\#F8FBFE\]"],
+html.dark [class*="bg-\[\#F7FAFD\]"],
+html.dark [class*="bg-\[\#FAFCFE\]"] {
+    background-color: #050E2E !important;
+}
+
+/* Fix table headers, sub-panels, and semi-transparent slate backgrounds */
+html.dark [class*="bg-slate-50\/"],
+html.dark [class*="bg-slate-100\/"],
+html.dark [class*="bg-\[\#F8FBFE\]"],
+html.dark [class*="bg-\[\#F8FBFF\]"],
+html.dark .bg-\[\#F8FBFE\],
+html.dark .bg-\[\#F8FBFF\] {
+    background-color: #050E2E !important;
+}
+
+/* Table Styles in Dark Mode - Consistent Midnight Deep Blue (#050E2E) */
+html.dark table thead,
+html.dark table thead tr,
+html.dark table thead th {
+    background-color: #050E2E !important;
+    color: #94A3B8 !important;
+    border-color: #1E2B4D !important;
+}
+
+html.dark table tbody,
+html.dark table tbody tr {
+    background-color: #050E2E !important;
+    border-color: #1E2B4D !important;
+}
+
+html.dark table tbody td {
+    border-color: #1E2B4D !important;
+}
+
+/* Fix table row and list hover states (smooth midnight highlight) */
+html.dark tbody tr:hover,
+html.dark tbody tr:hover td,
+html.dark table tr.group:hover,
+html.dark [class*="hover\:bg-blue-50"]:hover,
+html.dark [class*="hover\:bg-slate-50"]:hover,
+html.dark [class*="hover\:bg-slate-100"]:hover,
+html.dark [class*="hover\:bg-gray-50"]:hover,
+html.dark [class*="hover\:bg-gray-100"]:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-blue-50\/50:hover,
+html.dark .hover\:bg-blue-50\/30:hover {
+    background-color: #0E2254 !important;
+}
+
+html.dark table tfoot,
+html.dark table tfoot tr,
+html.dark table tfoot td {
+    background-color: #050E2E !important;
+    border-color: #1E2B4D !important;
+}
+
+/* Selected row or active highlight */
+html.dark tr[aria-selected="true"],
+html.dark tr.selected,
+html.dark tr.is-selected {
+    background-color: #0B2256 !important;
+}
+
+html.dark .bg-blue-50:not([class*="hover\:"]) {
+    background-color: #0B2256 !important;
+    color: #38BDF8 !important;
+}
+
+html.dark .bg-\[\#F0F8FC\],
+html.dark .bg-\[\#EBF5FA\],
+html.dark .bg-\[\#E8F4FA\] {
+    background-color: #0B2256 !important;
+}
+
+/* Input, Select, and Textarea in Dark Mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([data-keep-light]),
+html.dark select:not([data-keep-light]),
+html.dark textarea:not([data-keep-light]) {
+    background-color: #050E2E !important;
+    color: #F8FAFC !important;
+    border-color: #1E2B4D !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #94A3B8 !important;
+}
+
+html.dark select option {
+    background-color: #071336 !important;
+    color: #F8FAFC !important;
+}
+
+/* ==========================================================================
+   Text Colors in Dark Mode - Strict High Contrast Hierarchy
+   ========================================================================== */
+/* 1. Primary Text (Titles, Headings, Primary Labels, Bold Text) -> Pure White */
+html.dark .text-\[\#102B4B\],
+html.dark .text-\[\#101B4D\],
+html.dark .text-\[\#0B1528\],
+html.dark .text-\[\#0A192F\],
+html.dark .text-\[\#123B5D\],
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+    color: #F8FAFC !important;
+}
+
+/* 2. Secondary Text (Subheadings, Form Labels, Table Cells, Descriptions) -> Light Slate / White-silver */
+html.dark .text-\[\#475569\],
+html.dark [class*="text-\[\#475569\]"],
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+    color: #E2E8F0 !important;
+}
+
+/* 3. Muted / Tertiary Text (Helper Text, Timestamps, Secondary Badges) -> Slate 300 / 400 */
+html.dark .text-\[\#64748B\],
+html.dark .text-slate-500 {
+    color: #CBD5E1 !important;
+}
+
+html.dark .text-\[\#94A3B8\],
+html.dark .text-slate-400 {
+    color: #94A3B8 !important;
+}
+
+/* Borders in Dark Mode */
+html.dark .border-\[\#E2E8F0\],
+html.dark [class*="border-\[\#E2E8F0\]"],
+html.dark .border-\[\#E2EAF3\],
+html.dark [class*="border-\[\#E2EAF3\]"],
+html.dark .border-\[\#F1F5F9\],
+html.dark [class*="border-\[\#F1F5F9\]"],
+html.dark .border-\[\#EEF2F6\],
+html.dark [class*="border-\[\#EEF2F6\]"],
+html.dark .border-\[\#E5E7EB\],
+html.dark [class*="border-\[\#E5E7EB\]"],
+html.dark .border-slate-50,
+html.dark [class*="border-slate-50"],
+html.dark .border-slate-100,
+html.dark [class*="border-slate-100"],
+html.dark .border-slate-200,
+html.dark [class*="border-slate-200"],
+html.dark .dark\:border-white\/10,
+html.dark [class*="dark:border-white/10"],
+html.dark [class*="border-white\/10"],
+html.dark [class*="border-white\/5"],
+html.dark [class*="border-white\/20"],
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #1E2B4D !important;
+}
+
+/* Brand Blue / Cyan Accents in Dark Mode */
+html.dark .text-\[\#007F96\],
+html.dark .text-\[\#1674D1\],
+html.dark .text-\[\#1769E0\] {
+    color: #38BDF8 !important;
+}
+
+/* Disability & Category Badges / Icons in Dark Mode */
+html.dark .text-indigo-500,
+html.dark .text-indigo-600,
+html.dark .text-indigo-700,
+html.dark .text-indigo-800 {
+    color: #A5B4FC !important;
+}
+html.dark .text-purple-600,
+html.dark .text-purple-700,
+html.dark .text-purple-800 {
+    color: #D8B4FE !important;
+}
+html.dark .text-amber-600 {
+    color: #FBBF24 !important;
+}
+html.dark .text-amber-700 {
+    color: #FCD34D !important;
+}
+html.dark .text-amber-800,
+html.dark .text-amber-900,
+html.dark .text-amber-950,
+html.dark [class*="text-amber-800"],
+html.dark [class*="text-amber-900"] {
+    color: #FDE68A !important;
+}
+html.dark .text-emerald-600 {
+    color: #34D399 !important;
+}
+html.dark .text-emerald-700,
+html.dark .text-emerald-800,
+html.dark .text-emerald-900,
+html.dark .text-emerald-950,
+html.dark [class*="text-emerald-700"],
+html.dark [class*="text-emerald-800"],
+html.dark [class*="text-emerald-900"],
+html.dark [class*="text-emerald-950"] {
+    color: #A7F3D0 !important;
+}
+html.dark .text-rose-600,
+html.dark .text-rose-700 {
+    color: #FB7185 !important;
+}
+html.dark .text-blue-600,
+html.dark .text-blue-700 {
+    color: #60A5FA !important;
+}
+
+/* Tag & Chip backgrounds in dark mode */
+html.dark .bg-indigo-50,
+html.dark [class*="bg-indigo-50"],
+html.dark .bg-indigo-100 {
+    background-color: rgba(99, 102, 241, 0.2) !important;
+    color: #C7D2FE !important;
+}
+html.dark .bg-purple-50,
+html.dark [class*="bg-purple-50"] {
+    background-color: rgba(147, 51, 234, 0.2) !important;
+    color: #D8B4FE !important;
+}
+html.dark .bg-emerald-50,
+html.dark [class*="bg-emerald-50"],
+html.dark .bg-emerald-100,
+html.dark [class*="bg-emerald-100"] {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #6EE7B7 !important;
+}
+html.dark .bg-amber-50,
+html.dark [class*="bg-amber-50"],
+html.dark .bg-amber-100,
+html.dark [class*="bg-amber-100"] {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #FCD34D !important;
+}
+html.dark .bg-rose-50,
+html.dark [class*="bg-rose-50"] {
+    background-color: rgba(244, 63, 94, 0.2) !important;
+    color: #FDA4AF !important;
+}
+html.dark .bg-blue-50:not([class*="hover\:"]) {
+    background-color: rgba(37, 99, 235, 0.2) !important;
+    color: #38BDF8 !important;
+}
+html.dark .bg-slate-100 {
+    background-color: #1E2B4D !important;
+    color: #E2E8F0 !important;
+}
+
+/* Category & notification borders */
+html.dark .border-indigo-100,
+html.dark .border-indigo-200 {
+    border-color: rgba(99, 102, 241, 0.3) !important;
+}
+html.dark .border-purple-100,
+html.dark .border-purple-200 {
+    border-color: rgba(147, 51, 234, 0.3) !important;
+}
+html.dark .border-blue-100,
+html.dark .border-blue-200 {
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+html.dark .border-emerald-100,
+html.dark .border-emerald-200 {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+html.dark .border-amber-100,
+html.dark .border-amber-200 {
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Metric card & activity pastel backgrounds in dark mode */
+html.dark .bg-\[\#EBF3FE\],
+html.dark [class*="bg-\[\#EBF3FE\]"] {
+    background-color: rgba(23, 105, 224, 0.2) !important;
+    color: #38BDF8 !important;
+}
+html.dark .bg-\[\#E8F8F0\],
+html.dark [class*="bg-\[\#E8F8F0\]"],
+html.dark .bg-\[\#F0FDF4\],
+html.dark [class*="bg-\[\#F0FDF4\]"] {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #34D399 !important;
+}
+html.dark .bg-\[\#F3EFFE\],
+html.dark [class*="bg-\[\#F3EFFE\]"] {
+    background-color: rgba(139, 92, 246, 0.2) !important;
+    color: #C084FC !important;
+}
+html.dark .bg-\[\#FEF7EC\],
+html.dark [class*="bg-\[\#FEF7EC\]"] {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #FBBF24 !important;
+}
+
+/* Chat bubble incoming fallback */
+html.dark [class*="rounded-tl-none"].bg-white,
+html.dark [class*="rounded-tl-none"].bg-\[\#F8FAFC\] {
+    background-color: #0B1E48 !important;
+    color: #F8FAFC !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Scrollbars in Dark Mode */
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #1E2B4D;
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+}
+html.dark .custom-scrollbar {
+    scrollbar-color: #1E2B4D transparent;
+}
+
+/* ==========================================================================
+   BANNER PROTECTION: Keep Banners In Original Brand Design (Light & Vibrant)
+   Banners should not have their text inverted or backgrounds darkened in Dark Mode
+   ========================================================================== */
+html.dark [data-banner-root] .text-\[\#102B4B\],
+html.dark [data-banner-root] .text-\[\#101B4D\],
+html.dark [data-banner-root] h1:not(.text-white),
+html.dark [data-banner-root] h2:not(.text-white),
+html.dark [data-banner-root] h3:not(.text-white) {
+    color: #102B4B !important;
+}
+
+html.dark [data-banner-root] .text-\[\#475569\],
+html.dark [data-banner-root] p:not(.text-slate-200):not(.text-white) {
+    color: #475569 !important;
+}
+
+html.dark [data-banner-root] button.bg-white,
+html.dark [data-banner-root] span.bg-white,
+html.dark [data-banner-root] .bg-white {
+    background-color: #FFFFFF !important;
+    color: #102B4B !important;
+}
+
+html.dark [data-banner-root] button.bg-white:hover {
+    background-color: #F1F5F9 !important;
+}
+
+/* ==========================================================================
+   Logo Display Control for Dark / Light Mode (Guaranteed Specificity)
+   ========================================================================== */
+.logo-light {
+    display: inline-block !important;
+}
+.logo-dark {
+    display: none !important;
+}
+html.dark .logo-light {
+    display: none !important;
+}
+html.dark .logo-dark {
+    display: inline-block !important;
+}
+
+
 

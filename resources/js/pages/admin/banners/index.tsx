@@ -503,10 +503,10 @@ export default function AdminBannersIndex({
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-[#102B4B] tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-[#102B4B] dark:text-white tracking-tight">
                   Kelola Banner & Carousel Beranda
                 </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Atur tayangan slide beranda pelamar: dukung banner interaktif (sapaan & pencarian), media visual (foto / animasi GIF), dan kartu pengumuman.
                 </p>
               </div>
@@ -581,11 +581,11 @@ export default function AdminBannersIndex({
 
         {/* 3. Live Preview Mockup Carousel di Beranda Pelamar */}
         {activeBanners.length > 0 && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-[#071336] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-[#1769E0]" />
-                <h2 className="text-xs sm:text-sm font-bold text-[#102B4B]">
+                <Eye className="w-4 h-4 text-[#1769E0] dark:text-[#38BDF8]" />
+                <h2 className="text-xs sm:text-sm font-bold text-[#102B4B] dark:text-white">
                   Live Preview: Tampilan Carousel di Beranda Pelamar
                 </h2>
               </div>
@@ -595,7 +595,7 @@ export default function AdminBannersIndex({
             </div>
 
             {/* Mockup Container: Fixed Height h-[240px] 1:1 Dengan Halaman Pelamar */}
-            <div className="relative max-w-3xl mx-auto h-[240px] overflow-hidden rounded-3xl border border-[#D0E5F0] shadow-sm bg-slate-900">
+            <div data-banner-root="true" data-keep-light="true" className="relative max-w-3xl mx-auto h-[240px] overflow-hidden rounded-3xl border border-[#D0E5F0] shadow-sm bg-slate-900">
               {(() => {
                 const currentSlide = activeBanners[previewSlideIdx] || activeBanners[0];
                 const isDark = currentSlide.type === 'image' || currentSlide.bg_gradient === 'dark' || currentSlide.text_color === 'light';
@@ -726,7 +726,7 @@ export default function AdminBannersIndex({
         )}
 
         {/* 4. Filter Toolbar */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#071336] rounded-2xl border border-slate-200 dark:border-white/10 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
@@ -734,7 +734,7 @@ export default function AdminBannersIndex({
               placeholder="Cari judul banner, deskripsi..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-16 text-xs h-9 rounded-xl border-slate-200 bg-slate-50/70"
+              className="pl-9 pr-16 text-xs h-9 rounded-xl border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#050E2E] dark:text-white dark:placeholder-slate-400"
             />
             <button
               type="submit"
@@ -752,12 +752,12 @@ export default function AdminBannersIndex({
                 setSelectedType(e.target.value);
                 applyFilters({ type: e.target.value });
               }}
-              className="text-xs h-8 px-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium"
+              className="text-xs h-8 px-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] text-slate-700 dark:text-slate-200 font-medium"
             >
-              <option value="all">Semua Tipe Banner</option>
-              <option value="interactive">Interaktif (Search Bar)</option>
-              <option value="image">Media Gambar / GIF</option>
-              <option value="info">Info / Pengumuman</option>
+              <option value="all" className="dark:bg-[#050E2E]">Semua Tipe Banner</option>
+              <option value="interactive" className="dark:bg-[#050E2E]">Interaktif (Search Bar)</option>
+              <option value="image" className="dark:bg-[#050E2E]">Media Gambar / GIF</option>
+              <option value="info" className="dark:bg-[#050E2E]">Info / Pengumuman</option>
             </select>
 
             {/* Filter Status */}
@@ -767,20 +767,20 @@ export default function AdminBannersIndex({
                 setSelectedStatus(e.target.value);
                 applyFilters({ status: e.target.value });
               }}
-              className="text-xs h-8 px-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium"
+              className="text-xs h-8 px-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] text-slate-700 dark:text-slate-200 font-medium"
             >
-              <option value="all">Semua Status</option>
-              <option value="active">Aktif Tayang</option>
-              <option value="inactive">Nonaktif</option>
+              <option value="all" className="dark:bg-[#050E2E]">Semua Status</option>
+              <option value="active" className="dark:bg-[#050E2E]">Aktif Tayang</option>
+              <option value="inactive" className="dark:bg-[#050E2E]">Nonaktif</option>
             </select>
           </div>
         </div>
 
         {/* 5. Tabel Daftar Banner */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="bg-white dark:bg-[#050E2E] rounded-2xl border border-slate-200 dark:border-[#1E2B4D] shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[840px]">
-              <thead className="bg-[#F8FBFE] text-slate-600 border-b border-slate-200 font-semibold text-[11px]">
+              <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-[#1E2B4D] font-extrabold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4 w-20 text-center">Urutan</th>
                   <th className="py-3 px-4 min-w-[140px]">Media / Preview</th>
@@ -790,12 +790,12 @@ export default function AdminBannersIndex({
                   <th className="py-3 px-4 w-28 text-center">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#1E2B4D]">
                 {banners.data.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400">
-                      <ImageIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="font-semibold text-slate-600">Belum ada banner terdaftar</p>
+                      <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                      <p className="font-semibold text-slate-600 dark:text-slate-300">Belum ada banner terdaftar</p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         Klik tombol "Tambah Banner Baru" di atas untuk menambahkan slide carousel.
                       </p>
@@ -809,17 +809,17 @@ export default function AdminBannersIndex({
                         banner.display_image_url.includes('.gif'));
 
                     return (
-                      <tr key={banner.id} className="hover:bg-slate-50/70 transition">
+                      <tr key={banner.id} className="hover:bg-slate-50/70 dark:hover:bg-[#0E2254] transition">
                         {/* 1. Urutan Slide */}
                         <td className="py-3.5 px-4 text-center">
-                          <div className="flex items-center justify-center gap-1 font-mono font-bold text-slate-700">
+                          <div className="flex items-center justify-center gap-1 font-mono font-bold text-slate-700 dark:text-slate-200">
                             <span className="w-5 text-center">{banner.order}</span>
                             <div className="flex flex-col">
                               <button
                                 type="button"
                                 disabled={index === 0}
                                 onClick={() => handleMoveOrder(banner, 'up')}
-                                className="text-slate-400 hover:text-[#1769E0] disabled:opacity-30 disabled:hover:text-slate-400 p-0.5"
+                                className="text-slate-400 hover:text-[#1769E0] dark:hover:text-[#38BDF8] disabled:opacity-30 disabled:hover:text-slate-400 p-0.5"
                                 title="Geser Urutan Naik"
                               >
                                 <ArrowUp className="w-3 h-3" />
@@ -828,7 +828,7 @@ export default function AdminBannersIndex({
                                 type="button"
                                 disabled={index === banners.data.length - 1}
                                 onClick={() => handleMoveOrder(banner, 'down')}
-                                className="text-slate-400 hover:text-[#1769E0] disabled:opacity-30 disabled:hover:text-slate-400 p-0.5"
+                                className="text-slate-400 hover:text-[#1769E0] dark:hover:text-[#38BDF8] disabled:opacity-30 disabled:hover:text-slate-400 p-0.5"
                                 title="Geser Urutan Turun"
                               >
                                 <ArrowDown className="w-3 h-3" />
@@ -840,7 +840,7 @@ export default function AdminBannersIndex({
                         {/* 2. Media / Preview */}
                         <td className="py-3.5 px-4">
                           {banner.type === 'image' && banner.display_image_url ? (
-                            <div className="relative w-28 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs group/thumb">
+                            <div className="relative w-28 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#050E2E] shadow-2xs group/thumb">
                               <img
                                 src={banner.display_image_url}
                                 alt={banner.title}
@@ -854,22 +854,22 @@ export default function AdminBannersIndex({
                               )}
                             </div>
                           ) : banner.type === 'interactive' ? (
-                            <div className="w-28 h-16 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-2 flex flex-col justify-between shadow-2xs">
-                              <span className="text-[9px] font-bold text-[#1769E0] truncate">
+                            <div className="w-28 h-16 rounded-xl border border-blue-200 dark:border-blue-900/40 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 p-2 flex flex-col justify-between shadow-2xs">
+                              <span className="text-[9px] font-bold text-[#1769E0] dark:text-[#38BDF8] truncate">
                                 Halo, {"{name}"}
                               </span>
-                              <div className="h-4 rounded bg-[#0C2742] text-[8px] text-slate-300 flex items-center px-1.5 gap-1">
+                              <div className="h-4 rounded bg-[#0C2742] dark:bg-[#050E2E] text-[8px] text-slate-300 flex items-center px-1.5 gap-1">
                                 <Search className="w-2.5 h-2.5" />
                                 <span className="truncate">Cari...</span>
                               </div>
                             </div>
                           ) : (
-                            <div className="w-28 h-16 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 p-2 flex flex-col justify-between shadow-2xs">
-                              <span className="text-[9px] font-bold text-indigo-700 truncate">
+                            <div className="w-28 h-16 rounded-xl border border-indigo-200 dark:border-indigo-900/40 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-950/40 p-2 flex flex-col justify-between shadow-2xs">
+                              <span className="text-[9px] font-bold text-indigo-700 dark:text-indigo-300 truncate">
                                 {banner.title}
                               </span>
                               {banner.cta_text && (
-                                <span className="text-[8px] bg-[#0C2742] text-white px-1.5 py-0.5 rounded w-fit font-bold">
+                                <span className="text-[8px] bg-[#0C2742] dark:bg-[#1D64EC] text-white px-1.5 py-0.5 rounded w-fit font-bold">
                                   {banner.cta_text}
                                 </span>
                               )}
@@ -879,11 +879,11 @@ export default function AdminBannersIndex({
 
                         {/* 3. Judul & Konten */}
                         <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                          <div className="font-bold text-slate-800 dark:text-white text-xs flex items-center gap-1.5">
                             <span>{banner.title}</span>
                           </div>
                           {banner.subtitle && (
-                            <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1 max-w-md">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 max-w-md">
                               {banner.subtitle}
                             </p>
                           )}
@@ -892,7 +892,7 @@ export default function AdminBannersIndex({
                               href={banner.link_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-[10px] text-[#1769E0] hover:underline flex items-center gap-1 mt-1 font-mono"
+                              className="text-[10px] text-[#1769E0] dark:text-[#38BDF8] hover:underline flex items-center gap-1 mt-1 font-mono"
                             >
                               <Link2 className="w-3 h-3" />
                               <span className="truncate max-w-xs">{banner.link_url}</span>
@@ -903,19 +903,19 @@ export default function AdminBannersIndex({
                         {/* 4. Tipe Banner */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           {banner.type === 'interactive' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-[#38BDF8] dark:border-blue-800/40">
                               <Search className="w-3 h-3" />
                               <span>Interaktif</span>
                             </span>
                           )}
                           {banner.type === 'image' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/40">
                               <Film className="w-3 h-3" />
                               <span>{isGif ? 'Animasi GIF' : 'Foto / Gambar'}</span>
                             </span>
                           )}
                           {banner.type === 'info' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/40">
                               <Sparkles className="w-3 h-3" />
                               <span>Info / Promo</span>
                             </span>
@@ -929,8 +929,8 @@ export default function AdminBannersIndex({
                             onClick={() => handleToggle(banner)}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition shadow-2xs ${
                               banner.is_active
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/40'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-white/10'
                             }`}
                           >
                             <span
@@ -950,15 +950,15 @@ export default function AdminBannersIndex({
                               variant="outline"
                               size="sm"
                               onClick={() => openEditModal(banner)}
-                              className="text-xs h-8 px-2.5 rounded-xl border-slate-200 hover:text-[#1769E0]"
+                              className="text-xs h-8 px-2.5 rounded-xl border-slate-200 dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-[#38BDF8]"
                             >
                               Edit
                             </Button>
                             <button
                               type="button"
                               onClick={() => setDeleteTarget(banner)}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition"
                               title="Hapus Banner"
+                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 dark:border-white/10 dark:hover:border-rose-900/40 dark:hover:bg-rose-950/30 dark:hover:text-rose-400 transition"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

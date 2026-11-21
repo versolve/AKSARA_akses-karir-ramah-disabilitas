@@ -13,6 +13,7 @@ import {
     Clock,
     Code2,
     DollarSign,
+    EyeOff,
     FileText,
     GripVertical,
     HelpCircle,
@@ -243,10 +244,15 @@ export default function VacancyCreate({ company }: Props): ReactElement {
         // Step 3: Workplace Accessibility (tidak tercentang secara default)
         accessibility_enabled: true,
         selected_accessibilities: [] as string[],
+        custom_physical_access: '',
+        custom_comm_access: '',
+        custom_tech_access: '',
+        custom_interpreter_access: '',
         accessibility_notes: '',
 
         // Step 4: Publikasi
         publish_type: 'immediate',
+        scheduled_at: '',
         show_accessibility: true,
         is_featured: false,
         status: 'active',
@@ -328,6 +334,18 @@ export default function VacancyCreate({ company }: Props): ReactElement {
     };
 
     const isStep3Valid = (): boolean => {
+        if (data.selected_accessibilities.includes('Lainnya (Fisik)') && !data.custom_physical_access.trim()) {
+            return false;
+        }
+        if (data.selected_accessibilities.includes('Lainnya (Komunikasi)') && !data.custom_comm_access.trim()) {
+            return false;
+        }
+        if (data.selected_accessibilities.includes('Lainnya (Teknologi)') && !data.custom_tech_access.trim()) {
+            return false;
+        }
+        if (data.selected_accessibilities.includes('Interpreter bahasa (lainnya)') && !data.custom_interpreter_access.trim()) {
+            return false;
+        }
         return true;
     };
 
@@ -339,12 +357,19 @@ export default function VacancyCreate({ company }: Props): ReactElement {
     const toggleAccessibilityItem = (item: string): void => {
         const exists = data.selected_accessibilities.includes(item);
         if (exists) {
-            setData(
-                'selected_accessibilities',
-                data.selected_accessibilities.filter((i) => i !== item)
-            );
+            setData((prev) => ({
+                ...prev,
+                selected_accessibilities: prev.selected_accessibilities.filter((i) => i !== item),
+                custom_physical_access: item === 'Lainnya (Fisik)' ? '' : prev.custom_physical_access,
+                custom_comm_access: item === 'Lainnya (Komunikasi)' ? '' : prev.custom_comm_access,
+                custom_tech_access: item === 'Lainnya (Teknologi)' ? '' : prev.custom_tech_access,
+                custom_interpreter_access: item === 'Interpreter bahasa (lainnya)' ? '' : prev.custom_interpreter_access,
+            }));
         } else {
-            setData('selected_accessibilities', [...data.selected_accessibilities, item]);
+            setData((prev) => ({
+                ...prev,
+                selected_accessibilities: [...prev.selected_accessibilities, item],
+            }));
         }
     };
 
@@ -356,6 +381,12 @@ export default function VacancyCreate({ company }: Props): ReactElement {
     };
 
     const nextStep = (): void => {
+        if (currentStep === 3 && !isStep3Valid()) {
+            setAttemptedSubmit(true);
+            setBannerError('Harap lengkapi rincian box input untuk opsi Lainnya yang dipilih.');
+            return;
+        }
+        setBannerError(null);
         setVisitedSteps((prev) => Array.from(new Set([...prev, currentStep, currentStep + 1])));
         setCurrentStep((prev) => Math.min(4, prev + 1));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -388,6 +419,31 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
+
+            // Cek kelengkapan Tahap 3 (opsi Lainnya)
+            if (!isStep3Valid()) {
+                setAttemptedSubmit(true);
+                setVisitedSteps((prev) => Array.from(new Set([...prev, 1, 2, 3, 4])));
+                setCurrentStep(3);
+                setBannerError('Workplace Accessibility belum lengkap. Harap isi rincian box input untuk opsi Lainnya yang dipilih.');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            // Cek Jadwal Publikasi jika opsi Dijadwalkan dipilih
+            if (data.publish_type === 'scheduled') {
+                if (!data.scheduled_at) {
+                    setBannerError('Harap tentukan tanggal dan waktu jadwal publikasi lowongan.');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+                const scheduledDate = new Date(data.scheduled_at);
+                if (isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
+                    setBannerError('Waktu jadwal publikasi harus lebih besar dari waktu saat ini.');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+            }
         } else {
             // Draft minimal memerlukan Nama Lowongan
             if (!data.title.trim()) {
@@ -400,10 +456,22 @@ export default function VacancyCreate({ company }: Props): ReactElement {
             }
         }
 
-        const accessibilitiesPayload = data.selected_accessibilities.map((type) => ({
-            accommodation_type: type,
-            description: null,
-        }));
+        const accessibilitiesPayload = data.selected_accessibilities.map((type) => {
+            let desc: string | null = null;
+            if (type === 'Lainnya (Fisik)' && data.custom_physical_access.trim()) {
+                desc = data.custom_physical_access.trim();
+            } else if (type === 'Lainnya (Komunikasi)' && data.custom_comm_access.trim()) {
+                desc = data.custom_comm_access.trim();
+            } else if (type === 'Lainnya (Teknologi)' && data.custom_tech_access.trim()) {
+                desc = data.custom_tech_access.trim();
+            } else if (type === 'Interpreter bahasa (lainnya)' && data.custom_interpreter_access.trim()) {
+                desc = data.custom_interpreter_access.trim();
+            }
+            return {
+                accommodation_type: type,
+                description: desc,
+            };
+        });
 
         const payload = {
             ...data,
@@ -426,7 +494,7 @@ export default function VacancyCreate({ company }: Props): ReactElement {
         <CompanyLayout>
             <Head title="Tambah Lowongan Baru - Profabel" />
 
-            <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+            <div className="mx-auto max-w-[1440px] px-4 pt-6 pb-16 sm:px-6 lg:px-8 space-y-8">
                 {/* Header with Back Arrow */}
                 <div>
                     <div className="flex items-center gap-3">
@@ -875,60 +943,60 @@ export default function VacancyCreate({ company }: Props): ReactElement {
 
                         {/* Tips Card (Right) */}
                         <div className="space-y-4 lg:col-span-4">
-                            <div className="rounded-2xl border border-blue-100 bg-[#F5F9FF] p-5">
-                                <div className="flex items-center gap-2 text-[#1769E0]">
+                            <div className="rounded-2xl border border-blue-100 dark:border-white/10 bg-[#F5F9FF] dark:bg-[#071336] p-5">
+                                <div className="flex items-center gap-2 text-[#1769E0] dark:text-[#38BDF8]">
                                     <Info className="h-5 w-5 shrink-0" />
-                                    <h3 className="text-sm font-bold text-[#102B4B]">Panduan Pengisian</h3>
+                                    <h3 className="text-sm font-bold text-[#102B4B] dark:text-white">Panduan Pengisian</h3>
                                 </div>
 
                                 <div className="mt-4 space-y-4 text-xs">
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <Briefcase className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Nama Lowongan</p>
-                                            <p className="text-slate-500 mt-0.5">Gunakan nama posisi yang jelas dan spesifik.</p>
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Nama Lowongan</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">Gunakan nama posisi yang jelas dan spesifik.</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <Code2 className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Kategori & Tipe Pekerjaan</p>
-                                            <p className="text-slate-500 mt-0.5">Pilih kategori dan jenis pekerjaan yang sesuai.</p>
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Kategori & Tipe Pekerjaan</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">Pilih kategori dan jenis pekerjaan yang sesuai.</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <MapPin className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Lokasi & Sistem Kerja</p>
-                                            <p className="text-slate-500 mt-0.5">Tentukan lokasi dan sistem kerja (WFO, WFH, atau Hybrid).</p>
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Lokasi & Sistem Kerja</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">Tentukan lokasi dan sistem kerja (WFO, WFH, atau Hybrid).</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <Users className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Tingkat Pengalaman & Jumlah</p>
-                                            <p className="text-slate-500 mt-0.5">Sesuaikan dengan kebutuhan posisi yang dibuka.</p>
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Tingkat Pengalaman & Jumlah</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">Sesuaikan dengan kebutuhan posisi yang dibuka.</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <Calendar className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Batas Akhir Lamaran</p>
-                                            <p className="text-slate-500 mt-0.5">Tentukan tenggat waktu penerimaan lamaran.</p>
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Batas Akhir Lamaran</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">Tentukan tenggat waktu penerimaan lamaran.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1101,44 +1169,44 @@ export default function VacancyCreate({ company }: Props): ReactElement {
 
                         {/* Tips Card (Right) */}
                         <div className="space-y-4 lg:col-span-4">
-                            <div className="rounded-2xl border border-blue-100 bg-[#F5F9FF] p-5">
-                                <div className="flex items-center gap-2 text-[#1769E0]">
+                            <div className="rounded-2xl border border-blue-100 dark:border-white/10 bg-[#F5F9FF] dark:bg-[#071336] p-5">
+                                <div className="flex items-center gap-2 text-[#1769E0] dark:text-[#38BDF8]">
                                     <Info className="h-5 w-5 shrink-0" />
-                                    <h3 className="text-sm font-bold text-[#102B4B]">Panduan Pengisian</h3>
+                                    <h3 className="text-sm font-bold text-[#102B4B] dark:text-white">Panduan Pengisian</h3>
                                 </div>
 
                                 <div className="mt-4 space-y-4 text-xs">
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <FileText className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Deskripsi Pekerjaan</p>
-                                            <p className="text-slate-500 mt-0.5">
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Deskripsi Pekerjaan</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">
                                                 Jelaskan secara singkat dan jelas mengenai peran dan tujuan posisi ini.
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <CheckCircle2 className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Tanggung Jawab Utama</p>
-                                            <p className="text-slate-500 mt-0.5">
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Tanggung Jawab Utama</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">
                                                 Tuliskan tugas-tugas utama yang akan dilakukan oleh kandidat.
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#1769E0] shadow-sm">
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#050E2E] dark:border dark:border-white/10 text-[#1769E0] dark:text-[#38BDF8] shadow-sm">
                                             <User className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[#102B4B]">Persyaratan Kandidat</p>
-                                            <p className="text-slate-500 mt-0.5">
+                                            <p className="font-bold text-[#102B4B] dark:text-white">Persyaratan Kandidat</p>
+                                            <p className="text-slate-500 dark:text-slate-300 mt-0.5">
                                                 Cantumkan kualifikasi, pengalaman, serta kemampuan yang dibutuhkan.
                                             </p>
                                         </div>
@@ -1233,13 +1301,14 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                         <Building2 className="h-4 w-4 text-[#F59E0B]" />
                                         <h3 className="text-xs font-bold text-[#102B4B]">Aksesibilitas Fisik</h3>
                                     </div>
-                                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {PHYSICAL_ACCESS_LIST.map((item) => {
                                             const isChecked = data.selected_accessibilities.includes(item);
                                             return (
                                                 <label
                                                     key={item}
-                                                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition ${
+                                                    title={item}
+                                                    className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition min-h-[46px] ${
                                                         isChecked
                                                             ? 'border-blue-200 bg-blue-50/50 text-[#1769E0] font-semibold'
                                                             : 'border-slate-100 hover:bg-slate-50 text-slate-700'
@@ -1249,13 +1318,38 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleAccessibilityItem(item)}
-                                                        className="h-4 w-4 rounded text-[#1769E0] focus:ring-[#1769E0]"
+                                                        className="mt-0.5 h-4 w-4 shrink-0 rounded text-[#1769E0] focus:ring-[#1769E0]"
                                                     />
-                                                    <span className="truncate">{item}</span>
+                                                    <span className="leading-snug break-words">{item}</span>
                                                 </label>
                                             );
                                         })}
                                     </div>
+
+                                    {/* Input box jika opsi 'Lainnya (Fisik)' dicentang */}
+                                    {data.selected_accessibilities.includes('Lainnya (Fisik)') && (
+                                        <div className="mt-3 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                                Aksesibilitas Fisik Lainnya <span className="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.custom_physical_access}
+                                                onChange={(e) => setData('custom_physical_access', e.target.value)}
+                                                placeholder="Contoh: Pintu sensor otomatis, handrail koridor, jalur evakuasi bertanda khusus, dll."
+                                                className={`h-10 w-full rounded-xl border bg-white px-3.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none ${
+                                                    attemptedSubmit && !data.custom_physical_access.trim()
+                                                        ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                                                        : 'border-slate-200 focus:border-[#1769E0] focus:ring-1 focus:ring-[#1769E0]'
+                                                }`}
+                                            />
+                                            {attemptedSubmit && !data.custom_physical_access.trim() && (
+                                                <p className="mt-1 text-[11px] font-semibold text-rose-500">
+                                                    Harap sebutkan aksesibilitas fisik lainnya jika opsi ini dipilih.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Section 3: Dukungan Komunikasi */}
@@ -1270,7 +1364,8 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                             return (
                                                 <label
                                                     key={item}
-                                                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition ${
+                                                    title={item}
+                                                    className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition min-h-[46px] ${
                                                         isChecked
                                                             ? 'border-blue-200 bg-blue-50/50 text-[#1769E0] font-semibold'
                                                             : 'border-slate-100 hover:bg-slate-50 text-slate-700'
@@ -1280,13 +1375,63 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleAccessibilityItem(item)}
-                                                        className="h-4 w-4 rounded text-[#1769E0] focus:ring-[#1769E0]"
+                                                        className="mt-0.5 h-4 w-4 shrink-0 rounded text-[#1769E0] focus:ring-[#1769E0]"
                                                     />
-                                                    <span className="truncate">{item}</span>
+                                                    <span className="leading-snug break-words">{item}</span>
                                                 </label>
                                             );
                                         })}
                                     </div>
+
+                                    {/* Input box jika opsi 'Lainnya (Komunikasi)' dicentang */}
+                                    {data.selected_accessibilities.includes('Lainnya (Komunikasi)') && (
+                                        <div className="mt-3 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                                Dukungan Komunikasi Lainnya <span className="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.custom_comm_access}
+                                                onChange={(e) => setData('custom_comm_access', e.target.value)}
+                                                placeholder="Contoh: Dokumen braille, notulensi rapat visual/audio, materi takarir khusus, dll."
+                                                className={`h-10 w-full rounded-xl border bg-white px-3.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none ${
+                                                    attemptedSubmit && !data.custom_comm_access.trim()
+                                                        ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                                                        : 'border-slate-200 focus:border-[#1769E0] focus:ring-1 focus:ring-[#1769E0]'
+                                                }`}
+                                            />
+                                            {attemptedSubmit && !data.custom_comm_access.trim() && (
+                                                <p className="mt-1 text-[11px] font-semibold text-rose-500">
+                                                    Harap sebutkan dukungan komunikasi lainnya jika opsi ini dipilih.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Input box jika opsi 'Interpreter bahasa (lainnya)' dicentang */}
+                                    {data.selected_accessibilities.includes('Interpreter bahasa (lainnya)') && (
+                                        <div className="mt-3 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                                Jenis Interpreter Bahasa Lainnya <span className="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.custom_interpreter_access}
+                                                onChange={(e) => setData('custom_interpreter_access', e.target.value)}
+                                                placeholder="Contoh: Bahasa Isyarat Internasional (ISL), Interpreter Bahasa Asing/Daerah, dll."
+                                                className={`h-10 w-full rounded-xl border bg-white px-3.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none ${
+                                                    attemptedSubmit && !data.custom_interpreter_access.trim()
+                                                        ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                                                        : 'border-slate-200 focus:border-[#1769E0] focus:ring-1 focus:ring-[#1769E0]'
+                                                }`}
+                                            />
+                                            {attemptedSubmit && !data.custom_interpreter_access.trim() && (
+                                                <p className="mt-1 text-[11px] font-semibold text-rose-500">
+                                                    Harap sebutkan jenis interpreter bahasa lainnya jika opsi ini dipilih.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Section 4: Kompatibilitas Teknologi Bantu */}
@@ -1303,7 +1448,8 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                             return (
                                                 <label
                                                     key={item}
-                                                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition ${
+                                                    title={item}
+                                                    className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 text-xs font-medium transition min-h-[46px] ${
                                                         isChecked
                                                             ? 'border-blue-200 bg-blue-50/50 text-[#1769E0] font-semibold'
                                                             : 'border-slate-100 hover:bg-slate-50 text-slate-700'
@@ -1313,13 +1459,38 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleAccessibilityItem(item)}
-                                                        className="h-4 w-4 rounded text-[#1769E0] focus:ring-[#1769E0]"
+                                                        className="mt-0.5 h-4 w-4 shrink-0 rounded text-[#1769E0] focus:ring-[#1769E0]"
                                                     />
-                                                    <span className="truncate">{item}</span>
+                                                    <span className="leading-snug break-words">{item}</span>
                                                 </label>
                                             );
                                         })}
                                     </div>
+
+                                    {/* Input box jika opsi 'Lainnya (Teknologi)' dicentang */}
+                                    {data.selected_accessibilities.includes('Lainnya (Teknologi)') && (
+                                        <div className="mt-3 pt-3 border-t border-slate-100 animate-in fade-in duration-200">
+                                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                                Kompatibilitas Teknologi Bantu Lainnya <span className="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.custom_tech_access}
+                                                onChange={(e) => setData('custom_tech_access', e.target.value)}
+                                                placeholder="Contoh: Foot pedals, keyboard kontras tinggi, perangkat navigasi gerakan kepala, dll."
+                                                className={`h-10 w-full rounded-xl border bg-white px-3.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none ${
+                                                    attemptedSubmit && !data.custom_tech_access.trim()
+                                                        ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                                                        : 'border-slate-200 focus:border-[#1769E0] focus:ring-1 focus:ring-[#1769E0]'
+                                                }`}
+                                            />
+                                            {attemptedSubmit && !data.custom_tech_access.trim() && (
+                                                <p className="mt-1 text-[11px] font-semibold text-rose-500">
+                                                    Harap sebutkan teknologi bantu lainnya jika opsi ini dipilih.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Section 5: Catatan Tambahan */}
@@ -1348,7 +1519,7 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                 {currentStep === 4 && (
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                         {/* Preview Card (Left) */}
-                        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-8 space-y-6">
+                        <div className="rounded-2xl border border-slate-100 bg-white p-6 pb-8 sm:p-7 sm:pb-10 shadow-sm lg:col-span-8 space-y-6">
                             <div>
                                 <h2 className="text-base font-bold text-[#102B4B]">Pratinjau Lowongan</h2>
                                 <p className="text-xs text-slate-500 mt-0.5">
@@ -1364,13 +1535,35 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <h3 className="text-lg font-extrabold text-[#102B4B]">
-                                                {data.title || 'Nama Lowongan Belum Diisi'}
-                                            </h3>
-                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                                Akan Dipublikasikan
-                                            </span>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <h3 className="text-lg font-extrabold text-[#102B4B]">
+                                                    {data.title || 'Nama Lowongan Belum Diisi'}
+                                                </h3>
+                                                {data.is_featured && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/80 px-2 py-0.5 text-[11px] font-bold text-amber-700 shadow-2xs">
+                                                        ⭐ Lowongan Unggulan
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {data.publish_type === 'scheduled' ? (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+                                                    <Clock className="h-3.5 w-3.5 text-indigo-600" />
+                                                    {data.scheduled_at
+                                                        ? `Dijadwalkan: ${new Date(data.scheduled_at).toLocaleDateString('id-ID', {
+                                                              day: 'numeric',
+                                                              month: 'short',
+                                                              year: 'numeric',
+                                                              hour: '2-digit',
+                                                              minute: '2-digit',
+                                                          })}`
+                                                        : 'Dijadwalkan'}
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                    Akan Dipublikasikan
+                                                </span>
+                                            )}
                                         </div>
                                         <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600">
                                             <Building2 className="h-3.5 w-3.5 text-slate-400" />
@@ -1432,12 +1625,12 @@ export default function VacancyCreate({ company }: Props): ReactElement {
 
                             {/* Persyaratan Kandidat & Workplace Accessibility side-by-side */}
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                <div>
+                                <div className="flex flex-col">
                                     <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <User className="h-4 w-4 text-[#1769E0]" />
                                         <span>Persyaratan Kandidat</span>
                                     </h4>
-                                    <ul className="space-y-1.5 text-xs text-slate-600 list-disc list-inside bg-slate-50/70 p-4 rounded-xl border border-slate-100 h-full">
+                                    <ul className="flex-1 space-y-1.5 text-xs text-slate-600 list-disc list-inside bg-slate-50/70 p-4 rounded-xl border border-slate-100 min-h-[90px]">
                                         {data.requirements.filter((r) => r.trim()).length > 0 ? (
                                             data.requirements.filter((r) => r.trim()).map((r, i) => (
                                                 <li key={i}>{r}</li>
@@ -1448,20 +1641,39 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                     </ul>
                                 </div>
 
-                                <div>
+                                <div className="flex flex-col">
                                     <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                         <Sparkles className="h-4 w-4 text-emerald-600" />
                                         <span>Workplace Accessibility</span>
                                     </h4>
-                                    <div className="space-y-2 bg-emerald-50/40 p-4 rounded-xl border border-emerald-100 h-full text-xs text-slate-700">
-                                        {data.selected_accessibilities.length > 0 ? (
+                                    <div className="flex-1 space-y-2 bg-emerald-50/40 p-4 rounded-xl border border-emerald-100 text-xs text-slate-700 min-h-[90px]">
+                                        {!data.show_accessibility ? (
+                                            <div className="flex flex-col items-center justify-center py-5 text-center text-slate-400">
+                                                <EyeOff className="h-5 w-5 mb-1.5 text-slate-400" />
+                                                <p className="text-xs font-medium text-slate-500">
+                                                    Informasi Workplace Accessibility disembunyikan untuk pelamar
+                                                </p>
+                                            </div>
+                                        ) : data.selected_accessibilities.length > 0 ? (
                                             <>
-                                                {data.selected_accessibilities.slice(0, 6).map((acc, i) => (
-                                                    <div key={i} className="flex items-center gap-2">
-                                                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                                                        <span className="truncate">{acc}</span>
-                                                    </div>
-                                                ))}
+                                                {data.selected_accessibilities.slice(0, 6).map((acc, i) => {
+                                                    let displayLabel = acc;
+                                                    if (acc === 'Lainnya (Fisik)' && data.custom_physical_access.trim()) {
+                                                        displayLabel = `Lainnya (Fisik): ${data.custom_physical_access.trim()}`;
+                                                    } else if (acc === 'Lainnya (Komunikasi)' && data.custom_comm_access.trim()) {
+                                                        displayLabel = `Lainnya (Komunikasi): ${data.custom_comm_access.trim()}`;
+                                                    } else if (acc === 'Lainnya (Teknologi)' && data.custom_tech_access.trim()) {
+                                                        displayLabel = `Lainnya (Teknologi): ${data.custom_tech_access.trim()}`;
+                                                    } else if (acc === 'Interpreter bahasa (lainnya)' && data.custom_interpreter_access.trim()) {
+                                                        displayLabel = `Interpreter bahasa (lainnya): ${data.custom_interpreter_access.trim()}`;
+                                                    }
+                                                    return (
+                                                        <div key={i} className="flex items-start gap-2">
+                                                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                                            <span className="leading-snug break-words">{displayLabel}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                                 {data.selected_accessibilities.length > 6 && (
                                                     <p className="text-[11px] text-emerald-700 font-bold mt-1">
                                                         + {data.selected_accessibilities.length - 6} fasilitas aksesibilitas lainnya
@@ -1526,13 +1738,32 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                             onChange={() => {}}
                                             className="mt-0.5 text-[#1769E0]"
                                         />
-                                        <div>
+                                        <div className="flex-1">
                                             <p className="text-xs font-bold text-[#102B4B]">Jadwalkan Publikasi</p>
                                             <p className="text-[11px] text-slate-500 mt-0.5">
                                                 Tentukan tanggal dan waktu tayang lowongan.
                                             </p>
                                         </div>
                                     </div>
+
+                                    {data.publish_type === 'scheduled' && (
+                                        <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3.5 space-y-2">
+                                            <label className="block text-[11px] font-bold text-[#102B4B]">
+                                                Waktu Mulai Tayang <span className="text-rose-500">*</span>
+                                            </label>
+                                            <input
+                                                type="datetime-local"
+                                                value={data.scheduled_at}
+                                                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                                                onChange={(e) => setData('scheduled_at', e.target.value)}
+                                                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#1769E0] focus:ring-1 focus:ring-[#1769E0]"
+                                                required
+                                            />
+                                            <p className="text-[10px] text-slate-500 leading-tight">
+                                                Lowongan akan otomatis berstatus aktif dan tayang ke publik pada waktu yang telah ditentukan.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="border-t border-slate-100 pt-4 space-y-3">
@@ -1578,7 +1809,7 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                 )}
 
                 {/* Bottom Navigation Buttons Bar */}
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between border-t border-slate-200/80 pt-6 mt-8">
                     {currentStep > 1 ? (
                         <button
                             type="button"
@@ -1623,8 +1854,16 @@ export default function VacancyCreate({ company }: Props): ReactElement {
                                     onClick={() => handleSubmit('active')}
                                     className="flex h-11 items-center gap-2 rounded-xl bg-[#1769E0] px-6 text-xs font-bold text-white shadow-sm transition hover:bg-[#1258c2]"
                                 >
-                                    <span>Publikasikan</span>
-                                    <ArrowRight className="h-4 w-4" />
+                                    <span>
+                                        {data.publish_type === 'scheduled'
+                                            ? 'Jadwalkan Publikasi'
+                                            : 'Publikasikan Sekarang'}
+                                    </span>
+                                    {data.publish_type === 'scheduled' ? (
+                                        <Clock className="h-4 w-4" />
+                                    ) : (
+                                        <ArrowRight className="h-4 w-4" />
+                                    )}
                                 </button>
                             </>
                         )}

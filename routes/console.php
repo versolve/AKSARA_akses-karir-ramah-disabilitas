@@ -13,3 +13,11 @@ Schedule::call(function () {
 Schedule::command('users:delete-expired')
     ->daily()
     ->description('Delete expired disabled users');
+
+Schedule::command('vacancies:send-deadline-reminders --days=2')
+    ->dailyAt('08:00')
+    ->description('Send email reminders to candidates for favorited vacancies closing soon');
+
+Schedule::command('vacancies:send-job-alerts --limit=30')
+    ->weeklyOn(1, '09:00')
+    ->description('Send weekly email alerts for recommended inclusive vacancies');

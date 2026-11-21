@@ -1,4 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
+import CompanyLayout from '@/layouts/company-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
   ArrowLeft,
@@ -104,6 +105,8 @@ export default function ApplicationMessages({
   const auth = (page.props as any).auth;
   const currentUserId = auth?.user?.id;
   const isPelamar = auth?.user?.role === 'pelamar';
+  const isCompany = auth?.user?.role === 'perusahaan';
+  const LayoutComponent = isCompany ? CompanyLayout : AppLayout;
 
   // Determine initial selection
   const [isAdminSelected, setIsAdminSelected] = useState<boolean>(() => {
@@ -133,11 +136,33 @@ export default function ApplicationMessages({
   const [isSending, setIsSending] = useState(false);
   const [isSendingAdminReply, setIsSendingAdminReply] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Lock document body scroll on mount so page stays focused without page scrollbar
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  const scrollToBottom = (smooth = true) => {
+    if (chatScrollContainerRef.current) {
+      chatScrollContainerRef.current.scrollTo({
+        top: chatScrollContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+    }
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, adminDirectMessages, activeApplication, isAdminSelected]);
+    scrollToBottom(false);
+  }, [activeApplication, isAdminSelected]);
+
+  useEffect(() => {
+    scrollToBottom(true);
+  }, [messages, adminDirectMessages]);
 
   const handleSendMessage = (e: FormEvent): void => {
     e.preventDefault();
@@ -244,39 +269,29 @@ export default function ApplicationMessages({
   ).length;
 
   return (
-    <AppLayout>
+    <LayoutComponent>
       <Head title="Pesan - Profabel" />
 
-      {/* Main Messages Container - Optimized to fit nicely within viewport without fighting window scroll */}
-      <div className="py-3 sm:py-5 flex-1 flex flex-col min-h-0 space-y-3">
-        {/* Compact Header */}
-        <div className="flex items-center justify-between shrink-0">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#102B4B] tracking-tight">
-              Pesan & Pengumuman
-            </h1>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              Komunikasi langsung dengan perusahaan dan pengumuman resmi platform Profabel.
-            </p>
-          </div>
-          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#1769E0] bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-100/80">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Kanal Pesan Aktif</span>
-          </div>
-        </div>
-
-        {/* Master Chat Box - Fixed height relative to viewport, zero outer overflow bugs */}
-        <div className="flex-1 min-h-[550px] h-[calc(100vh-10.5rem)] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] bg-white shadow-xs overflow-hidden flex flex-col md:flex-row">
+      {/* Main Messages Container - Optimized to fit nicely within viewport without window scroll */}
+      <div
+        className={
+          isCompany
+            ? "mx-auto max-w-[1440px] w-full px-4 py-3 sm:px-6 lg:px-7 flex flex-col h-[calc(100dvh-72px)] max-h-[calc(100dvh-72px)] overflow-hidden"
+            : "w-full py-2 sm:py-3 flex-1 flex flex-col min-h-0 h-[calc(100dvh-4rem)] max-h-[calc(100dvh-4rem)] overflow-hidden"
+        }
+      >
+        {/* Master Chat Box - Full-height viewport container with scrollable panels */}
+        <div className="flex-1 min-h-0 h-full rounded-2xl sm:rounded-3xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] shadow-sm overflow-hidden flex flex-col md:flex-row">
           
           {/* ===================== LEFT PANE: CONVERSATION LIST ===================== */}
           {/* On mobile: visible when mobileView === 'list'; on md+: always visible side-by-side */}
           <div
-            className={`w-full md:w-[340px] lg:w-[380px] border-r border-[#E2E8F0] flex flex-col shrink-0 min-h-0 bg-white ${
+            className={`w-full md:w-[340px] lg:w-[380px] border-r border-[#E2EAF3] dark:border-[#1E2B4D] flex flex-col shrink-0 min-h-0 h-full bg-white dark:bg-[#071336] overflow-hidden ${
               mobileView === 'chat' ? 'hidden md:flex' : 'flex'
             }`}
           >
             {/* Search Input & Filter Tabs (Sticky Top of Left Pane) */}
-            <div className="p-3.5 border-b border-[#F1F5F9] shrink-0 bg-white">
+            <div className="p-3.5 border-b border-[#F1F5F9] dark:border-[#1E2B4D] shrink-0 bg-white dark:bg-[#071336]">
               <div className="relative flex items-center">
                 <Search className="absolute left-3.5 h-4 w-4 text-slate-400 pointer-events-none" />
                 <input
@@ -284,7 +299,7 @@ export default function ApplicationMessages({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Cari pesan atau nama..."
-                  className="w-full rounded-2xl border border-[#E2E8F0] bg-white pl-10 pr-3.5 py-2 text-xs text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[40px]"
+                  className="w-full rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-[#F8FAFC] dark:bg-[#050E2E] pl-10 pr-3.5 py-2 text-xs text-[#102B4B] dark:text-white placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[40px]"
                 />
               </div>
 
@@ -295,8 +310,8 @@ export default function ApplicationMessages({
                   onClick={() => setFilterTab('all')}
                   className={`rounded-xl px-3 py-1.5 font-bold transition cursor-pointer select-none ${
                     filterTab === 'all'
-                      ? 'bg-[#EBF5FA] text-[#123B5D]'
-                      : 'text-[#64748B] hover:bg-slate-50'
+                      ? 'bg-[#EBF5FA] text-[#123B5D] dark:bg-[#0D2352] dark:text-[#38BDF8]'
+                      : 'text-[#64748B] hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200'
                   }`}
                 >
                   Semua
@@ -307,8 +322,8 @@ export default function ApplicationMessages({
                   onClick={() => setFilterTab('unread')}
                   className={`rounded-xl px-3 py-1.5 font-bold transition cursor-pointer select-none flex items-center gap-1.5 ${
                     filterTab === 'unread'
-                      ? 'bg-[#EBF5FA] text-[#123B5D]'
-                      : 'text-[#64748B] hover:bg-slate-50'
+                      ? 'bg-[#EBF5FA] text-[#123B5D] dark:bg-[#0D2352] dark:text-[#38BDF8]'
+                      : 'text-[#64748B] hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200'
                   }`}
                 >
                   <span>Belum Dibaca</span>
@@ -324,8 +339,8 @@ export default function ApplicationMessages({
                   onClick={() => setFilterTab('important')}
                   className={`rounded-xl px-3 py-1.5 font-bold transition cursor-pointer select-none ${
                     filterTab === 'important'
-                      ? 'bg-[#EBF5FA] text-[#123B5D]'
-                      : 'text-[#64748B] hover:bg-slate-50'
+                      ? 'bg-[#EBF5FA] text-[#123B5D] dark:bg-[#0D2352] dark:text-[#38BDF8]'
+                      : 'text-[#64748B] hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200'
                   }`}
                 >
                   Pengumuman
@@ -334,44 +349,44 @@ export default function ApplicationMessages({
             </div>
 
             {/* Scrollable Conversation List with Smooth Slim Scrollbar */}
-            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#F1F5F9] overscroll-contain">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar divide-y divide-[#F1F5F9] dark:divide-[#1E2B4D] overscroll-contain">
               {/* PINNED ITEM: Administrator Profabel (Official) */}
               <div
                 onClick={handleSelectAdmin}
                 className={`flex items-start justify-between gap-3 p-3.5 transition cursor-pointer border-l-4 ${
                   isAdminSelected
-                    ? 'bg-[#EBF5FA] border-l-[#1769E0]'
-                    : 'border-l-transparent hover:bg-slate-50'
+                    ? 'bg-[#EBF5FA] border-l-[#1769E0] dark:bg-[#0D2352] dark:border-l-[#1769E0]'
+                    : 'border-l-transparent hover:bg-slate-50 dark:hover:bg-white/5'
                 }`}
               >
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 text-[#1769E0] shrink-0 shadow-xs">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 text-[#1769E0] dark:text-[#38BDF8] shrink-0 shadow-xs">
                     <ShieldCheck className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <h3 className="font-extrabold text-xs text-[#102B4B] truncate">
+                      <h3 className="font-extrabold text-xs text-[#102B4B] dark:text-white truncate">
                         Administrator Profabel
                       </h3>
-                      <span className="rounded bg-blue-100 text-[#1769E0] text-[9px] px-1 font-bold">
+                      <span className="rounded bg-blue-100 dark:bg-blue-950 text-[#1769E0] dark:text-[#38BDF8] text-[9px] px-1 font-bold">
                         Resmi
                       </span>
                     </div>
-                    <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">
+                    <p className="text-[11px] font-medium text-slate-500 dark:text-slate-300 truncate mt-0.5">
                       {adminDirectMessages.length > 0
                         ? adminDirectMessages[adminDirectMessages.length - 1].body
                         : adminAnnouncements.length > 0
                         ? adminAnnouncements[0].title
                         : 'Pusat pengumuman dan pesan admin'}
                     </p>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-400 block mt-0.5">
                       Pengumuman & Pesan Resmi
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-[10px] font-medium text-[#94A3B8]">
+                  <span className="text-[10px] font-medium text-[#94A3B8] dark:text-slate-400">
                     {adminDirectMessages.length > 0
                       ? adminDirectMessages[adminDirectMessages.length - 1].time_ago
                       : 'Admin'}
@@ -386,7 +401,7 @@ export default function ApplicationMessages({
 
               {/* Application Conversations */}
               {filteredConversations.length === 0 && !isAdminSelected ? (
-                <div className="py-12 text-center text-xs text-slate-400 px-4">
+                <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-500 px-4">
                   Belum ada percakapan lamaran pekerjaan yang sesuai.
                 </div>
               ) : (
@@ -407,29 +422,29 @@ export default function ApplicationMessages({
                       onClick={() => handleSelectConversation(conv.id)}
                       className={`flex items-start justify-between gap-3 p-3.5 transition cursor-pointer border-l-4 ${
                         isSelected
-                          ? 'bg-[#EBF5FA] border-l-[#1769E0]'
-                          : 'border-l-transparent hover:bg-slate-50'
+                          ? 'bg-[#EBF5FA] border-l-[#1769E0] dark:bg-[#0D2352] dark:border-l-[#1769E0]'
+                          : 'border-l-transparent hover:bg-slate-50 dark:hover:bg-white/5'
                       }`}
                     >
                       <div className="flex items-start gap-3 min-w-0">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-xs shrink-0">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0FDF4] dark:bg-emerald-950/60 border border-[#DCFCE7] dark:border-emerald-900/50 text-[#16A36B] dark:text-emerald-400 font-extrabold text-xs shrink-0">
                           {initials}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-extrabold text-xs text-[#102B4B] truncate">
+                          <h3 className="font-extrabold text-xs text-[#102B4B] dark:text-white truncate">
                             {title}
                           </h3>
-                          <p className="text-[11px] font-semibold text-[#64748B] truncate mt-0.5">
+                          <p className="text-[11px] font-semibold text-[#64748B] dark:text-slate-300 truncate mt-0.5">
                             {subtitle}
                           </p>
-                          <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                          <p className="text-[10px] text-slate-400 dark:text-slate-400 truncate mt-0.5">
                             {snippet}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
-                        <span className="text-[10px] font-medium text-[#94A3B8]">
+                        <span className="text-[10px] font-medium text-[#94A3B8] dark:text-slate-400">
                           {timeFormatted}
                         </span>
                         {unread > 0 && (
@@ -448,7 +463,7 @@ export default function ApplicationMessages({
           {/* ===================== RIGHT PANE: ACTIVE CONVERSATION ===================== */}
           {/* On mobile: visible when mobileView === 'chat'; on md+: always visible side-by-side */}
           <div
-            className={`flex-1 flex flex-col min-w-0 min-h-0 bg-white ${
+            className={`flex-1 flex flex-col min-w-0 min-h-0 bg-white dark:bg-[#071336] ${
               mobileView === 'list' ? 'hidden md:flex' : 'flex'
             }`}
           >
@@ -456,31 +471,31 @@ export default function ApplicationMessages({
               /* ================== ADMIN / ANNOUNCEMENTS THREAD ================== */
               <>
                 {/* Admin Header (Sticky Top of Right Pane) */}
-                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] shrink-0 bg-white z-10">
+                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] dark:border-[#1E2B4D] shrink-0 bg-white dark:bg-[#071336] z-10">
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Back to List Button on Mobile */}
                     <button
                       type="button"
                       onClick={() => setMobileView('list')}
-                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#102B4B] transition shrink-0"
+                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#102B4B] dark:text-white transition shrink-0"
                       aria-label="Kembali ke daftar pesan"
                     >
                       <ArrowLeft className="h-4 w-4" />
                     </button>
 
-                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 text-[#1769E0] shrink-0">
+                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 text-[#1769E0] dark:text-[#38BDF8] shrink-0">
                       <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] truncate">
+                        <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] dark:text-white truncate">
                           Administrator Profabel
                         </h2>
-                        <span className="rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#1769E0] shrink-0">
+                        <span className="rounded-full bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#1769E0] dark:text-[#38BDF8] shrink-0">
                           Resmi
                         </span>
                       </div>
-                      <p className="text-[11px] sm:text-xs text-[#64748B] truncate">
+                      <p className="text-[11px] sm:text-xs text-[#64748B] dark:text-slate-400 truncate">
                         Pemberitahuan resmi & bantuan dukungan langsung platform
                       </p>
                     </div>
@@ -488,11 +503,11 @@ export default function ApplicationMessages({
                 </div>
 
                 {/* Messages & Announcements List (Scrollable Area) */}
-                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-5 bg-[#F8FBFE]/50 overscroll-contain">
+                <div ref={chatScrollContainerRef} className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-5 bg-[#F8FBFE]/50 dark:bg-[#020B3C] overscroll-contain">
                   {/* Official Announcements Section */}
                   {adminAnnouncements.length > 0 && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#1769E0] uppercase tracking-wider">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#1769E0] dark:text-[#38BDF8] uppercase tracking-wider">
                         <Megaphone className="h-4 w-4" />
                         <span>Pengumuman Siaran Resmi</span>
                       </div>
@@ -500,16 +515,16 @@ export default function ApplicationMessages({
                       {adminAnnouncements.map((anc) => (
                         <div
                           key={anc.id}
-                          className="rounded-2xl border border-blue-200 bg-white p-4 shadow-xs"
+                          className="rounded-2xl border border-blue-200 dark:border-white/10 bg-white dark:bg-[#0B1E48] p-4 shadow-xs"
                         >
-                          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 mb-2">
-                            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-[#1769E0]">
+                          <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-white/10 pb-2 mb-2">
+                            <span className="rounded-full bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 text-[10px] font-bold text-[#1769E0] dark:text-[#38BDF8]">
                               {anc.target_label}
                             </span>
-                            <span className="text-[10px] text-slate-400">{anc.time_ago}</span>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-400">{anc.time_ago}</span>
                           </div>
-                          <h3 className="font-bold text-sm text-[#102B4B]">{anc.title}</h3>
-                          <p className="mt-1 text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                          <h3 className="font-bold text-sm text-[#102B4B] dark:text-white">{anc.title}</h3>
+                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                             {anc.content}
                           </p>
                         </div>
@@ -519,13 +534,13 @@ export default function ApplicationMessages({
 
                   {/* Direct Messages Section */}
                   <div className="space-y-3 pt-2">
-                    <div className="flex items-center gap-2 text-xs font-bold text-[#102B4B] uppercase tracking-wider">
-                      <Mail className="h-4 w-4 text-[#1769E0]" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#102B4B] dark:text-white uppercase tracking-wider">
+                      <Mail className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />
                       <span>Percakapan Personal dengan Admin</span>
                     </div>
 
                     {adminDirectMessages.length === 0 ? (
-                      <div className="rounded-2xl border border-slate-100 bg-white p-6 text-center text-xs text-slate-400">
+                      <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#0B1E48] p-6 text-center text-xs text-slate-400 dark:text-slate-400">
                         Belum ada pesan personal dari Administrator. Anda dapat mengetikkan pertanyaan atau tanggapan di bawah ini.
                       </div>
                     ) : (
@@ -538,11 +553,11 @@ export default function ApplicationMessages({
                             className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                           >
                             <div
-                              className={`flex items-center gap-2 mb-1 text-[11px] text-[#64748B] ${
+                              className={`flex items-center gap-2 mb-1 text-[11px] text-[#64748B] dark:text-slate-400 ${
                                 isMine ? 'flex-row-reverse' : ''
                               }`}
                             >
-                              <span className="font-bold text-[#102B4B]">
+                              <span className="font-bold text-[#102B4B] dark:text-white">
                                 {isMine ? 'Saya' : 'Administrator Profabel'}
                               </span>
                               <span>•</span>
@@ -553,11 +568,11 @@ export default function ApplicationMessages({
                               className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                                 isMine
                                   ? 'bg-[#1769E0] text-white rounded-tr-none shadow-xs'
-                                  : 'bg-white border border-[#E2E8F0] text-[#102B4B] rounded-tl-none shadow-xs'
+                                  : 'bg-white border border-[#E2E8F0] dark:bg-[#0B1E48] dark:border-white/10 text-[#102B4B] dark:text-white rounded-tl-none shadow-xs'
                               }`}
                             >
                               {msg.subject && (
-                                <p className="font-bold border-b pb-1 mb-1 text-xs opacity-90">
+                                <p className="font-bold border-b dark:border-white/10 pb-1 mb-1 text-xs opacity-90">
                                   Subjek: {msg.subject}
                                 </p>
                               )}
@@ -567,28 +582,27 @@ export default function ApplicationMessages({
                         );
                       })
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 
-                {/* Reply Form to Admin (Fixed Bottom of Right Pane) */}
+                {/* Reply Form to Admin (Fixed Bottom of Right Pane like WhatsApp) */}
                 <form
                   onSubmit={handleSendAdminReply}
-                  className="p-3 sm:p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white shrink-0 z-10"
+                  className="p-3 sm:p-3.5 border-t border-[#E2EAF3] dark:border-[#1E2B4D] flex items-center gap-2.5 bg-white/95 dark:bg-[#071336]/95 backdrop-blur-md shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]"
                 >
                   <input
                     type="text"
                     value={adminReplyBody}
                     onChange={(e) => setAdminReplyBody(e.target.value)}
                     placeholder="Balas pesan ke Administrator Profabel..."
-                    className="flex-1 rounded-xl border border-[#E2E8F0] px-3.5 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[42px]"
+                    className="flex-1 rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-[#F8FAFC] dark:bg-[#050E2E] px-4 py-2.5 text-xs sm:text-sm text-[#102B4B] dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[44px]"
                     disabled={isSendingAdminReply}
                   />
 
                   <button
                     type="submit"
                     disabled={isSendingAdminReply || !adminReplyBody.trim()}
-                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
+                    className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-sm transition disabled:opacity-50 cursor-pointer shrink-0"
                     aria-label="Kirim balasan ke admin"
                   >
                     <Send className="h-4 w-4" />
@@ -599,40 +613,40 @@ export default function ApplicationMessages({
               /* ================== JOB APPLICATION CONVERSATION THREAD ================== */
               <>
                 {/* Application Header (Sticky Top of Right Pane) */}
-                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] shrink-0 bg-white z-10">
+                <div className="flex items-center justify-between p-3.5 sm:p-4 border-b border-[#F1F5F9] dark:border-[#1E2B4D] shrink-0 bg-white dark:bg-[#071336] z-10">
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Back to List Button on Mobile */}
                     <button
                       type="button"
                       onClick={() => setMobileView('list')}
-                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#102B4B] transition shrink-0"
+                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#102B4B] dark:text-white transition shrink-0"
                       aria-label="Kembali ke daftar pesan"
                     >
                       <ArrowLeft className="h-4 w-4" />
                     </button>
 
-                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A36B] font-extrabold text-xs sm:text-sm shrink-0">
+                    <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-[#F0FDF4] dark:bg-emerald-950/60 border border-[#DCFCE7] dark:border-emerald-900/50 text-[#16A36B] dark:text-emerald-400 font-extrabold text-xs sm:text-sm shrink-0">
                       {activeInitials}
                     </div>
                     <div className="min-w-0">
-                      <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] truncate">
+                      <h2 className="font-extrabold text-sm sm:text-base text-[#102B4B] dark:text-white truncate">
                         {activeTitle}
                       </h2>
-                      <p className="text-[11px] sm:text-xs text-[#64748B] truncate">
+                      <p className="text-[11px] sm:text-xs text-[#64748B] dark:text-slate-400 truncate">
                         {activeSubtitle}
                       </p>
                     </div>
                   </div>
 
-                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 text-[#64748B] text-[10px] font-bold px-2.5 py-1">
+                  <span className="hidden sm:inline-flex rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] dark:text-slate-300 text-[10px] font-bold px-2.5 py-1">
                     Lamaran Aktif
                   </span>
                 </div>
 
                 {/* Messages Thread Scroll Area with Smooth Scrollbar */}
-                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-4 bg-white overscroll-contain">
+                <div ref={chatScrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar p-4 sm:p-6 space-y-4 bg-[#F8FBFE]/40 dark:bg-[#020B3C] overscroll-contain">
                   {messages.length === 0 ? (
-                    <div className="py-16 text-center text-xs text-slate-400">
+                    <div className="py-16 text-center text-xs text-slate-400 dark:text-slate-500">
                       Belum ada pesan dalam percakapan ini. Mulai kirimkan pesan di bawah.
                     </div>
                   ) : (
@@ -646,11 +660,11 @@ export default function ApplicationMessages({
                         >
                           {/* Sender Meta */}
                           <div
-                            className={`flex items-center gap-2 mb-1 text-[11px] text-[#64748B] ${
+                            className={`flex items-center gap-2 mb-1 text-[11px] text-[#64748B] dark:text-slate-400 ${
                               isMine ? 'flex-row-reverse' : ''
                             }`}
                           >
-                            <span className="font-bold text-[#102B4B]">{msg.sender.name}</span>
+                            <span className="font-bold text-[#102B4B] dark:text-white">{msg.sender.name}</span>
                             <span>•</span>
                             <span>
                               {new Date(msg.created_at).toLocaleDateString('id-ID', {
@@ -667,7 +681,7 @@ export default function ApplicationMessages({
                             className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                               isMine
                                 ? 'bg-[#1769E0] text-white rounded-tr-none shadow-xs'
-                                : 'bg-[#F8FAFC] border border-[#F1F5F9] text-[#102B4B] rounded-tl-none'
+                                : 'bg-[#F8FAFC] border border-[#F1F5F9] dark:bg-[#0B1E48] dark:border-white/10 text-[#102B4B] dark:text-white rounded-tl-none'
                             }`}
                           >
                             <p className="whitespace-pre-wrap">{msg.body}</p>
@@ -676,27 +690,26 @@ export default function ApplicationMessages({
                       );
                     })
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
 
-                {/* Bottom Input Form (Fixed Bottom of Right Pane) */}
+                {/* Bottom Input Form (Fixed Bottom of Right Pane like WhatsApp) */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 sm:p-3.5 border-t border-[#F1F5F9] flex items-center gap-2 bg-white shrink-0 z-10"
+                  className="p-3 sm:p-3.5 border-t border-[#E2EAF3] dark:border-[#1E2B4D] flex items-center gap-2.5 bg-white/95 dark:bg-[#071336]/95 backdrop-blur-md shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]"
                 >
                   <input
                     type="text"
                     value={inputBody}
                     onChange={(e) => setInputBody(e.target.value)}
-                    placeholder="Tulis pesan ke perusahaan..."
-                    className="flex-1 rounded-xl border border-[#E2E8F0] px-3.5 py-2.5 text-xs sm:text-sm text-[#102B4B] placeholder:text-slate-400 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[42px]"
+                    placeholder={isPelamar ? "Tulis pesan ke perusahaan..." : "Tulis balasan pesan ke pelamar..."}
+                    className="flex-1 rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-[#F8FAFC] dark:bg-[#050E2E] px-4 py-2.5 text-xs sm:text-sm text-[#102B4B] dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#1769E0] focus:ring-2 focus:ring-[#1769E0]/20 outline-none transition min-h-[44px]"
                     disabled={isSending}
                   />
 
                   <button
                     type="submit"
                     disabled={isSending || !inputBody.trim()}
-                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-xs transition disabled:opacity-50 cursor-pointer shrink-0"
+                    className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1769E0] hover:bg-[#1254B5] text-white shadow-sm transition disabled:opacity-50 cursor-pointer shrink-0"
                     aria-label="Kirim pesan"
                   >
                     <Send className="h-4 w-4" />
@@ -705,14 +718,14 @@ export default function ApplicationMessages({
               </>
             ) : (
               /* ================== EMPTY STATE (NO CHAT SELECTED) ================== */
-              <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center p-8 bg-[#F8FBFE]/40">
-                <div className="h-16 w-16 rounded-3xl bg-blue-50 border border-blue-200 text-[#1769E0] flex items-center justify-center shadow-xs mb-4">
+              <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center p-8 bg-[#F8FBFE]/40 dark:bg-[#071336]">
+                <div className="h-16 w-16 rounded-3xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 text-[#1769E0] dark:text-[#38BDF8] flex items-center justify-center shadow-xs mb-4">
                   <MessageSquare className="h-8 w-8" />
                 </div>
-                <h3 className="font-extrabold text-base text-[#102B4B]">
+                <h3 className="font-extrabold text-base text-[#102B4B] dark:text-white">
                   Pilih Percakapan
                 </h3>
-                <p className="mt-1 max-w-sm text-xs text-[#64748B]">
+                <p className="mt-1 max-w-sm text-xs text-[#64748B] dark:text-slate-400">
                   Pilih salah satu kontak di kolom sebelah kiri untuk mulai membaca atau membalas pesan.
                 </p>
               </div>
@@ -720,6 +733,6 @@ export default function ApplicationMessages({
           </div>
         </div>
       </div>
-    </AppLayout>
+    </LayoutComponent>
   );
 }

@@ -157,7 +157,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
               <section className="rounded-xl bg-white p-5 sm:p-6">
                 <h2 className="text-2xl font-extrabold text-[#102B4D]">Pengalaman Kerja</h2>
                 {!workExperiences.length && <EmptyState text="Belum ada pengalaman kerja." />}
-                <div className="mt-5 space-y-4">{workExperiences.map((item, index) => <TimelineItem key={index} icon={<BriefcaseBusiness className="h-5 w-5 text-[#176C98]" />}><div className="flex flex-col gap-1.5 lg:flex-row lg:items-center lg:gap-4"><span className="text-base font-extrabold text-[#102B4D]">{item.company}</span><div className="flex flex-wrap items-center gap-2 text-xs text-[#718494]"><span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formatPeriod(item.start_date, item.end_date)}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{item.location || '-'}</span></div></div><p className="mt-1 font-semibold text-[#176C98]">{item.position}</p>{item.description && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#3D5265]">{item.description.split('\n').map((line, i) => line.trim() && <li key={i}>{line.trim()}</li>)}</ul>}</TimelineItem>)}</div>
+                <div className="mt-5 space-y-4">{workExperiences.map((item, index) => <TimelineItem key={index} icon={<BriefcaseBusiness className="h-5 w-5 text-[#176C98]" />}><div className="flex flex-col gap-1.5 lg:flex-row lg:items-center lg:gap-4"><span className="text-base font-extrabold text-[#102B4D]">{item.company}</span><div className="flex flex-wrap items-center gap-2 text-xs text-[#718494]"><span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formatPeriod(item.start_date, item.end_date)}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{item.location || '-'}</span></div></div><p className="mt-1 font-semibold text-[#176C98]">{item.position}</p>{item.description && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#3D5265]">{item.description.split('\n').map((l) => l.trim()).filter(Boolean).map((line, i) => <li key={i}>{line}</li>)}</ul>}</TimelineItem>)}</div>
               </section>
 
               <section className="rounded-xl bg-white p-5 sm:p-6">
@@ -181,7 +181,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                       onPreview={(c) =>
                         setPreviewDocModal({
                           url: c.file_url || '',
-                          name: c.file_name || c.name,
+                          name: formatSafeDocumentName(c.file_name, 'Sertifikat', c.name),
                           type: c.file_type || (c.file_url?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'),
                         })
                       }
@@ -200,7 +200,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
 
               <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">Accessibility Profile</h2><p className="mt-1.5 text-sm leading-5 text-[#718494]">Informasi untuk membantu perusahaan memahami cara terbaik untuk mendukung dan menyesuaikan lingkungan kerja.</p><div className="mt-4 flex flex-wrap gap-2">{accessibility.accommodations_needed?.length ? accessibility.accommodations_needed.map((acc) => <span key={acc} className="inline-flex items-center rounded-md border border-[#D8E3EA] bg-[#F7FBFD] px-3 py-1.5 text-xs font-medium text-[#176C98]">{translateAccommodation(acc)}</span>) : <span className="text-sm text-[#9DAFBF]">Tidak ada preferensi aksesibilitas.</span>}</div>{accessibility.notes && <div className="mt-4 flex gap-2 rounded-lg bg-[#EEF6FB] p-3 text-xs leading-5 text-[#52677A]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[#176C98]" /><div><p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#176C98]">Informasi Tambahan</p><p>{accessibility.notes}</p></div></div>}</section>
 
-              <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">CV yang Tersimpan</h2>{profile.cv_url ? <><div className="mt-4 flex items-center gap-3 rounded-lg bg-[#EEF6FB] p-3"><FileText className="h-7 w-7 shrink-0 text-rose-500" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#173A55]">{profile.cv_name || 'CV Tersimpan'}</p><p className="text-xs text-[#718494]">Diunggah pada {profile.cv_updated_at ? formatDateFromIso(profile.cv_updated_at) : '-'}</p></div></div><div className="mt-3 grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Eye className="h-4 w-4" />Lihat CV</a><a href={profile.cv_url} download className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Download className="h-4 w-4" />Unduh CV</a></div></> : <p className="mt-4 text-sm text-[#9DAFBF]">Belum ada CV tersimpan.</p>}</section>
+              <section className="rounded-xl bg-white p-5 sm:p-6"><h2 className="text-2xl font-extrabold text-[#102B4D]">CV yang Tersimpan</h2>{profile.cv_url ? <><div className="mt-4 flex items-center gap-3 rounded-lg bg-[#EEF6FB] p-3"><FileText className="h-7 w-7 shrink-0 text-rose-500" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#173A55]">{formatSafeDocumentName(profile.cv_name, 'Curriculum Vitae (CV)', userName)}</p><p className="text-xs text-[#718494]">Diunggah pada {profile.cv_updated_at ? formatDateFromIso(profile.cv_updated_at) : '-'}</p></div></div><div className="mt-3 grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Eye className="h-4 w-4" />Lihat CV</a><a href={profile.cv_url} download={`CV_${(userName || 'Pelamar').replace(/\s+/g, '_')}.pdf`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Download className="h-4 w-4" />Unduh CV</a></div></> : <p className="mt-4 text-sm text-[#9DAFBF]">Belum ada CV tersimpan.</p>}</section>
             </aside>
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
 
 function DetailRow({ icon, label, value }: { icon: ReactElement; label: string; value: string }) { return <div className="flex items-start gap-3"><span className="mt-0.5 text-[#718494] [&>svg]:h-5 [&>svg]:w-5">{icon}</span><div className="min-w-0"><p className="text-sm text-[#718494]">{label}</p><p className="break-words text-sm font-semibold text-[#173A55]">{value}</p></div></div>; }
 function TimelineItem({ icon, children }: { icon: ReactElement; children: ReactElement | ReactElement[] }) { return <div className="relative flex gap-3.5"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F7FBFD]">{icon}</div><div className="flex-1 pt-1">{children}</div></div>; }
-function ContactPill({ icon, url, label }: { icon: ReactElement; url: string; label: string }) { return <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#D8E3EA] bg-[#F7FBFD] px-4 py-2.5 text-sm font-semibold text-[#176C98] hover:border-[#1677A5] hover:bg-[#EFF9FD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1677A5]"><span>{icon}</span><span className="max-w-[140px] truncate">{label}: {url}</span></a>; }
+function ContactPill({ icon, url, label }: { icon: ReactElement; url: string; label: string }) { return <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#D8E3EA] bg-[#F7FBFD] px-4 py-2.5 text-sm font-semibold text-[#176C98] hover:border-[#1677A5] hover:bg-[#EFF9FD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1677A5]"><span>{icon}</span><span className="max-w-[220px] truncate" title={`${label}: ${url}`}>{label}: {url}</span></a>; }
 function ProjectCard({ project }: { project: Project }) { return <div className="flex flex-col gap-3 rounded-lg border border-[#CBD8E1] bg-white p-4"><div><h3 className="text-base font-extrabold text-[#102B4D]">{project.name}</h3><p className="mt-1 text-sm leading-relaxed text-[#3D5265]">{project.description || '-'}</p></div>{project.skills?.length ? <div className="flex flex-wrap gap-2 pt-2">{project.skills.map((skill) => <span key={skill} className="inline-flex items-center rounded-md bg-[#DDEFFC] px-2.5 py-1 text-[10px] font-bold text-[#176C98]">{skill}</span>)}</div> : null}</div>; }
 function CertificationCard({
   certification,
@@ -318,7 +318,7 @@ function CertificationCard({
               <ImageIcon className="h-4 w-4 text-blue-500 shrink-0" />
             )}
             <span className="truncate text-xs font-semibold text-[#173A55]">
-              {certification.file_name || 'Lampiran Berkas Sertifikat'}
+              {formatSafeDocumentName(certification.file_name, 'Berkas Sertifikat', certification.name)}
             </span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -343,7 +343,7 @@ function CertificationCard({
             )}
             <a
               href={certification.file_url}
-              download
+              download={`Sertifikat_${(certification.name || 'Dokumen').replace(/\s+/g, '_')}.${isPdf ? 'pdf' : 'jpg'}`}
               className="inline-flex items-center gap-1 rounded-md border border-[#CBD8E1] bg-white px-2 py-1 text-xs font-semibold text-[#52677A] hover:bg-slate-50 transition"
               title="Unduh Berkas Sertifikat"
             >
@@ -354,6 +354,18 @@ function CertificationCard({
       )}
     </div>
   );
+}
+function formatSafeDocumentName(fileName?: string | null, fallbackPrefix: string = 'Dokumen', entityName?: string): string {
+  if (!fileName) {
+    return entityName ? `${fallbackPrefix} - ${entityName}` : fallbackPrefix;
+  }
+  const cleanName = fileName.trim();
+  const isStorageHash = /^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(cleanName);
+  if (isStorageHash) {
+    const ext = cleanName.split('.').pop() || 'pdf';
+    return entityName ? `${fallbackPrefix} - ${entityName}.${ext}` : `${fallbackPrefix}.${ext}`;
+  }
+  return cleanName;
 }
 function EmptyState({ text }: { text: string }) { return <p className="rounded-lg border border-dashed border-[#B9CAD5] bg-[#F8FBFD] px-4 py-5 text-center text-sm text-[#718494]">{text}</p>; }
 function SummaryRow({ icon, label, value }: { icon: ReactElement; label: string; value: string }) { return <div className="flex items-start gap-3"><span className="mt-0.5 text-[#6C8192] [&>svg]:h-5 [&>svg]:w-5">{icon}</span><div className="min-w-0"><p className="text-sm text-[#718494]">{label}</p><p className="break-words text-sm font-semibold text-[#173A55]">{value}</p></div></div>; }

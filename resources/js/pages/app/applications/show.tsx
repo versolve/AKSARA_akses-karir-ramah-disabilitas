@@ -445,7 +445,10 @@ export default function ApplicationShow({ application }: Props): ReactElement {
                   vac.accessibilities.map((acc) => (
                     <div key={acc.id} className="flex items-center gap-2 text-[#475569]">
                       <CheckCircle2 className="h-4 w-4 text-[#16A36B] shrink-0" />
-                      <span>{ACCESSIBILITY_LABELS[acc.accommodation_type] ?? acc.accommodation_type}</span>
+                      <span>
+                        {ACCESSIBILITY_LABELS[acc.accommodation_type] ?? acc.accommodation_type}
+                        {acc.description ? `: ${acc.description}` : ''}
+                      </span>
                     </div>
                   ))
                 ) : (

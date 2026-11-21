@@ -19,7 +19,8 @@ class OpenAiProvider implements AiProviderInterface
         private string $baseUrl = 'https://api.openai.com/v1',
         private int $timeout = 20,
         private float $temperature = 0.2,
-        private int $maxTokens = 1500
+        private int $maxTokens = 1500,
+        private bool $throwOnError = false
     ) {
         $this->fallback = new MockAiProvider();
     }
@@ -27,6 +28,9 @@ class OpenAiProvider implements AiProviderInterface
     public function matchJob(JobSeekerProfile $seeker, Vacancy $vacancy): array
     {
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('OpenAI API Key belum diatur di Halaman Admin.');
+            }
             return $this->fallback->matchJob($seeker, $vacancy);
         }
 
@@ -78,8 +82,15 @@ PROMPT;
                     'summary' => (string) ($parsed['summary'] ?? ''),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons OpenAI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
-            Log::warning('OpenAI matchJob failed, falling back to MockAiProvider: ' . $e->getMessage());
+            Log::warning('OpenAI matchJob failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $this->fallback->matchJob($seeker, $vacancy);
@@ -88,6 +99,9 @@ PROMPT;
     public function analyzeSkillGap(array $seekerSkills, array $vacancySkills): array
     {
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('OpenAI API Key belum diatur di Halaman Admin.');
+            }
             return $this->fallback->analyzeSkillGap($seekerSkills, $vacancySkills);
         }
 
@@ -122,8 +136,15 @@ PROMPT;
                     'learning_recommendations' => (array) ($parsed['learning_recommendations'] ?? []),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons OpenAI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
             Log::warning('OpenAI analyzeSkillGap failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $this->fallback->analyzeSkillGap($seekerSkills, $vacancySkills);
@@ -134,6 +155,9 @@ PROMPT;
         $fallbackResult = $this->fallback->reviewCvAts($cvText, $targetSkills);
 
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('OpenAI API Key belum diatur di Halaman Admin.');
+            }
             return $fallbackResult;
         }
 
@@ -190,8 +214,15 @@ PROMPT;
                     'accessibility_tips' => (array) ($parsed['accessibility_tips'] ?? $fallbackResult['accessibility_tips']),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons OpenAI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
             Log::warning('OpenAI reviewCvAts failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $fallbackResult;

@@ -27,7 +27,7 @@ export function BiColumnBarChart({
     const chartHeight = 140;
 
     return (
-        <div className="flex flex-col h-full rounded-2xl border border-[#E2EAF3] bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
+        <div className="flex flex-col h-full rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
             <div className="mb-4 flex items-center justify-between gap-3 shrink-0">
                 <div className="flex items-center gap-2">
                     <h3 className="text-sm font-extrabold text-[#101B4D]">{title}</h3>

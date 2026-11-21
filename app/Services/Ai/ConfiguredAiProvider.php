@@ -72,8 +72,11 @@ class ConfiguredAiProvider implements AiProviderInterface
         // Jika tidak ada kandidat aktif sama sekali
         if (empty($candidates)) {
             $primary = $this->resolveActiveConfig();
-            $this->logUsage($primary, $actionType, true, $estimatedTokens, 15);
-            return $fallbackFn();
+            $this->logUsage($primary, $actionType, false, 0, 15, 'Tidak ada API Key atau model AI aktif yang dikonfigurasi oleh Admin.');
+            if ($allowMock) {
+                return $fallbackFn();
+            }
+            throw new \RuntimeException('Tidak ada API Key atau model AI aktif yang dikonfigurasi oleh Admin di panel Admin.');
         }
 
         $mode = $routing['mode'] ?? AiRoutingManager::MODE_SINGLE_API_ROTATION;
@@ -311,7 +314,8 @@ class ConfiguredAiProvider implements AiProviderInterface
                 baseUrl: $config->base_url ?: 'https://generativelanguage.googleapis.com/v1beta',
                 timeout: $config->timeout ?: 20,
                 temperature: (float) $config->temperature,
-                maxTokens: $config->max_tokens ?: 1500
+                maxTokens: $config->max_tokens ?: 1500,
+                throwOnError: true
             ),
             'openai', 'custom' => new OpenAiProvider(
                 apiKey: (string) $config->api_key,
@@ -319,7 +323,8 @@ class ConfiguredAiProvider implements AiProviderInterface
                 baseUrl: $config->base_url ?: 'https://api.openai.com/v1',
                 timeout: $config->timeout ?: 20,
                 temperature: (float) $config->temperature,
-                maxTokens: $config->max_tokens ?: 1500
+                maxTokens: $config->max_tokens ?: 1500,
+                throwOnError: true
             ),
             default => $this->mockFallback,
         };

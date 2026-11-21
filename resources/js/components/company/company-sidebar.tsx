@@ -99,6 +99,9 @@ export function CompanySidebar({
         if (item.href === '/company/dashboard' && currentPath === '/company/dashboard') {
             return true;
         }
+        if (item.href === '/company/vacancies' && (currentPath.startsWith('/company/vacancies') || currentPath.startsWith('/jobs'))) {
+            return true;
+        }
         if (item.matchPrefix && item.href !== '/company/dashboard') {
             return currentPath.startsWith(item.matchPrefix);
         }
@@ -107,15 +110,15 @@ export function CompanySidebar({
 
     return (
         <TooltipProvider delayDuration={150}>
-            <div className="flex h-full w-full flex-col bg-white select-none">
+            <div className="flex h-full w-full flex-col bg-white select-none dark:bg-[#050E2E]">
                 {/* Sidebar Header */}
                 <div
-                    className={`flex items-center border-b border-[#EEF2F6] h-[65px] transition-all duration-200 ${
+                    className={`flex items-center border-b border-[#EEF2F6] h-[65px] transition-all duration-200 dark:border-white/10 ${
                         collapsed ? 'justify-center px-2' : 'justify-between px-5'
                     }`}
                 >
                     {!collapsed && (
-                        <span className="text-sm font-extrabold tracking-tight text-[#102B4B]">
+                        <span className="text-sm font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                             Profabel – Perusahaan
                         </span>
                     )}
@@ -125,8 +128,8 @@ export function CompanySidebar({
                         <button
                             type="button"
                             onClick={onToggle}
-                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition ${
-                                collapsed ? 'text-[#101B4D]' : ''
+                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition dark:hover:bg-white/10 dark:hover:text-white ${
+                                collapsed ? 'text-[#101B4D] dark:text-slate-200' : ''
                             }`}
                             title={collapsed ? 'Perluas sidebar' : 'Minimize sidebar'}
                             aria-label={collapsed ? 'Perluas sidebar' : 'Minimize sidebar'}
@@ -144,7 +147,7 @@ export function CompanySidebar({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
                             aria-label="Tutup menu perusahaan"
                         >
                             <X className="h-5 w-5" />
@@ -174,8 +177,8 @@ export function CompanySidebar({
                                             aria-label={item.title}
                                             className={`flex h-11 w-11 mx-auto items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
                                                 active
-                                                    ? 'bg-[#EBF5FA] text-[#1769E0] shadow-sm font-bold'
-                                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                                    ? 'bg-[#EBF5FA] text-[#1769E0] shadow-sm font-bold dark:bg-blue-950/60 dark:text-[#38BDF8]'
+                                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
                                             }`}
                                         >
                                             <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -184,7 +187,7 @@ export function CompanySidebar({
                                     <TooltipContent
                                         side="right"
                                         sideOffset={12}
-                                        className="z-[9999] rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xl"
+                                        className="z-[9999] rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xl dark:bg-slate-800 dark:border dark:border-white/10"
                                     >
                                         {item.title}
                                     </TooltipContent>
@@ -200,8 +203,8 @@ export function CompanySidebar({
                                 onClick={onClose}
                                 className={`flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
                                     active
-                                        ? 'bg-[#EBF5FA] font-bold text-[#1769E0]'
-                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? 'bg-[#EBF5FA] font-bold text-[#1769E0] dark:bg-blue-950/60 dark:text-[#38BDF8]'
+                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
                                 }`}
                             >
                                 <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />

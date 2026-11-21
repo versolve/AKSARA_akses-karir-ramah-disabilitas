@@ -103,4 +103,24 @@ class AiProviderTest extends TestCase
 
         $this->assertInstanceOf(MockAiProvider::class, $driver);
     }
+
+    public function test_ai_manager_resolves_configured_driver_as_central_provider(): void
+    {
+        config(['ai.default' => 'configured']);
+
+        /** @var AiManager $manager */
+        $manager = app(AiManager::class);
+        $driver = $manager->driver();
+
+        $this->assertInstanceOf(\App\Services\Ai\ConfiguredAiProvider::class, $driver);
+    }
+
+    public function test_gemini_driver_routes_through_configured_central_provider(): void
+    {
+        /** @var AiManager $manager */
+        $manager = app(AiManager::class);
+        $driver = $manager->driver('gemini');
+
+        $this->assertInstanceOf(\App\Services\Ai\ConfiguredAiProvider::class, $driver);
+    }
 }

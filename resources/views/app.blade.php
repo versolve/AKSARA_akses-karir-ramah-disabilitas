@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'light') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? request()->cookie('appearance', 'light')) == 'dark'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        {{-- Inline script to apply theme preference (defaults to light mode) --}}
+        {{-- Inline script to apply theme preference from cookie/localStorage --}}
         <script>
             (function() {
-                const appearance = '{{ $appearance ?? "light" }}';
+                try {
+                    const cookieMatch = document.cookie.match(/(?:^|; )appearance=([^;]*)/);
+                    const cookieAppearance = cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+                    const localAppearance = localStorage.getItem('appearance');
+                    const appearance = cookieAppearance || localAppearance || '{{ $appearance ?? "light" }}';
 
-                if (appearance === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                    if (appearance === 'dark') {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.style.colorScheme = 'dark';
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.style.colorScheme = 'light';
+                    }
+                } catch (e) {}
             })();
         </script>
 
@@ -27,7 +34,7 @@
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #020B3C;
             }
         </style>
 

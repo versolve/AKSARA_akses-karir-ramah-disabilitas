@@ -40,12 +40,16 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'appearance' => $request->cookie('appearance', 'light'),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
             'auth' => [
-                'user' => $user,
+                'user' => fn () => $user ? array_merge($user->toArray(), [
+                    'avatar' => $user->avatar,
+                    'company_profile' => ($user->role === 'perusahaan') ? $user->companyProfile : null,
+                ]) : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
@@ -62,6 +66,9 @@ class HandleInertiaRequests extends Middleware
             'companyUnreadNotificationsCount' => fn () => ($user && $user->role === 'perusahaan')
                 ? count(array_filter(\App\Http\Controllers\Company\NotificationController::collectCompanyNotifications($user), fn ($n) => !$n['is_read']))
                 : 0,
+            'seekerNotifications' => fn () => ($user && $user->role === 'pelamar')
+                ? array_slice(\App\Http\Controllers\Seeker\NotificationController::collectSeekerNotifications($user), 0, 6)
+                : [],
             'seekerUnreadNotificationsCount' => fn () => ($user && $user->role === 'pelamar')
                 ? $user->unreadNotifications()->count()
                 : 0,

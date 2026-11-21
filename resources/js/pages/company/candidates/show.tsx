@@ -812,7 +812,11 @@ export default function CandidateShow({ candidate, navigation }: Props): ReactEl
                                     {candidate.cv.url && (
                                         <>
                                             <span className="text-slate-400">|</span>
-                                            <span className="text-xs font-medium text-slate-300">{candidate.cv.filename}</span>
+                                            <span className="text-xs font-medium text-slate-300">
+                                                {candidate.cv.filename && !/^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(candidate.cv.filename.trim())
+                                                    ? candidate.cv.filename
+                                                    : `Curriculum_Vitae_${candidate.name.replace(/\s+/g, '_')}.pdf`}
+                                            </span>
                                         </>
                                     )}
                                 </div>
@@ -820,7 +824,9 @@ export default function CandidateShow({ candidate, navigation }: Props): ReactEl
                                     <div className="flex items-center gap-2 text-slate-300">
                                         <a
                                             href={candidate.cv.url}
-                                            download={candidate.cv.filename}
+                                            download={candidate.cv.filename && !/^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(candidate.cv.filename.trim())
+                                                ? candidate.cv.filename
+                                                : `Curriculum_Vitae_${candidate.name.replace(/\s+/g, '_')}.pdf`}
                                             className="p-1 hover:text-white transition"
                                             title="Unduh Berkas"
                                         >
@@ -874,7 +880,9 @@ export default function CandidateShow({ candidate, navigation }: Props): ReactEl
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-xs font-bold text-slate-800 truncate max-w-[160px]">
-                                            {candidate.cv.filename}
+                                            {candidate.cv.filename && !/^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(candidate.cv.filename.trim())
+                                                ? candidate.cv.filename
+                                                : `Curriculum_Vitae_${candidate.name.replace(/\s+/g, '_')}.pdf`}
                                         </p>
                                         <p className="text-[11px] text-slate-400 font-medium">
                                             {candidate.cv.size}
@@ -899,7 +907,9 @@ export default function CandidateShow({ candidate, navigation }: Props): ReactEl
                             {candidate.cv.url ? (
                                 <a
                                     href={candidate.cv.url}
-                                    download={candidate.cv.filename}
+                                    download={candidate.cv.filename && !/^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(candidate.cv.filename.trim())
+                                        ? candidate.cv.filename
+                                        : `Curriculum_Vitae_${candidate.name.replace(/\s+/g, '_')}.pdf`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1769E0] py-3 text-xs font-bold text-[#1769E0] hover:bg-blue-50 transition"

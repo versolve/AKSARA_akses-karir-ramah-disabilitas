@@ -91,6 +91,11 @@ class Vacancy extends Model
         return $this->belongsToMany(User::class, 'saved_vacancies')->withTimestamps();
     }
 
+    public function favoritedBy(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->savedByUsers();
+    }
+
     public function isFavoritedBy(?User $user): bool
     {
         if (!$user) {

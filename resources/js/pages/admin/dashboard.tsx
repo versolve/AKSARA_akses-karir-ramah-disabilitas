@@ -676,26 +676,26 @@ export default function AdminDashboard({
     return (
         <AdminLayout>
             <Head title="Dashboard Admin - Profabel" />
-            <main className="min-h-full w-full overflow-x-hidden bg-[#F5F9FF] px-4 py-6 sm:px-6 lg:px-8">
+            <main className="min-h-full w-full overflow-x-hidden bg-[#F5F9FF] dark:bg-[#020B3C] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-[1440px] space-y-6">
                     {/* Header with Centralized Time Filter */}
                     <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-[#101B4D]">Dashboard</h1>
-                            <p className="mt-1 text-sm text-slate-500">
+                            <h1 className="text-3xl font-extrabold tracking-tight text-[#101B4D] dark:text-white">Dashboard</h1>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                 Ringkasan data dan aktivitas platform Profabel untuk memudahkan pemantauan dan pengambilan keputusan.
                             </p>
                         </div>
 
                         {/* Centralized Filter: Calendar Icon OR Dropdown Preset */}
                         <div className="flex items-center self-start sm:self-auto">
-                            <div className="flex items-center rounded-xl border border-[#E2E8F0] bg-white shadow-sm transition hover:border-slate-300">
+                            <div className="flex items-center rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-[#071336] shadow-sm transition hover:border-slate-300 dark:hover:border-white/20">
                                 {/* Calendar Icon Button (Triggers Calendar Range Dialog) */}
                                 <button
                                     type="button"
                                     onClick={() => setCalendarDialogOpen(true)}
-                                    className={`flex h-10 items-center justify-center border-r border-[#E2E8F0] px-3.5 transition rounded-l-xl hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
-                                        isCalendarActive ? 'bg-blue-50 text-[#1769E0]' : 'text-slate-600'
+                                    className={`flex h-10 items-center justify-center border-r border-[#E2E8F0] dark:border-white/10 px-3.5 transition rounded-l-xl hover:bg-slate-50 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
+                                        isCalendarActive ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]' : 'text-slate-600 dark:text-slate-300'
                                     }`}
                                     title="Pilih filter rentang waktu kalender"
                                     aria-label="Filter dengan kalender"
@@ -708,9 +708,9 @@ export default function AdminDashboard({
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="flex h-10 items-center gap-2.5 rounded-r-xl px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
+                                            className="flex h-10 items-center gap-2.5 rounded-r-xl px-4 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
                                         >
-                                            <span className={isCalendarActive ? 'text-[#1769E0]' : 'text-slate-700'}>
+                                            <span className={isCalendarActive ? 'text-[#1769E0] dark:text-[#38BDF8]' : 'text-slate-700 dark:text-slate-200'}>
                                                 {activeLabel}
                                             </span>
                                             <ChevronDown className="h-4 w-4 text-slate-400" aria-hidden="true" />
@@ -718,7 +718,7 @@ export default function AdminDashboard({
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
                                         align="end"
-                                        className="w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl"
+                                        className="w-56 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] p-1.5 shadow-xl"
                                     >
                                         {presetOptions.map((opt) => {
                                             const isSelected = !isCalendarActive && currentPeriod === opt.id;

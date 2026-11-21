@@ -879,7 +879,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                                   <ImageIcon className="h-4 w-4 text-blue-500 shrink-0" />
                                 )}
                                 <span className="truncate text-xs font-semibold text-[#173A55]">
-                                  {item.file_name || 'Lampiran Berkas Sertifikat'}
+                                  {formatSafeDocumentName(item.file_name, 'Berkas Sertifikat', item.name)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
@@ -887,7 +887,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                                   type="button"
                                   onClick={() => setPreviewDocModal({
                                     url: item.file_url || '',
-                                    name: item.file_name || item.name,
+                                    name: formatSafeDocumentName(item.file_name, 'Sertifikat', item.name),
                                     type: item.file_type || (item.file_url?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'),
                                   })}
                                   className="inline-flex items-center gap-1 rounded-md bg-[#EEF6FB] px-2.5 py-1 text-xs font-bold text-[#176C98] hover:bg-[#DDEFFC] transition cursor-pointer"
@@ -898,7 +898,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                                 </button>
                                 <a
                                   href={item.file_url}
-                                  download
+                                  download={`Sertifikat_${(item.name || 'Dokumen').replace(/\s+/g, '_')}.${item.file_type === 'pdf' || item.file_url.toLowerCase().endsWith('.pdf') ? 'pdf' : 'jpg'}`}
                                   className="inline-flex items-center gap-1 rounded-md border border-[#D5E0E8] bg-white px-2 py-1 text-xs font-semibold text-[#52677A] hover:bg-slate-50 transition"
                                   title="Unduh Berkas Sertifikat"
                                 >
@@ -975,8 +975,8 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                 </button>
                 {profile.cv_url && (
                   <div className="mt-4">
-                    <div className="flex items-center gap-3 rounded-lg bg-[#EEF6FB] p-3"><FileText className="h-7 w-7 shrink-0 text-rose-500" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#173A55]">{profile.cv_name ?? 'CV Tersimpan'}</p><p className="text-xs text-[#718494]">Siap digunakan saat melamar</p></div></div>
-                    <div className="mt-3 grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Eye className="h-4 w-4" />Lihat CV</a><a href={profile.cv_url} download className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Download className="h-4 w-4" />Unduh CV</a></div>
+                    <div className="flex items-center gap-3 rounded-lg bg-[#EEF6FB] p-3"><FileText className="h-7 w-7 shrink-0 text-rose-500" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#173A55]">{formatSafeDocumentName(profile.cv_name, 'Curriculum Vitae (CV)', userName)}</p><p className="text-xs text-[#718494]">Siap digunakan saat melamar</p></div></div>
+                    <div className="mt-3 grid grid-cols-2 gap-2"><a href={profile.cv_url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Eye className="h-4 w-4" />Lihat CV</a><a href={profile.cv_url} download={`CV_${(userName || 'Pelamar').replace(/\s+/g, '_')}.pdf`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#1677A5] text-xs font-bold text-[#176C98]"><Download className="h-4 w-4" />Unduh CV</a></div>
                   </div>
                 )}
               </section>
@@ -1376,7 +1376,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                       </div>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-bold text-[#173A55]">
-                          {certDraft.file_name || 'Berkas Sertifikat'}
+                          {formatSafeDocumentName(certDraft.file_name, 'Berkas Sertifikat', certDraft.name)}
                         </p>
                         <span className={`inline-block text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
                           certDraft.file_type === 'pdf' || certDraft.file_url.toLowerCase().endsWith('.pdf')
@@ -1393,7 +1393,7 @@ export default function PelamarProfile({ user: profileUser = {}, profile, access
                         type="button"
                         onClick={() => setPreviewDocModal({
                           url: certDraft.file_url || '',
-                          name: certDraft.file_name || certDraft.name,
+                          name: formatSafeDocumentName(certDraft.file_name, 'Sertifikat', certDraft.name),
                           type: certDraft.file_type || (certDraft.file_url?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'image'),
                         })}
                         className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD8E1] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#176C98] hover:bg-[#EEF6FB] transition cursor-pointer"
@@ -1589,4 +1589,17 @@ function SummaryRow({ icon, label, value }: { icon: ReactElement; label: string;
 
 function updateArrayItem<T, K extends keyof T>(items: T[], index: number, key: K, value: T[K], setItems: (items: T[]) => void): void {
   setItems(items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item));
+}
+
+function formatSafeDocumentName(fileName?: string | null, fallbackPrefix: string = 'Dokumen', entityName?: string): string {
+  if (!fileName) {
+    return entityName ? `${fallbackPrefix} - ${entityName}` : fallbackPrefix;
+  }
+  const cleanName = fileName.trim();
+  const isStorageHash = /^[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9]+$/.test(cleanName);
+  if (isStorageHash) {
+    const ext = cleanName.split('.').pop() || 'pdf';
+    return entityName ? `${fallbackPrefix} - ${entityName}.${ext}` : `${fallbackPrefix}.${ext}`;
+  }
+  return cleanName;
 }

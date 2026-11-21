@@ -134,7 +134,7 @@ export function DashboardBannerCarousel({
       onTouchEnd={handleTouchEnd}
     >
       {/* Container Banner Utama: Ukuran Tetap h-[240px], Tidak Berubah & Tidak Bergeser */}
-      <div className="relative w-full h-[240px] overflow-hidden rounded-3xl border border-[#D0E5F0] shadow-xs bg-slate-900">
+      <div data-banner-root="true" data-keep-light="true" className="relative w-full h-[240px] overflow-hidden rounded-3xl border border-[#D0E5F0] shadow-xs bg-slate-900">
         {slides.map((slide, index) => {
           const isActive = index === currentIndex;
           return (

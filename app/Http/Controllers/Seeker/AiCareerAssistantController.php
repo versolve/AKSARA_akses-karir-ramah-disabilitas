@@ -97,7 +97,7 @@ class AiCareerAssistantController extends Controller
             'aiHistories' => $aiHistories,
             'profileCv' => [
                 'has_cv' => filled($seeker->cv_path),
-                'name' => $seeker->cv_path ? basename($seeker->cv_path) : null,
+                'name' => $seeker->cv_path ? 'Curriculum Vitae (CV) - ' . ($seeker->user?->name ?: 'Pelamar') . '.' . (pathinfo($seeker->cv_path, PATHINFO_EXTENSION) ?: 'pdf') : null,
                 'updated_at' => $seeker->updated_at?->toIso8601String(),
             ],
         ]);
@@ -458,5 +458,34 @@ class AiCareerAssistantController extends Controller
         }
 
         throw new \RuntimeException('DOCX document body is missing.');
+    }
+
+    public function downloadCvTemplate(Request $request)
+    {
+        $template = (string) $request->query('template', 'classic');
+        $source = (string) $request->query('source', 'profile');
+
+        $seeker = $this->getSeekerProfile($request);
+        $data = ($source === 'sample')
+            ? \App\Services\CvTemplateService::getSampleData()
+            : \App\Services\CvTemplateService::buildUserData($seeker);
+
+        $html = \App\Services\CvTemplateService::generateWordDocument($template, $data);
+
+        $templateNames = [
+            'classic' => 'Classic_Harvard_Style',
+            'modern' => 'Modern_Minimalist',
+            'executive' => 'Executive_Formal',
+            'compact' => 'Compact_Clean',
+        ];
+        $templateSlug = $templateNames[$template] ?? 'Classic_Harvard_Style';
+        $cleanName = preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', (string) $data['name'])) ?: 'Pelamar';
+        $filename = "Template_CV_ATS_{$templateSlug}_{$cleanName}.doc";
+
+        return response($html, 200, [
+            'Content-Type' => 'application/msword; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Cache-Control' => 'no-cache, private',
+        ]);
     }
 }

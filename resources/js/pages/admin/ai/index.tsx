@@ -1071,7 +1071,7 @@ export default function AiManagementIndex({
       <Head title="AI API Management - Admin Profabel" />
 
       {/* Outer wrapper with comfortable breathing padding away from sidebar */}
-      <div className="min-h-screen bg-[#F8FBFE] px-4 py-8 sm:px-6 lg:px-8 xl:px-10">
+      <div className="min-h-screen bg-[#F8FBFE] dark:bg-[#020B3C] px-4 py-8 sm:px-6 lg:px-8 xl:px-10">
         <div className="mx-auto w-full max-w-[1600px] space-y-6 pb-12">
           {/* Flash Message Alerts */}
           {flash?.success && (
@@ -1102,7 +1102,7 @@ export default function AiManagementIndex({
                 <div className="p-2 rounded-xl bg-gradient-to-br from-[#1769E0] to-[#0A57C2] text-white shadow-xs">
                   <Bot className="w-5 h-5" />
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight text-[#102B4B]">
+                <h1 className="text-2xl font-bold tracking-tight text-[#102B4B] dark:text-white">
                   AI API Management
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-[#1769E0] border border-blue-200/80">
@@ -1355,14 +1355,14 @@ export default function AiManagementIndex({
           {activeTab === 'providers' && (
             <div className="space-y-4">
               {/* Quick Status Routing Mode Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white border border-blue-100 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white dark:from-[#0B1E48] dark:via-[#071336] dark:to-[#071336] border border-blue-100 dark:border-white/10 shadow-2xs">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-[#1769E0] text-white shrink-0 shadow-2xs">
                     <Sliders className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-[#102B4B]">Mode Rotasi AI Aktif:</span>
+                      <span className="text-xs font-bold text-[#102B4B] dark:text-white">Mode Rotasi AI Aktif:</span>
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#1769E0] text-white">
                         {routingForm.mode === 'manual'
                           ? '1. Mode Manual (Single Model)'
@@ -1374,11 +1374,11 @@ export default function AiManagementIndex({
                           ? '5. Quota Saver'
                           : '2. Mode Rotasi 1 API (Multi-Model)'}
                       </span>
-                      <span className="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 bg-white dark:bg-[#050E2E] px-2 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
                         Strategi: {routingForm.strategy === 'round_robin' ? 'Round-Robin Seimbang' : 'Priority Failover'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {routingForm.mode === 'manual'
                         ? 'Hanya menggunakan 1 model tetap tanpa rotasi otomatis.'
                         : routingForm.mode === 'all_api_rotation'
@@ -1396,7 +1396,7 @@ export default function AiManagementIndex({
                   variant="outline"
                   size="sm"
                   onClick={() => setActiveTab('routing')}
-                  className="shrink-0 bg-white hover:bg-blue-50 text-[#1769E0] border-blue-200 text-xs font-semibold rounded-xl h-8 shadow-2xs flex items-center gap-1.5"
+                  className="shrink-0 bg-white dark:bg-[#071336] hover:bg-blue-50 dark:hover:bg-white/10 text-[#1769E0] dark:text-[#38BDF8] border-blue-200 dark:border-white/10 text-xs font-semibold rounded-xl h-8 shadow-2xs flex items-center gap-1.5"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>Ubah Mode & Strategi</span>
@@ -1678,9 +1678,9 @@ export default function AiManagementIndex({
                         </div>
 
                         {/* Tabel Model List Ke Bawah */}
-                        <div className="overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-2xs">
+                        <div className="overflow-x-auto rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#071336] shadow-2xs">
                           <table className="w-full text-left text-xs min-w-[760px]">
-                            <thead className="bg-[#F8FBFE] text-slate-500 border-b border-slate-200 font-semibold text-[11px]">
+                            <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10 font-extrabold uppercase tracking-wider text-[11px]">
                               <tr>
                                 <th className="py-2.5 px-4 min-w-[200px]">Model</th>
                                 <th className="py-2.5 px-4 min-w-[130px] whitespace-nowrap">Category</th>
@@ -1690,7 +1690,7 @@ export default function AiManagementIndex({
                                 <th className="py-2.5 px-4 text-center min-w-[140px] whitespace-nowrap">Status & Aksi</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                               {modelList.map((mName) => {
                                 const meta = getModelMeta(mName, cfg.provider);
                                 const isCurrentActive = cfg.model === mName;
@@ -1707,17 +1707,17 @@ export default function AiManagementIndex({
                                   <tr
                                     key={mName}
                                     className={`transition ${
-                                      isCurrentActive ? 'bg-blue-50/40 font-medium' : 'hover:bg-slate-50/60'
+                                      isCurrentActive ? 'bg-blue-50/40 dark:bg-[#0B2256] font-medium' : 'hover:bg-slate-50/60 dark:hover:bg-[#0E2254]'
                                     }`}
                                   >
                                     {/* Model Name & ID */}
                                     <td className="py-3 px-4">
                                       <div className="flex items-center gap-2">
                                         <div>
-                                          <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                          <div className="font-bold text-slate-800 dark:text-white text-xs flex items-center gap-1.5">
                                             {meta.name}
                                             {meta.is_recommended && (
-                                              <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                              <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
                                                 Rekomendasi
                                               </span>
                                             )}
@@ -1731,7 +1731,7 @@ export default function AiManagementIndex({
 
                                     {/* Category */}
                                     <td className="py-3 px-4 whitespace-nowrap">
-                                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 whitespace-nowrap">
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                                         {meta.category}
                                       </span>
                                     </td>
@@ -2266,10 +2266,10 @@ export default function AiManagementIndex({
               </div>
 
               {/* Logs Table */}
-              <div className="bg-white rounded-2xl border border-[#EEF2F6] overflow-hidden shadow-xs">
+              <div className="bg-white dark:bg-[#071336] rounded-2xl border border-[#EEF2F6] dark:border-white/10 overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#F8FBFE] text-slate-500 border-b border-[#EEF2F6] font-semibold">
+                    <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] text-slate-500 dark:text-slate-400 border-b border-[#EEF2F6] dark:border-white/10 font-extrabold uppercase tracking-wider text-[11px]">
                       <tr>
                         <th className="py-3 px-4">Waktu</th>
                         <th className="py-3 px-4">Fitur / Aksi</th>
@@ -2280,7 +2280,7 @@ export default function AiManagementIndex({
                         <th className="py-3 px-4 text-right">Token</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#EEF2F6]">
+                    <tbody className="divide-y divide-[#EEF2F6] dark:divide-white/5">
                       {filteredLogs.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="py-12 text-center text-slate-400">
@@ -2290,8 +2290,8 @@ export default function AiManagementIndex({
                         </tr>
                       ) : (
                         filteredLogs.map((log) => (
-                          <tr key={log.id} className="hover:bg-slate-50/60 transition">
-                            <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
+                          <tr key={log.id} className="hover:bg-slate-50/60 dark:hover:bg-[#0E2254] transition">
+                            <td className="py-3 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               {new Date(log.created_at).toLocaleString('id-ID', {
                                 day: '2-digit',
                                 month: 'short',
@@ -2300,21 +2300,21 @@ export default function AiManagementIndex({
                                 second: '2-digit',
                               })}
                             </td>
-                            <td className="py-3 px-4 font-semibold text-slate-800">
+                            <td className="py-3 px-4 font-semibold text-slate-800 dark:text-white">
                               <span className="capitalize">{log.action_type.replace('_', ' ')}</span>
                             </td>
                             <td className="py-3 px-4">
-                              <div className="font-medium text-slate-700">{log.user_name}</div>
+                              <div className="font-medium text-slate-700 dark:text-slate-200">{log.user_name}</div>
                               {log.user_email && (
                                 <div className="text-[11px] text-slate-400">{log.user_email}</div>
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <div className="font-medium text-slate-800 flex items-center gap-1.5">
-                                <span className="uppercase text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                              <div className="font-medium text-slate-800 dark:text-white flex items-center gap-1.5">
+                                <span className="uppercase text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
                                   {log.provider}
                                 </span>
-                                <span className="font-mono text-slate-600">{log.model}</span>
+                                <span className="font-mono text-slate-600 dark:text-slate-300">{log.model}</span>
                               </div>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -2591,9 +2591,9 @@ export default function AiManagementIndex({
               </div>
 
               {/* Models List Table Ke Bawah (Lebar dan Readable di Layar PC) */}
-              <div className="max-h-80 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+              <div className="max-h-80 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] shadow-2xs">
                 <table className="w-full text-left text-xs min-w-[860px]">
-                  <thead className="bg-[#F8FBFE] text-slate-600 border-b border-slate-200 font-semibold text-[11px] sticky top-0 z-10">
+                  <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-white/10 font-extrabold uppercase tracking-wider text-[11px] sticky top-0 z-10">
                     <tr>
                       <th className="py-3 px-3 w-12 text-center">Pilih</th>
                       <th className="py-3 px-4 min-w-[220px]">Model</th>
@@ -2604,7 +2604,7 @@ export default function AiManagementIndex({
                       <th className="py-3 px-3 min-w-[130px] text-center whitespace-nowrap">Default Aktif</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                     {modalCatalogFiltered.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="p-6 text-center text-xs text-slate-400">
@@ -2627,10 +2627,10 @@ export default function AiManagementIndex({
                             key={m.id}
                             className={`transition ${
                               isDefault
-                                ? 'bg-blue-50/50 font-medium'
+                                ? 'bg-blue-50/50 dark:bg-[#0B2256] font-medium'
                                 : isChecked
-                                ? 'bg-slate-50/70'
-                                : 'hover:bg-slate-50/40'
+                                ? 'bg-slate-50/70 dark:bg-[#0B2256]/50'
+                                : 'hover:bg-slate-50/40 dark:hover:bg-[#0E2254]'
                             }`}
                           >
                             <td className="py-2.5 px-3 text-center">

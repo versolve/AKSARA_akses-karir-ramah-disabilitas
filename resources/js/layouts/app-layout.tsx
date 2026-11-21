@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import CompanyLayout from '@/layouts/company-layout';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import type { BreadcrumbItem } from '@/types';
 import type { ReactNode } from 'react';
@@ -15,12 +16,14 @@ export default function AppLayout({
     const user = (usePage().props.auth as { user?: { role?: string } } | undefined)?.user;
     const layout = user?.role === 'admin' ? (
         <AppSidebarLayout breadcrumbs={breadcrumbs}>{children}</AppSidebarLayout>
+    ) : user?.role === 'perusahaan' ? (
+        <CompanyLayout breadcrumbs={breadcrumbs}>{children}</CompanyLayout>
     ) : (
         <AppHeaderLayout breadcrumbs={breadcrumbs}>{children}</AppHeaderLayout>
     );
 
     return (
-        <div className="min-h-screen bg-[#F7FAFD] font-sans text-[#102B4B]">
+        <div className="min-h-screen bg-[#F7FAFD] font-sans text-[#102B4B] dark:bg-[#020B3C] dark:text-[#F8FAFC]">
             {layout}
             <AccessibilityToolbar />
         </div>

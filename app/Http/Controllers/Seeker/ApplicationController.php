@@ -60,12 +60,16 @@ class ApplicationController extends Controller
         ]);
 
         try {
+            // Notifikasi ke Perusahaan bahwa ada lamaran baru masuk
             $companyUser = $vacancy->companyProfile?->user;
             if ($companyUser) {
                 $companyUser->notify(new \App\Notifications\NewApplicationReceived($application));
             }
+
+            // Notifikasi email tanda terima resmi ke Pelamar bahwa lamaran berhasil terkirim
+            $request->user()->notify(new \App\Notifications\ApplicationSubmittedConfirmation($application));
         } catch (\Throwable $e) {
-            // Silently continue if notification fails
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim notifikasi email lamaran: " . $e->getMessage());
         }
 
         return back()->with('status', 'Lamaran Anda berhasil dikirim.');

@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Download,
   ExternalLink,
   Eye,
   FileText,
@@ -55,6 +56,7 @@ interface CompanyInfo {
   address?: string;
   about?: string;
   logo_path?: string;
+  logo_url?: string;
 }
 
 interface SeekerInfo {
@@ -143,12 +145,22 @@ function initials(name: string): string {
 
 function getAvatarUrl(user?: UserItem | null): string | null {
   if (!user) return null;
-  const raw = user.avatar || (user.role === 'perusahaan' ? user.company_profile?.logo_path : null);
+  const raw = user.avatar || (user.role === 'perusahaan' ? (user.company_profile?.logo_url || user.company_profile?.logo_path) : null);
   if (!raw) return null;
   if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/')) {
     return raw;
   }
   return `/storage/${raw}`;
+}
+
+function getCvUrl(user?: UserItem | null): string | null {
+  if (!user) return null;
+  const path = user.job_seeker_profile?.cv_path;
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
+    return path;
+  }
+  return `/storage/${path}`;
 }
 
 function formatDate(dateStr?: string | null): string {
@@ -199,7 +211,7 @@ export default function AdminUsersIndex({
   const [disability, setDisability] = useState(filters.disability ?? '');
 
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
-  const [drawerTab, setDrawerTab] = useState<'info' | 'profile' | 'docs'>('info');
+  const [drawerTab, setDrawerTab] = useState<'info' | 'docs'>('info');
   const [action, setAction] = useState<'deactivate' | 'activate' | 'destroy' | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -288,12 +300,12 @@ export default function AdminUsersIndex({
   return (
     <AdminLayout>
       <Head title="Kelola Pengguna - Profabel" />
-      <main className="min-h-screen bg-[#F8FBFE] px-4 py-8 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-[#F8FBFE] dark:bg-[#020B3C] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1440px] space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#102B4B] sm:text-3xl">Kelola Pengguna</h1>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+            <h1 className="text-2xl font-black tracking-tight text-[#102B4B] dark:text-white sm:text-3xl">Kelola Pengguna</h1>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
               Kelola data pengguna yang terdaftar di Profabel, baik pelamar maupun perusahaan.
             </p>
           </div>
@@ -308,8 +320,8 @@ export default function AdminUsersIndex({
               }}
               className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition shadow-sm ${
                 activeRole === 'pelamar'
-                  ? 'bg-white text-[#1769E0] ring-1 ring-[#1769E0]/20 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
-                  : 'bg-white/60 text-slate-500 hover:bg-white hover:text-slate-800'
+                  ? 'bg-white dark:bg-[#071336] text-[#1769E0] dark:text-[#38BDF8] ring-1 ring-[#1769E0]/20 dark:ring-white/10 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
+                  : 'bg-white/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <UserRound className="h-4 w-4" />
@@ -324,8 +336,8 @@ export default function AdminUsersIndex({
               }}
               className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition shadow-sm ${
                 activeRole === 'perusahaan'
-                  ? 'bg-white text-[#1769E0] ring-1 ring-[#1769E0]/20 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
-                  : 'bg-white/60 text-slate-500 hover:bg-white hover:text-slate-800'
+                  ? 'bg-white dark:bg-[#071336] text-[#1769E0] dark:text-[#38BDF8] ring-1 ring-[#1769E0]/20 dark:ring-white/10 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
+                  : 'bg-white/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <Building2 className="h-4 w-4" />
@@ -340,8 +352,8 @@ export default function AdminUsersIndex({
               }}
               className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition shadow-sm ${
                 activeRole === ''
-                  ? 'bg-white text-[#1769E0] ring-1 ring-[#1769E0]/20 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
-                  : 'bg-white/60 text-slate-500 hover:bg-white hover:text-slate-800'
+                  ? 'bg-white dark:bg-[#071336] text-[#1769E0] dark:text-[#38BDF8] ring-1 ring-[#1769E0]/20 dark:ring-white/10 shadow-[0_4px_14px_rgba(23,105,224,0.08)]'
+                  : 'bg-white/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <span>Semua Pengguna</span>
@@ -351,80 +363,80 @@ export default function AdminUsersIndex({
           {/* 4 Metric Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Card 1: Total */}
-            <article className="rounded-2xl border border-[#E2EAF3] bg-white p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
+            <article className="rounded-2xl border border-[#E2EAF3] dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-500">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   {activeRole === 'pelamar' ? 'Total Pelamar' : activeRole === 'perusahaan' ? 'Total Perusahaan' : 'Total Pengguna'}
                 </p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#102B4B]">{numberFormat.format(totalUsersCount)}</span>
-                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600">
+                  <span className="text-2xl font-black text-[#102B4B] dark:text-white">{numberFormat.format(totalUsersCount)}</span>
+                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     <TrendingUp className="mr-0.5 h-3 w-3" /> 12%
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">Dari bulan sebelumnya</p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-400">Dari bulan sebelumnya</p>
               </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#1769E0]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#1769E0] dark:text-[#38BDF8]">
                 <Users className="h-6 w-6" />
               </div>
             </article>
 
             {/* Card 2: Akun Aktif */}
-            <article className="rounded-2xl border border-[#E2EAF3] bg-white p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
+            <article className="rounded-2xl border border-[#E2EAF3] dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-500">Akun Aktif</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Akun Aktif</p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#102B4B]">{numberFormat.format(activeCount)}</span>
-                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600">
+                  <span className="text-2xl font-black text-[#102B4B] dark:text-white">{numberFormat.format(activeCount)}</span>
+                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     <TrendingUp className="mr-0.5 h-3 w-3" /> 10%
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">{activePct}% dari total {activeRole || 'pengguna'}</p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-400">{activePct}% dari total {activeRole || 'pengguna'}</p>
               </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
             </article>
 
             {/* Card 3: Akun Nonaktif */}
-            <article className="rounded-2xl border border-[#E2EAF3] bg-white p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
+            <article className="rounded-2xl border border-[#E2EAF3] dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-500">Akun Nonaktif</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Akun Nonaktif</p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#102B4B]">{numberFormat.format(disabledCount)}</span>
-                  <span className="inline-flex items-center text-[11px] font-bold text-rose-500">
+                  <span className="text-2xl font-black text-[#102B4B] dark:text-white">{numberFormat.format(disabledCount)}</span>
+                  <span className="inline-flex items-center text-[11px] font-bold text-rose-500 dark:text-rose-400">
                     <TrendingDown className="mr-0.5 h-3 w-3" /> 5%
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">{disabledPct}% dari total {activeRole || 'pengguna'}</p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-400">{disabledPct}% dari total {activeRole || 'pengguna'}</p>
               </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
                 <Clock className="h-6 w-6" />
               </div>
             </article>
 
             {/* Card 4: Pengguna Baru */}
-            <article className="rounded-2xl border border-[#E2EAF3] bg-white p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
+            <article className="rounded-2xl border border-[#E2EAF3] dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-500">Pengguna Baru</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Pengguna Baru</p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#102B4B]">{numberFormat.format(newCount)}</span>
-                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600">
+                  <span className="text-2xl font-black text-[#102B4B] dark:text-white">{numberFormat.format(newCount)}</span>
+                  <span className="inline-flex items-center text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     <TrendingUp className="mr-0.5 h-3 w-3" /> 18%
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-400">Dalam 30 hari terakhir</p>
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-400">Dalam 30 hari terakhir</p>
               </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-50 text-purple-600">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
                 <UserPlus className="h-6 w-6" />
               </div>
             </article>
           </div>
 
           {/* Table Container Card */}
-          <section className="rounded-2xl border border-[#E2EAF3] bg-white shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
+          <section className="rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#050E2E] shadow-[0_2px_12px_rgba(23,105,224,0.03)] overflow-hidden">
             {/* Filter Row */}
-            <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 dark:border-[#1E2B4D] p-4 sm:p-5">
               {/* Search */}
               <div className="relative min-w-[240px] flex-1">
                 <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden="true" />
@@ -433,7 +445,7 @@ export default function AdminUsersIndex({
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && applyFilters({ search })}
                   placeholder="Cari nama, email, atau skill..."
-                  className="min-h-10 rounded-xl pl-10 text-xs border-slate-200"
+                  className="min-h-10 rounded-xl pl-10 text-xs border-slate-200 dark:border-white/10 dark:bg-[#050E2E] dark:text-white dark:placeholder:text-slate-400"
                 />
               </div>
 
@@ -444,7 +456,7 @@ export default function AdminUsersIndex({
                   setStatus(e.target.value);
                   applyFilters({ status: e.target.value });
                 }}
-                className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-[#1769E0]"
+                className="min-h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3 text-xs font-semibold text-slate-600 dark:text-slate-200 outline-none focus:border-[#1769E0]"
               >
                 <option value="">Semua Status</option>
                 <option value="active">Aktif</option>
@@ -458,7 +470,7 @@ export default function AdminUsersIndex({
                   setGender(e.target.value);
                   applyFilters({ gender: e.target.value });
                 }}
-                className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-[#1769E0]"
+                className="min-h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3 text-xs font-semibold text-slate-600 dark:text-slate-200 outline-none focus:border-[#1769E0]"
               >
                 <option value="">Semua Gender</option>
                 <option value="Laki-Laki">Laki-Laki</option>
@@ -472,7 +484,7 @@ export default function AdminUsersIndex({
                   setDomicile(e.target.value);
                   applyFilters({ domicile: e.target.value });
                 }}
-                className="min-h-10 max-w-[160px] truncate rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-[#1769E0]"
+                className="min-h-10 max-w-[160px] truncate rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3 text-xs font-semibold text-slate-600 dark:text-slate-200 outline-none focus:border-[#1769E0]"
               >
                 <option value="">Semua Domisili</option>
                 {availableDomiciles.map((dom) => (
@@ -489,7 +501,7 @@ export default function AdminUsersIndex({
                   setDisability(e.target.value);
                   applyFilters({ disability: e.target.value });
                 }}
-                className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-[#1769E0]"
+                className="min-h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3 text-xs font-semibold text-slate-600 dark:text-slate-200 outline-none focus:border-[#1769E0]"
               >
                 <option value="">Semua Disabilitas</option>
                 <option value="Fisik">Disabilitas Fisik</option>
@@ -503,7 +515,7 @@ export default function AdminUsersIndex({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white transition cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>Reset</span>
@@ -513,10 +525,10 @@ export default function AdminUsersIndex({
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="min-w-[900px] w-full text-left text-xs">
-                <thead className="bg-[#F8FBFE] border-b border-slate-100 font-bold text-slate-500">
+                <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] border-b border-slate-200/80 dark:border-[#1E2B4D] font-extrabold uppercase tracking-wider text-[11px] text-slate-500 dark:text-slate-400">
                   <tr>
                     <th className="w-12 px-5 py-3.5 text-center">
-                      <input type="checkbox" aria-label="Pilih semua" className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-0" />
+                      <input type="checkbox" aria-label="Pilih semua" className="h-4 w-4 rounded border-slate-300 dark:border-white/20 dark:bg-[#050E2E] text-[#1769E0] focus:ring-0" />
                     </th>
                     <th className="px-5 py-3.5">Nama</th>
                     <th className="px-5 py-3.5">Email</th>
@@ -530,7 +542,7 @@ export default function AdminUsersIndex({
                     <th className="px-5 py-3.5 text-center">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#1E2B4D] text-slate-700 dark:text-slate-200">
                   {users.data.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-5 py-12 text-center text-xs font-medium text-slate-400">
@@ -543,12 +555,12 @@ export default function AdminUsersIndex({
                         key={user.id}
                         onClick={() => handleSelectUser(user)}
                         className={`transition cursor-pointer ${
-                          selectedUser?.id === user.id ? 'bg-blue-50/70' : 'hover:bg-blue-50/30'
+                          selectedUser?.id === user.id ? 'bg-blue-50/70 dark:bg-[#0B2256]' : 'hover:bg-slate-50 dark:hover:bg-[#0E2254]'
                         }`}
                       >
                         {/* Checkbox */}
                         <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                          <input type="checkbox" aria-label={`Pilih ${user.name}`} className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-0" />
+                          <input type="checkbox" aria-label={`Pilih ${user.name}`} className="h-4 w-4 rounded border-slate-300 dark:border-white/20 dark:bg-[#050E2E] text-[#1769E0] focus:ring-0" />
                         </td>
 
                         {/* Nama */}
@@ -558,15 +570,15 @@ export default function AdminUsersIndex({
                               <img
                                 src={getAvatarUrl(user)!}
                                 alt={user.name}
-                                className="h-9 w-9 rounded-full object-cover shrink-0 border border-slate-200"
+                                className="h-9 w-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-white/10"
                               />
                             ) : (
-                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-black text-[#1769E0] group-hover:bg-[#1769E0] group-hover:text-white transition">
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/60 text-xs font-black text-[#1769E0] dark:text-[#38BDF8] group-hover:bg-[#1769E0] group-hover:text-white transition">
                                 {initials(user.name)}
                               </span>
                             )}
                             <div>
-                              <span className="block font-bold text-[#102B4B] group-hover:text-[#1769E0] transition">
+                              <span className="block font-bold text-[#102B4B] dark:text-white group-hover:text-[#1769E0] dark:group-hover:text-[#38BDF8] transition">
                                 {user.name}
                               </span>
                               <span className="block text-[11px] text-slate-400">
@@ -579,13 +591,13 @@ export default function AdminUsersIndex({
                         </td>
 
                         {/* Email */}
-                        <td className="px-5 py-4 font-medium text-slate-600">{user.email}</td>
+                        <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-300">{user.email}</td>
 
                         {/* Role Pelamar: Jenis Disabilitas & Domisili */}
                         {activeRole === 'pelamar' && (
                           <>
-                            <td className="px-5 py-4 font-medium text-slate-600">{formatDisability(user)}</td>
-                            <td className="px-5 py-4 font-medium text-slate-600">
+                            <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-300">{formatDisability(user)}</td>
+                            <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-300">
                               {user.job_seeker_profile?.domicile ?? '-'}
                             </td>
                           </>
@@ -594,16 +606,16 @@ export default function AdminUsersIndex({
                         {/* Role Perusahaan: Industri & Verifikasi */}
                         {activeRole === 'perusahaan' && (
                           <>
-                            <td className="px-5 py-4 font-medium text-slate-600">
+                            <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-300">
                               {user.company_profile?.industry ?? '-'}
                             </td>
                             <td className="px-5 py-4">
                               {user.company_profile?.is_approved ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 dark:border dark:border-emerald-800/40">
                                   <ShieldCheck className="h-3 w-3" /> Terverifikasi
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-400 dark:border dark:border-amber-800/40">
                                   <ShieldAlert className="h-3 w-3" /> Menunggu
                                 </span>
                               )}
@@ -614,7 +626,7 @@ export default function AdminUsersIndex({
                         {/* Role All: Tipe */}
                         {activeRole === '' && (
                           <td className="px-5 py-4">
-                            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold capitalize text-slate-600">
+                            <span className="rounded-full bg-slate-100 dark:bg-[#050E2E] dark:border dark:border-white/10 px-2.5 py-0.5 text-[11px] font-bold capitalize text-slate-600 dark:text-slate-300">
                               {user.role}
                             </span>
                           </td>
@@ -623,18 +635,18 @@ export default function AdminUsersIndex({
                         {/* Status Akun */}
                         <td className="px-5 py-4">
                           {user.is_disabled ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-0.5 text-[11px] font-bold text-rose-600">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 dark:bg-rose-950/60 dark:border dark:border-rose-900/40 px-2.5 py-0.5 text-[11px] font-bold text-rose-600 dark:text-rose-400">
                               <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> Nonaktif
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 dark:border dark:border-emerald-900/40 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Aktif
                             </span>
                           )}
                         </td>
 
                         {/* Tanggal Daftar */}
-                        <td className="px-5 py-4 text-slate-500">{formatDate(user.created_at)}</td>
+                        <td className="px-5 py-4 text-slate-500 dark:text-slate-400">{formatDate(user.created_at)}</td>
 
                         {/* Aksi: Titik 3 Button */}
                         <td className="px-5 py-4 text-center" onClick={(e) => e.stopPropagation()}>
@@ -642,7 +654,7 @@ export default function AdminUsersIndex({
                             <DropdownMenuTrigger asChild>
                               <button
                                 type="button"
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white transition"
                                 aria-label={`Menu aksi untuk ${user.name}`}
                               >
                                 <MoreVertical className="h-4 w-4" />
@@ -652,13 +664,13 @@ export default function AdminUsersIndex({
                               align="end"
                               side="top"
                               sideOffset={6}
-                              className="w-48 rounded-xl border border-slate-100 bg-white p-1 text-left shadow-xl ring-1 ring-black/5"
+                              className="w-48 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-1 text-left shadow-xl ring-1 ring-black/5"
                             >
                               {/* 1. Lihat Detail */}
                               <DropdownMenuItem
                                 onSelect={() => handleSelectUser(user)}
                                 onClick={() => handleSelectUser(user)}
-                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10 cursor-pointer"
                               >
                                 <Eye className="h-3.5 w-3.5 text-slate-400" />
                                 Lihat Detail
@@ -794,33 +806,33 @@ export default function AdminUsersIndex({
         </div>
       </main>
 
-      {/* Right Detail Drawer */}
+      {/* Right Detail Drawer (Full Height Above Header with Backdrop Blur) */}
       {selectedUser && !action && (
-        <>
-          <div
-            className="fixed inset-0 top-[72px] z-30 bg-slate-900/20 backdrop-blur-[1px] lg:hidden"
-            onClick={closeDetails}
-            aria-hidden="true"
-          />
+        <div
+          className="fixed inset-0 z-[60] flex justify-end bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={closeDetails}
+          aria-hidden="true"
+        >
           <aside
-            className="fixed bottom-0 right-0 top-[72px] z-40 flex w-full max-w-md flex-col border-l border-slate-200 bg-white shadow-2xl animate-in slide-in-from-right duration-200"
+            className="relative flex h-full w-full max-w-xl flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-300"
+            onClick={(e) => e.stopPropagation()}
             aria-label="Detail Pengguna"
           >
             {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/70 shrink-0">
               <h2 className="text-base font-extrabold text-[#102B4B]">Detail Pengguna</h2>
               <button
                 type="button"
                 onClick={closeDetails}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-200 hover:text-slate-800 transition cursor-pointer"
                 aria-label="Tutup detail"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Profile Brief */}
-            <div className="flex items-center gap-4 border-b border-slate-100 px-6 py-5">
+            <div className="flex items-center gap-4 border-b border-slate-100 px-6 py-5 shrink-0 bg-white">
               {getAvatarUrl(selectedUser) ? (
                 <img
                   src={getAvatarUrl(selectedUser)!}
@@ -850,12 +862,12 @@ export default function AdminUsersIndex({
               </div>
             </div>
 
-            {/* Drawer Tabs */}
-            <nav className="flex border-b border-slate-100 px-6 text-xs font-bold" aria-label="Tab Detail Pengguna">
+            {/* Drawer Tabs (2 Tabs: Informasi & Dokumen) */}
+            <nav className="flex border-b border-slate-100 px-6 text-xs font-bold shrink-0 bg-white" aria-label="Tab Detail Pengguna">
               <button
                 type="button"
                 onClick={() => setDrawerTab('info')}
-                className={`py-3 border-b-2 mr-6 transition ${
+                className={`py-3.5 border-b-2 mr-6 transition ${
                   drawerTab === 'info' ? 'border-[#1769E0] text-[#1769E0]' : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -863,17 +875,8 @@ export default function AdminUsersIndex({
               </button>
               <button
                 type="button"
-                onClick={() => setDrawerTab('profile')}
-                className={`py-3 border-b-2 mr-6 transition ${
-                  drawerTab === 'profile' ? 'border-[#1769E0] text-[#1769E0]' : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Profil
-              </button>
-              <button
-                type="button"
                 onClick={() => setDrawerTab('docs')}
-                className={`py-3 border-b-2 transition ${
+                className={`py-3.5 border-b-2 transition ${
                   drawerTab === 'docs' ? 'border-[#1769E0] text-[#1769E0]' : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -902,29 +905,135 @@ export default function AdminUsersIndex({
                       </div>
                       <div className="flex justify-between gap-4">
                         <dt className="text-slate-500">Nomor Telepon</dt>
-                        <dd className="font-semibold text-slate-800 text-right">{selectedUser.job_seeker_profile?.phone ?? '-'}</dd>
-                      </div>
-                      <div className="flex justify-between gap-4">
-                        <dt className="text-slate-500">Tanggal Lahir</dt>
                         <dd className="font-semibold text-slate-800 text-right">
-                          {formatLongDate(selectedUser.job_seeker_profile?.birth_date)}
+                          {selectedUser.job_seeker_profile?.phone ?? '-'}
                         </dd>
                       </div>
-                      <div className="flex justify-between gap-4">
-                        <dt className="text-slate-500">Jenis Kelamin</dt>
-                        <dd className="font-semibold text-slate-800 text-right">{selectedUser.job_seeker_profile?.gender ?? '-'}</dd>
-                      </div>
-                      <div className="flex justify-between gap-4">
-                        <dt className="text-slate-500">Domisili</dt>
-                        <dd className="font-semibold text-slate-800 text-right">
-                          {selectedUser.job_seeker_profile?.domicile ?? selectedUser.company_profile?.address ?? '-'}
-                        </dd>
-                      </div>
-                      <div className="flex justify-between gap-4">
-                        <dt className="text-slate-500">Jenis Disabilitas</dt>
-                        <dd className="font-semibold text-slate-800 text-right">{formatDisability(selectedUser)}</dd>
-                      </div>
+                      {selectedUser.role === 'pelamar' && (
+                        <>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Tanggal Lahir</dt>
+                            <dd className="font-semibold text-slate-800 text-right">
+                              {formatLongDate(selectedUser.job_seeker_profile?.birth_date)}
+                            </dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Jenis Kelamin</dt>
+                            <dd className="font-semibold text-slate-800 text-right">
+                              {selectedUser.job_seeker_profile?.gender ?? '-'}
+                            </dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Domisili</dt>
+                            <dd className="font-semibold text-slate-800 text-right">
+                              {selectedUser.job_seeker_profile?.domicile ?? '-'}
+                            </dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Jenis Disabilitas</dt>
+                            <dd className="font-semibold text-slate-800 text-right">{formatDisability(selectedUser)}</dd>
+                          </div>
+                        </>
+                      )}
+                      {selectedUser.role === 'perusahaan' && selectedUser.company_profile?.address && (
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-slate-500">Alamat Perusahaan</dt>
+                          <dd className="font-semibold text-slate-800 text-right">
+                            {selectedUser.company_profile.address}
+                          </dd>
+                        </div>
+                      )}
                     </dl>
+                  </section>
+
+                  {/* Profil & Bio / Detail Perusahaan */}
+                  <section className="pt-2 border-t border-slate-100">
+                    <h4 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B] text-sm">
+                      <FileText className="h-4 w-4 text-[#1769E0]" />
+                      {selectedUser.role === 'perusahaan' ? 'Profil Perusahaan' : 'Profil & Bio'}
+                    </h4>
+
+                    {selectedUser.role === 'perusahaan' && selectedUser.company_profile ? (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-slate-500 mb-1.5 font-medium">Tentang Perusahaan</p>
+                          <p className="rounded-xl bg-slate-50 p-3 text-slate-600 leading-relaxed">
+                            {selectedUser.company_profile.about ?? 'Perusahaan belum menambahkan informasi profil.'}
+                          </p>
+                        </div>
+                        <dl className="space-y-2 pt-1">
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Nama Perusahaan</dt>
+                            <dd className="font-semibold text-slate-800 text-right">{selectedUser.company_profile.company_name}</dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Bidang Industri</dt>
+                            <dd className="font-semibold text-slate-800 text-right">{selectedUser.company_profile.industry ?? '-'}</dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Alamat Kantor</dt>
+                            <dd className="font-semibold text-slate-800 text-right">{selectedUser.company_profile.address ?? '-'}</dd>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-slate-500">Website</dt>
+                            <dd className="font-semibold text-slate-800 text-right">
+                              {selectedUser.company_profile.website ? (
+                                <a
+                                  href={selectedUser.company_profile.website.startsWith('http') ? selectedUser.company_profile.website : `https://${selectedUser.company_profile.website}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-[#1769E0] hover:underline inline-flex items-center gap-1"
+                                >
+                                  {selectedUser.company_profile.website}
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              ) : '-'}
+                            </dd>
+                          </div>
+                        </dl>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-slate-500 mb-1.5 font-medium">Tentang / Bio</p>
+                          <p className="rounded-xl bg-slate-50 p-3 text-slate-600 leading-relaxed">
+                            {selectedUser.job_seeker_profile?.bio ?? 'Pengguna belum menambahkan informasi bio.'}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-slate-500 mb-1.5 font-medium">Keahlian & Kompetensi</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {Array.isArray(selectedUser.job_seeker_profile?.skills) && selectedUser.job_seeker_profile.skills.length > 0 ? (
+                              selectedUser.job_seeker_profile.skills.map((skill, idx) => (
+                                <span
+                                  key={idx}
+                                  className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-[#1769E0]"
+                                >
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-400">Belum menambahkan keahlian</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between gap-4">
+                          <span className="text-slate-500">Sertifikasi</span>
+                          <span className="font-semibold text-slate-800">
+                            {Array.isArray(selectedUser.job_seeker_profile?.certifications) ? selectedUser.job_seeker_profile.certifications.length : 0} sertifikasi
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between gap-4">
+                          <span className="text-slate-500">Proyek / Pengalaman</span>
+                          <span className="font-semibold text-slate-800">
+                            {Array.isArray(selectedUser.job_seeker_profile?.projects) ? selectedUser.job_seeker_profile.projects.length : 0} proyek
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </section>
 
                   {/* Status Akun */}
@@ -954,115 +1063,138 @@ export default function AdminUsersIndex({
                       </div>
                     </dl>
                   </section>
-
-                  {/* Ringkasan Profil */}
-                  <section className="pt-2 border-t border-slate-100">
-                    <h4 className="mb-3 flex items-center gap-2 font-bold text-[#102B4B] text-sm">
-                      <FileText className="h-4 w-4 text-[#1769E0]" />
-                      Ringkasan Profil
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-slate-500 mb-1.5 font-medium">Keahlian</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {Array.isArray(selectedUser.job_seeker_profile?.skills) && selectedUser.job_seeker_profile.skills.length > 0 ? (
-                            selectedUser.job_seeker_profile.skills.map((skill, idx) => (
-                              <span
-                                key={idx}
-                                className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-[#1769E0]"
-                              >
-                                {skill}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-slate-400">Belum menambahkan keahlian</span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between gap-4">
-                        <span className="text-slate-500">Sertifikasi</span>
-                        <span className="font-semibold text-slate-800">
-                          {Array.isArray(selectedUser.job_seeker_profile?.certifications) ? selectedUser.job_seeker_profile.certifications.length : 0} sertifikasi
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between gap-4">
-                        <span className="text-slate-500">Proyek</span>
-                        <span className="font-semibold text-slate-800">
-                          {Array.isArray(selectedUser.job_seeker_profile?.projects) ? selectedUser.job_seeker_profile.projects.length : 0} proyek
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-center gap-4">
-                        <span className="text-slate-500">CV</span>
-                        {selectedUser.job_seeker_profile?.cv_path ? (
-                          <a
-                            href={`/storage/${selectedUser.job_seeker_profile.cv_path}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 font-bold text-[#1769E0] hover:underline"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            Lihat CV
-                          </a>
-                        ) : (
-                          <span className="text-slate-400">Belum diunggah</span>
-                        )}
-                      </div>
-                    </div>
-                  </section>
                 </>
               )}
 
-              {drawerTab === 'profile' && (
-                <div className="space-y-4">
-                  <div>
-                    <h5 className="font-bold text-[#102B4B] mb-1">Tentang / Bio</h5>
-                    <p className="text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl">
-                      {selectedUser.job_seeker_profile?.bio ?? selectedUser.company_profile?.about ?? 'Pengguna belum menambahkan informasi bio.'}
-                    </p>
-                  </div>
-
-                  {selectedUser.company_profile && (
-                    <div className="space-y-2">
-                      <h5 className="font-bold text-[#102B4B]">Detail Perusahaan</h5>
-                      <p><span className="text-slate-500">Nama Perusahaan:</span> {selectedUser.company_profile.company_name}</p>
-                      <p><span className="text-slate-500">Industri:</span> {selectedUser.company_profile.industry ?? '-'}</p>
-                      <p><span className="text-slate-500">Alamat:</span> {selectedUser.company_profile.address ?? '-'}</p>
-                      <p><span className="text-slate-500">Website:</span> {selectedUser.company_profile.website ?? '-'}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {drawerTab === 'docs' && (
-                <div className="space-y-4">
-                  <div className="rounded-xl border border-slate-200 p-4">
-                    <p className="font-bold text-[#102B4B] mb-1">Dokumen Curriculum Vitae (CV)</p>
-                    {selectedUser.job_seeker_profile?.cv_path ? (
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-slate-500">cv_dokumen.pdf</span>
-                        <a
-                          href={`/storage/${selectedUser.job_seeker_profile.cv_path}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 rounded-lg bg-[#1769E0] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1254B5]"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          Unduh / Buka
-                        </a>
+                <div className="space-y-5">
+                  {/* Dokumen CV untuk Pelamar */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-[#1769E0]" />
+                        <h4 className="font-extrabold text-[#102B4B] text-sm">Dokumen Curriculum Vitae (CV)</h4>
+                      </div>
+                      {getCvUrl(selectedUser) && (
+                        <div className="flex items-center gap-1.5">
+                          <a
+                            href={getCvUrl(selectedUser)!}
+                            download
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-xs"
+                            title="Unduh Berkas CV"
+                          >
+                            <Download className="h-3.5 w-3.5 text-slate-500" />
+                            <span>Unduh</span>
+                          </a>
+                          <a
+                            href={getCvUrl(selectedUser)!}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-lg bg-[#1769E0] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1254B5] transition shadow-xs"
+                            title="Buka di Tab Baru"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            <span>Buka Tab Baru</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {getCvUrl(selectedUser) ? (
+                      <div className="space-y-3">
+                        {/* File Info Bar */}
+                        <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3 border border-slate-200">
+                          <div className="flex items-center gap-2.5">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600 font-bold text-xs border border-rose-100">
+                              PDF
+                            </span>
+                            <div>
+                              <p className="font-bold text-slate-800 text-xs">
+                                {selectedUser.job_seeker_profile?.cv_path?.split('/').pop() || `cv_${selectedUser.name.toLowerCase().replace(/\s+/g, '_')}.pdf`}
+                              </p>
+                              <p className="text-[11px] text-slate-400">Dokumen Resume / CV Terlampir</p>
+                            </div>
+                          </div>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Tersedia
+                          </span>
+                        </div>
+
+                        {/* Interactive CV Preview Frame */}
+                        <div className="relative h-[480px] w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+                          <iframe
+                            src={`${getCvUrl(selectedUser)!}#toolbar=1&navpanes=0`}
+                            className="w-full h-full border-0"
+                            title={`Pratinjau CV ${selectedUser.name}`}
+                          />
+                        </div>
+
+                        <p className="text-[11px] text-slate-400 italic text-center">
+                          Pratinjau dokumen CV langsung. Anda juga dapat memperbesar atau mencetak menggunakan kontrol PDF di atas.
+                        </p>
                       </div>
                     ) : (
-                      <p className="text-slate-400 mt-2">Tidak ada dokumen CV yang terlampir.</p>
+                      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center space-y-2">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 shadow-xs">
+                          <FileText className="h-6 w-6" />
+                        </div>
+                        <p className="font-bold text-slate-700 text-xs">Belum Ada Dokumen CV</p>
+                        <p className="text-slate-400 text-[11px] max-w-xs mx-auto">
+                          Pengguna ini belum mengunggah berkas Curriculum Vitae (CV) ke dalam akun Profabel mereka.
+                        </p>
+                      </div>
                     )}
                   </div>
+
+                  {/* Dokumen & Status Legalitas untuk Akun Perusahaan */}
+                  {selectedUser.role === 'perusahaan' && selectedUser.company_profile && (
+                    <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-[#1769E0]" />
+                          <h4 className="font-extrabold text-[#102B4B] text-xs uppercase tracking-wider">
+                            Legalitas & Verifikasi Perusahaan
+                          </h4>
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                            selectedUser.company_profile.is_approved
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
+                        >
+                          {selectedUser.company_profile.is_approved ? (
+                            <>
+                              <CheckCircle2 className="h-3 w-3" />
+                              Terverifikasi Resmi
+                            </>
+                          ) : (
+                            'Menunggu Verifikasi'
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        Perusahaan <strong>{selectedUser.company_profile.company_name}</strong> terdaftar di industri{' '}
+                        <strong>{selectedUser.company_profile.industry ?? 'Umum'}</strong>.
+                      </p>
+                      <div className="pt-1">
+                        <a
+                          href={`/admin/companies/verification?search=${encodeURIComponent(selectedUser.company_profile.company_name)}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1769E0] hover:underline"
+                        >
+                          <span>Buka Menu Verifikasi Perusahaan</span>
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="border-t border-slate-100 p-5 flex flex-col gap-2.5">
+            <div className="border-t border-slate-100 p-5 shrink-0 flex flex-col gap-2.5 bg-white">
               <div className="flex gap-2">
                 {selectedUser.role !== 'admin' && (
                   <Button
@@ -1100,7 +1232,7 @@ export default function AdminUsersIndex({
               </a>
             </div>
           </aside>
-        </>
+        </div>
       )}
 
       {/* Confirmation Password Dialog */}

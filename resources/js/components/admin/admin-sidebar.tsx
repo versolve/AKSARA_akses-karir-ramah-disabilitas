@@ -73,15 +73,15 @@ export function AdminSidebar({
 
     return (
         <TooltipProvider delayDuration={150}>
-            <div className="flex h-full w-full flex-col bg-white select-none">
+            <div className="flex h-full w-full flex-col bg-white dark:bg-[#071336] select-none">
                 {/* Sidebar Header */}
                 <div
-                    className={`flex items-center border-b border-[#EEF2F6] h-[65px] transition-all duration-200 ${
+                    className={`flex items-center border-b border-[#EEF2F6] dark:border-white/10 h-[65px] transition-all duration-200 ${
                         collapsed ? 'justify-center px-2' : 'justify-between px-5'
                     }`}
                 >
                     {!collapsed && (
-                        <span className="text-sm font-extrabold tracking-tight text-[#102B4B]">
+                        <span className="text-sm font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                             ADMIN
                         </span>
                     )}
@@ -91,8 +91,8 @@ export function AdminSidebar({
                         <button
                             type="button"
                             onClick={onToggle}
-                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition ${
-                                collapsed ? 'text-[#101B4D]' : ''
+                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-white/10 dark:hover:text-white transition ${
+                                collapsed ? 'text-[#101B4D] dark:text-slate-200' : ''
                             }`}
                             title={collapsed ? 'Perluas sidebar' : 'Minimize sidebar'}
                             aria-label={collapsed ? 'Perluas sidebar' : 'Minimize sidebar'}
@@ -110,7 +110,7 @@ export function AdminSidebar({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10"
                             aria-label="Tutup menu admin"
                         >
                             <X className="h-5 w-5" />
@@ -129,11 +129,11 @@ export function AdminSidebar({
                         <div key={section.label || `section-${idx}`} className="space-y-1">
                             {section.label && (
                                 !collapsed ? (
-                                    <p className="px-3 text-[11px] font-bold tracking-[0.08em] text-slate-400 uppercase">
+                                    <p className="px-3 text-[11px] font-bold tracking-[0.08em] text-slate-400 dark:text-slate-400 uppercase">
                                         {section.label}
                                     </p>
                                 ) : (
-                                    <div className="my-2 border-t border-slate-100 mx-2" />
+                                    <div className="my-2 border-t border-slate-100 dark:border-white/10 mx-2" />
                                 )
                             )}
                             <div className="space-y-1">
@@ -152,8 +152,8 @@ export function AdminSidebar({
                                                         aria-label={item.title}
                                                         className={`flex h-11 w-11 mx-auto items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
                                                             active
-                                                                ? 'bg-[#EBF5FA] text-[#1769E0] shadow-sm'
-                                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                                                ? 'bg-[#EBF5FA] text-[#1769E0] dark:bg-[#1D64EC] dark:text-white shadow-sm'
+                                                                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                                                         }`}
                                                     >
                                                         <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -178,8 +178,8 @@ export function AdminSidebar({
                                             onClick={onClose}
                                             className={`flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
                                                 active
-                                                    ? 'bg-[#EBF5FA] font-bold text-[#1769E0]'
-                                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                                    ? 'bg-[#EBF5FA] font-bold text-[#1769E0] dark:bg-[#1D64EC] dark:text-white'
+                                                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                                             }`}
                                         >
                                             <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />

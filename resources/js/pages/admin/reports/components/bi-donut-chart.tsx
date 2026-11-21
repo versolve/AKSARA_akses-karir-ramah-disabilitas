@@ -72,7 +72,7 @@ export function BiDonutChart({
         : ['#E2E8F0 0% 100%'];
 
     return (
-        <div className="flex flex-col h-full rounded-2xl border border-[#E2EAF3] bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
+        <div className="flex flex-col h-full rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
             {/* Header */}
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2 shrink-0">
                 <div className="flex min-w-0 items-center gap-1.5">

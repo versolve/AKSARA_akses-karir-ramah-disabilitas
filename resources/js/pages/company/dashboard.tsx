@@ -372,23 +372,23 @@ export default function CompanyDashboard({
                 {/* Header: Title & Centralized Time Filter (Calendar Range + Dropdown Presets) */}
                 <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                             Dashboard
                         </h1>
-                        <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+                        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                             Halaman ini membantu perusahaan memantau aktivitas rekrutmen dan pengelolaan lowongan pekerjaan secara realtime.
                         </p>
                     </div>
 
                     {/* Centralized Time Filter matching Admin */}
                     <div className="flex items-center self-start sm:self-auto">
-                        <div className="flex items-center rounded-xl border border-[#E2E8F0] bg-white shadow-sm transition hover:border-slate-300">
+                        <div className="flex items-center rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-[#071336] shadow-sm transition hover:border-slate-300 dark:hover:border-white/20">
                             {/* Calendar Icon Button (Triggers Calendar Range Dialog) */}
                             <button
                                 type="button"
                                 onClick={() => setCalendarDialogOpen(true)}
-                                className={`flex h-10 items-center justify-center border-r border-[#E2E8F0] px-3.5 transition rounded-l-xl hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
-                                    isCalendarActive ? 'bg-blue-50 text-[#1769E0]' : 'text-slate-600'
+                                className={`flex h-10 items-center justify-center border-r border-[#E2E8F0] dark:border-white/10 px-3.5 transition rounded-l-xl hover:bg-slate-50 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0] ${
+                                    isCalendarActive ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]' : 'text-slate-600 dark:text-slate-300'
                                 }`}
                                 title="Pilih filter rentang waktu kalender"
                                 aria-label="Filter dengan rentang kalender"
@@ -401,9 +401,9 @@ export default function CompanyDashboard({
                                 <DropdownMenuTrigger asChild>
                                     <button
                                         type="button"
-                                        className="flex h-10 items-center gap-2.5 rounded-r-xl px-4 text-xs sm:text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
+                                        className="flex h-10 items-center gap-2.5 rounded-r-xl px-4 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
                                     >
-                                        <span className={isCalendarActive ? 'text-[#1769E0]' : 'text-slate-700'}>
+                                        <span className={isCalendarActive ? 'text-[#1769E0] dark:text-[#38BDF8]' : 'text-slate-700 dark:text-slate-200'}>
                                             {activePeriodLabel}
                                         </span>
                                         <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
@@ -411,7 +411,7 @@ export default function CompanyDashboard({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
-                                    className="w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl"
+                                    className="w-56 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] p-1.5 shadow-xl"
                                 >
                                     {presetOptions.map((opt) => {
                                         const isSelected = !isCalendarActive && currentPeriod === opt.id;
@@ -421,12 +421,12 @@ export default function CompanyDashboard({
                                                 onClick={() => selectPreset(opt.id)}
                                                 className={`flex cursor-pointer items-center justify-between rounded-xl px-3.5 py-2.5 text-xs sm:text-sm transition ${
                                                     isSelected
-                                                        ? 'bg-blue-50/70 font-semibold text-[#1769E0]'
-                                                        : 'text-slate-700 hover:bg-slate-50'
+                                                        ? 'bg-blue-50/70 dark:bg-blue-950/60 font-semibold text-[#1769E0] dark:text-[#38BDF8]'
+                                                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                                 }`}
                                             >
                                                 <span>{opt.label}</span>
-                                                {isSelected && <Check className="h-4 w-4 text-[#1769E0]" />}
+                                                {isSelected && <Check className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />}
                                             </DropdownMenuItem>
                                         );
                                     })}
@@ -499,70 +499,70 @@ export default function CompanyDashboard({
                 {/* Row 1: 4 Metric Cards */}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Card 1: Lowongan Aktif */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8F8F0] text-[#10B981]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8F8F0] dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400">
                                 <Briefcase className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Lowongan Aktif</p>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Lowongan Aktif</p>
                                 <div className="mt-1 flex items-baseline gap-2">
-                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                         {stats.active_vacancies}
                                     </span>
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.active_vacancies_growth}
                                     </span>
                                 </div>
-                                <p className="mt-0.5 text-[11px] text-slate-400">Dari periode sebelumnya</p>
+                                <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-400">Dari periode sebelumnya</p>
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3">
                             <div className="grid grid-cols-2 gap-2 text-left">
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Total Lowongan</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.total_vacancies}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Total Lowongan</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.total_vacancies}</p>
                                 </div>
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Draft</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.draft_vacancies}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Draft</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.draft_vacancies}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Card 2: Kandidat Masuk */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EBF3FE] text-[#1769E0]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EBF3FE] dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]">
                                 <Users className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Kandidat Masuk</p>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Kandidat Masuk</p>
                                 <div className="mt-1 flex items-baseline gap-2">
-                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                         {stats.total_candidates.toLocaleString('id-ID')}
                                     </span>
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.candidates_growth}
                                     </span>
                                 </div>
-                                <p className="mt-0.5 text-[11px] text-slate-400">Dari periode sebelumnya</p>
+                                <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-400">Dari periode sebelumnya</p>
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3">
                             <div className="grid grid-cols-2 gap-2 text-left">
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Kandidat Terverifikasi</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Kandidat Terverifikasi</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">
                                         {stats.verified_candidates.toLocaleString('id-ID')}
                                     </p>
                                 </div>
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Belum Verifikasi</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Belum Verifikasi</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">
                                         {stats.unverified_candidates}
                                     </p>
                                 </div>
@@ -571,68 +571,68 @@ export default function CompanyDashboard({
                     </div>
 
                     {/* Card 3: Lamaran Baru */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F3EFFE] text-[#7C3AED]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F3EFFE] dark:bg-purple-950/60 text-[#7C3AED] dark:text-purple-400">
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Lamaran Baru</p>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Lamaran Baru</p>
                                 <div className="mt-1 flex items-baseline gap-2">
-                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                         {stats.new_applications}
                                     </span>
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.new_applications_growth}
                                     </span>
                                 </div>
-                                <p className="mt-0.5 text-[11px] text-slate-400">Dari periode sebelumnya</p>
+                                <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-400">Dari periode sebelumnya</p>
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3">
                             <div className="grid grid-cols-2 gap-2 text-left">
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Perlu Ditinjau</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.need_review}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Perlu Ditinjau</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.need_review}</p>
                                 </div>
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Sudah Ditinjau</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.reviewed}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Sudah Ditinjau</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.reviewed}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Card 4: Proses Rekrutmen */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FEF7EC] text-[#F59E0B]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FEF7EC] dark:bg-amber-950/60 text-[#F59E0B] dark:text-amber-400">
                                 <GitFork className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Proses Rekrutmen</p>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Proses Rekrutmen</p>
                                 <div className="mt-1 flex items-baseline gap-2">
-                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                    <span className="text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                         {stats.recruitment_process}
                                     </span>
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.recruitment_growth}
                                     </span>
                                 </div>
-                                <p className="mt-0.5 text-[11px] text-slate-400">Dari periode sebelumnya</p>
+                                <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-400">Dari periode sebelumnya</p>
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3">
                             <div className="grid grid-cols-2 gap-2 text-left">
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Interview</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.interview}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Interview</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.interview}</p>
                                 </div>
                                 <div>
-                                    <span className="text-[11px] text-slate-400">Dalam Proses Lainnya</span>
-                                    <p className="text-sm font-extrabold text-[#102B4B]">{stats.other_process}</p>
+                                    <span className="text-[11px] text-slate-400 dark:text-slate-400">Dalam Proses Lainnya</span>
+                                    <p className="text-sm font-extrabold text-[#102B4B] dark:text-white">{stats.other_process}</p>
                                 </div>
                             </div>
                         </div>
@@ -642,10 +642,10 @@ export default function CompanyDashboard({
                 {/* Row 2: Charts (Tren Lamaran Masuk & Distribusi Status Lamaran) */}
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
                     {/* Left: Tren Lamaran Masuk (col-span-7) */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-7">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm lg:col-span-7">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-1.5">
-                                <h2 className="text-base font-bold text-[#102B4B]">Tren Lamaran Masuk</h2>
+                                <h2 className="text-base font-bold text-[#102B4B] dark:text-white">Tren Lamaran Masuk</h2>
                                 <Info className="h-4 w-4 text-slate-400" />
                             </div>
 
@@ -655,21 +655,21 @@ export default function CompanyDashboard({
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
+                                            className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769E0]"
                                         >
                                             <span>Tahun {activeYear}</span>
                                             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-32 rounded-xl bg-white p-1 shadow-lg border border-slate-100">
+                                    <DropdownMenuContent align="end" className="w-32 rounded-xl bg-white dark:bg-[#071336] p-1 shadow-lg border border-slate-100 dark:border-white/10">
                                         {yearChoices.map((yr) => (
                                             <DropdownMenuItem
                                                 key={yr}
                                                 onClick={() => selectTrendYear(yr)}
                                                 className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                                     activeYear === yr
-                                                        ? 'bg-blue-50 text-[#1769E0]'
-                                                        : 'text-slate-700 hover:bg-slate-50'
+                                                        ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                                 }`}
                                             >
                                                 Tahun {yr}
@@ -678,7 +678,7 @@ export default function CompanyDashboard({
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             ) : (
-                                <span className="rounded-md bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+                                <span className="rounded-md bg-slate-50 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:text-slate-300">
                                     Periode: {activePeriodLabel}
                                 </span>
                             )}
@@ -688,11 +688,11 @@ export default function CompanyDashboard({
                         <div className="mt-3 flex items-center gap-5 text-xs">
                             <div className="flex items-center gap-2">
                                 <span className="h-2.5 w-2.5 rounded-full bg-[#1769E0]" />
-                                <span className="font-medium text-slate-600">Lamaran Masuk</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-300">Lamaran Masuk</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
-                                <span className="font-medium text-slate-600">Kandidat Unik</span>
+                                <span className="font-medium text-slate-600 dark:text-slate-300">Kandidat Unik</span>
                             </div>
                         </div>
 
@@ -857,11 +857,11 @@ export default function CompanyDashboard({
                     </div>
 
                     {/* Right: Distribusi Status Lamaran (col-span-5) */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-5 flex flex-col justify-between">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm lg:col-span-5 flex flex-col justify-between">
                         <div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1.5">
-                                    <h2 className="text-base font-bold text-[#102B4B]">Distribusi Status Lamaran</h2>
+                                    <h2 className="text-base font-bold text-[#102B4B] dark:text-white">Distribusi Status Lamaran</h2>
                                     <Info className="h-4 w-4 text-slate-400" />
                                 </div>
 
@@ -870,19 +870,19 @@ export default function CompanyDashboard({
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="flex max-w-[170px] items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 truncate"
+                                            className="flex max-w-[170px] items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 truncate"
                                         >
                                             <span className="truncate">{selectedVacancyTitle}</span>
                                             <ChevronDown className="h-3 w-3 shrink-0 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-56 max-h-60 overflow-y-auto rounded-xl bg-white p-1 shadow-lg border border-slate-100">
+                                    <DropdownMenuContent align="end" className="w-56 max-h-60 overflow-y-auto rounded-xl bg-white dark:bg-[#071336] p-1 shadow-lg border border-slate-100 dark:border-white/10">
                                         <DropdownMenuItem
                                             onClick={() => selectVacancyFilter('all')}
                                             className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                                 !filters.vacancy_id || filters.vacancy_id === 'all'
-                                                    ? 'bg-blue-50 text-[#1769E0]'
-                                                    : 'text-slate-700 hover:bg-slate-50'
+                                                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                             }`}
                                         >
                                             Semua Lowongan
@@ -893,8 +893,8 @@ export default function CompanyDashboard({
                                                 onClick={() => selectVacancyFilter(v.id)}
                                                 className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold truncate ${
                                                     String(filters.vacancy_id) === String(v.id)
-                                                        ? 'bg-blue-50 text-[#1769E0]'
-                                                        : 'text-slate-700 hover:bg-slate-50'
+                                                        ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                                 }`}
                                             >
                                                 {v.title}
@@ -912,10 +912,10 @@ export default function CompanyDashboard({
                                         {renderDonutSlices(statusDistribution, 62, 22, 90, 90)}
                                     </svg>
                                     <div className="pointer-events-none absolute flex flex-col items-center justify-center text-center">
-                                        <span className="text-xl font-extrabold text-[#102B4B]">
+                                        <span className="text-xl font-extrabold text-[#102B4B] dark:text-white">
                                             {statusDistribution.reduce((acc, curr) => acc + curr.count, 0).toLocaleString('id-ID')}
                                         </span>
-                                        <span className="text-[10px] font-semibold text-slate-400">
+                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400">
                                             Total Lamaran
                                         </span>
                                     </div>
@@ -930,10 +930,10 @@ export default function CompanyDashboard({
                                                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                                                     style={{ backgroundColor: item.color }}
                                                 />
-                                                <span className="font-semibold text-slate-700">{item.name}</span>
+                                                <span className="font-semibold text-slate-700 dark:text-slate-300">{item.name}</span>
                                             </div>
-                                            <span className="font-extrabold text-[#102B4B]">
-                                                {item.count} <span className="font-medium text-slate-400">({item.percentage}%)</span>
+                                            <span className="font-extrabold text-[#102B4B] dark:text-white">
+                                                {item.count} <span className="font-medium text-slate-400 dark:text-slate-400">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                     ))}
@@ -942,10 +942,10 @@ export default function CompanyDashboard({
                         </div>
 
                         {/* Bottom link to applications */}
-                        <div className="mt-4 border-t border-slate-100 pt-3 text-right">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3 text-right">
                             <Link
                                 href="/company/applications"
-                                className="text-xs font-bold text-[#1769E0] hover:underline"
+                                className="text-xs font-bold text-[#1769E0] dark:text-[#38BDF8] hover:underline"
                             >
                                 Kelola Seluruh Lamaran →
                             </Link>
@@ -956,14 +956,14 @@ export default function CompanyDashboard({
                 {/* Row 3: 3 Bottom Widgets (Grid 3 cols) */}
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                     {/* Widget 1: Lowongan Berdasarkan Kategori */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                                <h2 className="text-sm font-bold text-[#102B4B]">Lowongan Berdasarkan Kategori</h2>
+                                <h2 className="text-sm font-bold text-[#102B4B] dark:text-white">Lowongan Berdasarkan Kategori</h2>
                                 <Info className="h-3.5 w-3.5 text-slate-400" />
                             </div>
 
-                            <span className="rounded-md bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                            <span className="rounded-md bg-slate-50 dark:bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-slate-500 dark:text-slate-300">
                                 {showYearFilterInTrends ? `Tahun ${activeYear}` : activePeriodLabel}
                             </span>
                         </div>
@@ -988,7 +988,7 @@ export default function CompanyDashboard({
                                 return (
                                     <div key={item.name} className="flex items-center gap-3">
                                         <div
-                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg dark:!bg-white/5"
                                             style={{ backgroundColor: `${item.color}15`, color: item.color }}
                                         >
                                             {renderIcon()}
@@ -996,10 +996,10 @@ export default function CompanyDashboard({
 
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="font-semibold text-slate-700 truncate">{item.name}</span>
-                                                <span className="font-extrabold text-[#102B4B] ml-2">{item.count}</span>
+                                                <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">{item.name}</span>
+                                                <span className="font-extrabold text-[#102B4B] dark:text-white ml-2">{item.count}</span>
                                             </div>
-                                            <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                                            <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-[#050E2E]">
                                                 <div
                                                     className="h-full rounded-full transition-all duration-500"
                                                     style={{
@@ -1016,10 +1016,10 @@ export default function CompanyDashboard({
                     </div>
 
                     {/* Widget 2: Status Lowongan */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col justify-between">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm flex flex-col justify-between">
                         <div>
                             <div className="flex items-center gap-1.5">
-                                <h2 className="text-sm font-bold text-[#102B4B]">Status Lowongan</h2>
+                                <h2 className="text-sm font-bold text-[#102B4B] dark:text-white">Status Lowongan</h2>
                                 <Info className="h-3.5 w-3.5 text-slate-400" />
                             </div>
 
@@ -1030,10 +1030,10 @@ export default function CompanyDashboard({
                                         {renderDonutSlices(vacancyStatus, 50, 18, 75, 75)}
                                     </svg>
                                     <div className="pointer-events-none absolute flex flex-col items-center justify-center text-center">
-                                        <span className="text-xl font-extrabold text-[#102B4B]">
+                                        <span className="text-xl font-extrabold text-[#102B4B] dark:text-white">
                                             {vacancyStatus.reduce((acc, curr) => acc + curr.count, 0)}
                                         </span>
-                                        <span className="text-[10px] font-semibold text-slate-400">
+                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400">
                                             Total Lowongan
                                         </span>
                                     </div>
@@ -1048,10 +1048,10 @@ export default function CompanyDashboard({
                                                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                                                     style={{ backgroundColor: item.color }}
                                                 />
-                                                <span className="font-semibold text-slate-700">{item.label}</span>
+                                                <span className="font-semibold text-slate-700 dark:text-slate-300">{item.label}</span>
                                             </div>
-                                            <span className="font-extrabold text-[#102B4B]">
-                                                {item.count} <span className="font-medium text-slate-400">({item.percentage}%)</span>
+                                            <span className="font-extrabold text-[#102B4B] dark:text-white">
+                                                {item.count} <span className="font-medium text-slate-400 dark:text-slate-400">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                     ))}
@@ -1059,10 +1059,10 @@ export default function CompanyDashboard({
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3 text-right">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3 text-right">
                             <Link
                                 href="/company/vacancies"
-                                className="text-xs font-bold text-[#1769E0] hover:underline"
+                                className="text-xs font-bold text-[#1769E0] dark:text-[#38BDF8] hover:underline"
                             >
                                 Kelola Lowongan →
                             </Link>
@@ -1070,13 +1070,13 @@ export default function CompanyDashboard({
                     </div>
 
                     {/* Widget 3: Aktivitas Terbaru */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col justify-between">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm flex flex-col justify-between">
                         <div>
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-bold text-[#102B4B]">Aktivitas Terbaru</h2>
+                                <h2 className="text-sm font-bold text-[#102B4B] dark:text-white">Aktivitas Terbaru</h2>
                                 <Link
                                     href="/company/applications"
-                                    className="text-xs font-bold text-[#1769E0] hover:underline"
+                                    className="text-xs font-bold text-[#1769E0] dark:text-[#38BDF8] hover:underline"
                                 >
                                     Lihat Semua
                                 </Link>
@@ -1084,10 +1084,10 @@ export default function CompanyDashboard({
 
                             {recentActivities.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400">
                                         <FileText className="h-5 w-5" />
                                     </div>
-                                    <p className="mt-2 text-xs font-semibold text-slate-700">Belum Ada Aktivitas</p>
+                                    <p className="mt-2 text-xs font-semibold text-slate-700 dark:text-slate-200">Belum Ada Aktivitas</p>
                                     <p className="mt-0.5 text-[11px] text-slate-400">Tidak ada lamaran masuk pada periode ini.</p>
                                 </div>
                             ) : (
@@ -1111,13 +1111,13 @@ export default function CompanyDashboard({
                                         return (
                                             <div key={act.id} className="flex items-start gap-3">
                                                 <div
-                                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5"
+                                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5 dark:!bg-blue-950/60 dark:!text-[#38BDF8]"
                                                     style={{ backgroundColor: act.bgColor, color: act.color }}
                                                 >
                                                     {renderActivityIcon()}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-xs font-medium leading-snug text-slate-800 line-clamp-2">
+                                                    <p className="text-xs font-medium leading-snug text-slate-800 dark:text-white line-clamp-2">
                                                         {act.title}
                                                     </p>
                                                     <p className="mt-0.5 text-[10px] text-slate-400 font-medium">
@@ -1131,7 +1131,7 @@ export default function CompanyDashboard({
                             )}
                         </div>
 
-                        <div className="mt-4 border-t border-slate-100 pt-3 text-center">
+                        <div className="mt-4 border-t border-slate-100 dark:border-white/10 pt-3 text-center">
                             <Link
                                 href="/company/vacancies/create"
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#1258c2] transition"

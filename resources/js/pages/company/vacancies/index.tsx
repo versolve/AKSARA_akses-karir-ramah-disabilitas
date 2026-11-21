@@ -14,6 +14,7 @@ import {
     ChevronDown,
     ChevronLeft,
     ChevronRight,
+    Clock,
     Code2,
     Edit2,
     Eye,
@@ -46,6 +47,9 @@ interface VacancyItem {
     category_icon?: string;
     formatted_created_at?: string;
     applications_count?: number;
+    is_featured?: boolean;
+    is_scheduled?: boolean;
+    scheduled_at?: string;
     created_at: string;
 }
 
@@ -140,7 +144,7 @@ export default function VacanciesIndex({
 
         return (
             <span
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold dark:!bg-[#0D2352] dark:!text-[#38BDF8] dark:border dark:border-blue-900/50"
                 style={{ backgroundColor: bg, color }}
             >
                 {getIcon()}
@@ -149,24 +153,36 @@ export default function VacanciesIndex({
         );
     };
 
-    const renderStatusBadge = (status: string): ReactElement => {
-        switch (status) {
+    const renderStatusBadge = (vacancy: VacancyItem): ReactElement => {
+        if (vacancy.status === 'draft' && vacancy.is_scheduled) {
+            return (
+                <span
+                    className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900/50 px-3 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300"
+                    title={vacancy.scheduled_at ? `Dijadwalkan tayang: ${vacancy.scheduled_at}` : 'Dijadwalkan'}
+                >
+                    <Clock className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                    Terjadwal
+                </span>
+            );
+        }
+
+        switch (vacancy.status) {
             case 'active':
                 return (
-                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-3 py-1 text-xs font-bold text-[#10B981]">
+                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-3 py-1 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                         Aktif
                     </span>
                 );
             case 'closed':
                 return (
-                    <span className="inline-flex items-center rounded-full bg-[#F1F5F9] px-3 py-1 text-xs font-bold text-[#64748B]">
+                    <span className="inline-flex items-center rounded-full bg-[#F1F5F9] dark:bg-slate-800 px-3 py-1 text-xs font-bold text-[#64748B] dark:text-slate-300">
                         Ditutup
                     </span>
                 );
             case 'draft':
             default:
                 return (
-                    <span className="inline-flex items-center rounded-full bg-[#FEF7EC] px-3 py-1 text-xs font-bold text-[#F59E0B]">
+                    <span className="inline-flex items-center rounded-full bg-[#FEF7EC] dark:bg-amber-950/60 px-3 py-1 text-xs font-bold text-[#F59E0B] dark:text-amber-400">
                         Draft
                     </span>
                 );
@@ -203,10 +219,10 @@ export default function VacanciesIndex({
             <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                         Lowongan Perusahaan
                     </h1>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+                    <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                         Kelola seluruh lowongan pekerjaan perusahaan Anda, mulai dari membuat, mengubah, hingga memantau status lowongan.
                     </p>
                 </div>
@@ -214,18 +230,18 @@ export default function VacanciesIndex({
                 {/* 4 Metric Cards */}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Card 1: Total Lowongan */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EBF3FE] text-[#1769E0]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EBF3FE] dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]">
                                 <Briefcase className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Total Lowongan</p>
-                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Total Lowongan</p>
+                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                     {stats.total_vacancies}
                                 </p>
                                 <div className="mt-2">
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.total_growth}
                                     </span>
                                 </div>
@@ -234,18 +250,18 @@ export default function VacanciesIndex({
                     </div>
 
                     {/* Card 2: Lowongan Aktif */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8F8F0] text-[#10B981]">
-                                <Play className="h-6 w-6 fill-[#10B981]" />
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8F8F0] dark:bg-emerald-950/60 text-[#10B981] dark:text-emerald-400">
+                                <Play className="h-6 w-6 fill-[#10B981] dark:fill-emerald-400" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Lowongan Aktif</p>
-                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Lowongan Aktif</p>
+                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                     {stats.active_vacancies}
                                 </p>
                                 <div className="mt-2">
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         {stats.active_growth}
                                     </span>
                                 </div>
@@ -254,18 +270,18 @@ export default function VacanciesIndex({
                     </div>
 
                     {/* Card 3: Lowongan Ditutup */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F3EFFE] text-[#8B5CF6]">
-                                <Pause className="h-6 w-6 fill-[#8B5CF6]" />
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F3EFFE] dark:bg-purple-950/60 text-[#8B5CF6] dark:text-purple-400">
+                                <Pause className="h-6 w-6 fill-[#8B5CF6] dark:fill-purple-400" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Lowongan Ditutup</p>
-                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Lowongan Ditutup</p>
+                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                     {stats.closed_vacancies}
                                 </p>
                                 <div className="mt-2">
-                                    <span className="inline-flex items-center rounded-full bg-[#F1F5F9] px-2 py-0.5 text-xs font-bold text-[#64748B]">
+                                    <span className="inline-flex items-center rounded-full bg-[#F1F5F9] dark:bg-slate-800 px-2 py-0.5 text-xs font-bold text-[#64748B] dark:text-slate-300">
                                         {stats.closed_growth}
                                     </span>
                                 </div>
@@ -274,18 +290,18 @@ export default function VacanciesIndex({
                     </div>
 
                     {/* Card 4: Draft */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-5 shadow-sm transition hover:shadow-md">
                         <div className="flex items-start gap-4">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FEF7EC] text-[#F59E0B]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FEF7EC] dark:bg-amber-950/60 text-[#F59E0B] dark:text-amber-400">
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-slate-500">Draft</p>
-                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-300">Draft</p>
+                                <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                                     {stats.draft_vacancies}
                                 </p>
                                 <div className="mt-2">
-                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] px-2 py-0.5 text-xs font-bold text-[#10B981]">
+                                    <span className="inline-flex items-center rounded-full bg-[#E8F8F0] dark:bg-emerald-950/60 px-2 py-0.5 text-xs font-bold text-[#10B981] dark:text-emerald-400">
                                         ↑ {stats.draft_growth}
                                     </span>
                                 </div>
@@ -306,7 +322,7 @@ export default function VacanciesIndex({
                                 value={searchVal}
                                 onChange={(e) => setSearchVal(e.target.value)}
                                 placeholder="Cari nama lowongan atau kata kunci..."
-                                className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 shadow-sm transition focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
+                                className="h-10 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] pl-10 pr-4 text-xs font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm transition focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
                             />
                         </form>
 
@@ -315,21 +331,21 @@ export default function VacanciesIndex({
                             <DropdownMenuTrigger asChild>
                                 <button
                                     type="button"
-                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] px-3.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-white/5"
                                 >
                                     <span>{currentStatusLabel}</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-44 rounded-xl bg-white p-1 shadow-lg border border-slate-100">
+                            <DropdownMenuContent align="start" className="w-44 rounded-xl bg-white dark:bg-[#071336] p-1 shadow-lg border border-slate-100 dark:border-white/10">
                                 {statusOptions.map((opt) => (
                                     <DropdownMenuItem
                                         key={opt.value}
                                         onClick={() => handleFilterChange('status', opt.value)}
                                         className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                             (filters.status ?? 'all') === opt.value
-                                                ? 'bg-blue-50 text-[#1769E0]'
-                                                : 'text-slate-700 hover:bg-slate-50'
+                                                ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         {opt.label}
@@ -343,21 +359,21 @@ export default function VacanciesIndex({
                             <DropdownMenuTrigger asChild>
                                 <button
                                     type="button"
-                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] px-3.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-white/5"
                                 >
                                     <span>{currentCategoryLabel}</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-48 rounded-xl bg-white p-1 shadow-lg border border-slate-100">
+                            <DropdownMenuContent align="start" className="w-48 rounded-xl bg-white dark:bg-[#071336] p-1 shadow-lg border border-slate-100 dark:border-white/10">
                                 {categoriesList.map((cat) => (
                                     <DropdownMenuItem
                                         key={cat}
                                         onClick={() => handleFilterChange('category', cat === 'Semua Kategori' ? 'all' : cat)}
                                         className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                             currentCategoryLabel === cat
-                                                ? 'bg-blue-50 text-[#1769E0]'
-                                                : 'text-slate-700 hover:bg-slate-50'
+                                                ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         {cat}
@@ -371,19 +387,19 @@ export default function VacanciesIndex({
                             <DropdownMenuTrigger asChild>
                                 <button
                                     type="button"
-                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071336] px-3.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-white/5"
                                 >
                                     <span>{currentLocationLabel}</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-44 rounded-xl bg-white p-1 shadow-lg border border-slate-100">
+                            <DropdownMenuContent align="start" className="w-44 rounded-xl bg-white dark:bg-[#071336] p-1 shadow-lg border border-slate-100 dark:border-white/10">
                                 <DropdownMenuItem
                                     onClick={() => handleFilterChange('location', 'all')}
                                     className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                         currentLocationLabel === 'Semua Lokasi'
-                                            ? 'bg-blue-50 text-[#1769E0]'
-                                            : 'text-slate-700 hover:bg-slate-50'
+                                            ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                     }`}
                                 >
                                     Semua Lokasi
@@ -394,8 +410,8 @@ export default function VacanciesIndex({
                                         onClick={() => handleFilterChange('location', loc)}
                                         className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
                                             currentLocationLabel === loc
-                                                ? 'bg-blue-50 text-[#1769E0]'
-                                                : 'text-slate-700 hover:bg-slate-50'
+                                                ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         {loc}
@@ -416,11 +432,11 @@ export default function VacanciesIndex({
                 </div>
 
                 {/* Table Card */}
-                <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+                <div className="overflow-hidden rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse text-left text-xs">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-[#F8FAFC] text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                <tr className="border-b border-slate-100 dark:border-white/10 bg-[#F8FAFC] dark:bg-[#050E2E] text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                                     <th className="py-3.5 pl-6 pr-3 w-14">No</th>
                                     <th className="py-3.5 px-4 min-w-[180px]">Nama Lowongan</th>
                                     <th className="py-3.5 px-4 min-w-[150px]">Kategori</th>
@@ -430,14 +446,14 @@ export default function VacanciesIndex({
                                     <th className="py-3.5 pl-4 pr-6 text-center w-28">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                                 {vacancies.data.length === 0 ? (
                                     <tr>
                                         <td colSpan={7} className="py-16 text-center">
-                                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
+                                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-slate-400">
                                                 <Briefcase className="h-6 w-6" />
                                             </div>
-                                            <p className="mt-3 text-sm font-bold text-[#102B4B]">
+                                            <p className="mt-3 text-sm font-bold text-[#102B4B] dark:text-white">
                                                 Tidak Ada Lowongan Ditemukan
                                             </p>
                                             <p className="mt-1 text-xs text-slate-400">
@@ -461,40 +477,47 @@ export default function VacanciesIndex({
                                         return (
                                             <tr
                                                 key={vacancy.id}
-                                                className="transition hover:bg-slate-50/70"
+                                                className="transition hover:bg-slate-50/70 dark:hover:bg-[#0E2254]"
                                             >
-                                                <td className="py-4 pl-6 pr-3 font-semibold text-slate-600">
+                                                <td className="py-4 pl-6 pr-3 font-semibold text-slate-600 dark:text-slate-400">
                                                     {rowNumber}
                                                 </td>
-                                                <td className="py-4 px-4 font-bold text-[#102B4B]">
-                                                    <Link
-                                                        href={`/jobs/${vacancy.slug}`}
-                                                        className="hover:text-[#1769E0] transition"
-                                                    >
-                                                        {vacancy.title}
-                                                    </Link>
+                                                <td className="py-4 px-4 font-bold text-[#102B4B] dark:text-white">
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <Link
+                                                            href={`/jobs/${vacancy.slug}`}
+                                                            className="hover:text-[#1769E0] dark:hover:text-[#38BDF8] transition"
+                                                        >
+                                                            {vacancy.title}
+                                                        </Link>
+                                                        {vacancy.is_featured && (
+                                                            <span className="inline-flex items-center rounded-md bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                                                                ⭐ Unggulan
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="py-4 px-4">
                                                     {renderCategoryBadge(vacancy)}
                                                 </td>
-                                                <td className="py-4 px-4 font-medium text-slate-600">
+                                                <td className="py-4 px-4 font-medium text-slate-600 dark:text-slate-300">
                                                     <span className="inline-flex items-center gap-1.5">
                                                         <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                                                         <span>{vacancy.location}</span>
                                                     </span>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium text-slate-500">
+                                                <td className="py-4 px-4 font-medium text-slate-500 dark:text-slate-400">
                                                     {vacancy.formatted_created_at ?? vacancy.created_at}
                                                 </td>
                                                 <td className="py-4 px-4">
-                                                    {renderStatusBadge(vacancy.status)}
+                                                    {renderStatusBadge(vacancy)}
                                                 </td>
                                                 <td className="py-4 pl-4 pr-6">
                                                     <div className="flex items-center justify-center gap-1.5">
                                                         {/* View / Preview */}
                                                         <Link
                                                             href={`/jobs/${vacancy.slug}`}
-                                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-[#1769E0] transition"
+                                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-[#1769E0] dark:hover:text-[#38BDF8] transition"
                                                             title="Lihat Pratinjau Publik"
                                                         >
                                                             <Eye className="h-4 w-4" />
@@ -503,7 +526,7 @@ export default function VacanciesIndex({
                                                         {/* Edit */}
                                                         <Link
                                                             href={`/company/vacancies/${vacancy.id}/edit`}
-                                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-[#1769E0] transition"
+                                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-[#1769E0] dark:hover:text-[#38BDF8] transition"
                                                             title="Ubah Lowongan"
                                                         >
                                                             <Edit2 className="h-4 w-4" />
@@ -514,7 +537,7 @@ export default function VacanciesIndex({
                                                             <DropdownMenuTrigger asChild>
                                                                 <button
                                                                     type="button"
-                                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition"
+                                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white transition"
                                                                     title="Opsi Lainnya"
                                                                 >
                                                                     <MoreHorizontal className="h-4 w-4" />
@@ -522,15 +545,15 @@ export default function VacanciesIndex({
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent
                                                                 align="end"
-                                                                className="w-48 rounded-xl bg-white p-1.5 shadow-xl border border-slate-100 text-xs"
+                                                                className="w-48 rounded-xl bg-white dark:bg-[#071336] p-1.5 shadow-xl border border-slate-100 dark:border-white/10 text-xs"
                                                             >
-                                                                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase">
+                                                                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase">
                                                                     Ubah Status
                                                                 </div>
                                                                 {vacancy.status !== 'active' && (
                                                                     <DropdownMenuItem
                                                                         onClick={() => handleStatusChange(vacancy.id, 'active')}
-                                                                        className="cursor-pointer rounded-lg px-2.5 py-1.5 font-semibold text-emerald-600 hover:bg-emerald-50"
+                                                                        className="cursor-pointer rounded-lg px-2.5 py-1.5 font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
                                                                     >
                                                                         Jadikan Aktif
                                                                     </DropdownMenuItem>
@@ -538,7 +561,7 @@ export default function VacanciesIndex({
                                                                 {vacancy.status !== 'closed' && (
                                                                     <DropdownMenuItem
                                                                         onClick={() => handleStatusChange(vacancy.id, 'closed')}
-                                                                        className="cursor-pointer rounded-lg px-2.5 py-1.5 font-semibold text-slate-600 hover:bg-slate-50"
+                                                                        className="cursor-pointer rounded-lg px-2.5 py-1.5 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
                                                                     >
                                                                         Tutup Lowongan
                                                                     </DropdownMenuItem>

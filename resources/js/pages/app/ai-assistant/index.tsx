@@ -88,6 +88,9 @@ interface SavedMatch {
     vacancy: VacancyItem;
 }
 
+import CvTemplateCard from '@/components/app/ai-assistant/cv-template-card';
+import CvTemplateModal from '@/components/app/ai-assistant/cv-template-modal';
+
 interface SeekerProfile {
     id: number;
     current_job_title?: string;
@@ -95,7 +98,14 @@ interface SeekerProfile {
     skills?: string[];
     work_experiences?: unknown[];
     projects?: unknown[];
-    user: { id: number; name: string };
+    phone?: string;
+    domicile?: string;
+    bio?: string;
+    linkedin_url?: string;
+    portfolio_url?: string;
+    educations?: unknown[];
+    certifications?: unknown[];
+    user: { id: number; name: string; email?: string };
 }
 
 interface ProfileCvMeta {
@@ -635,6 +645,7 @@ export default function AiAssistantIndex({
     );
     const [compareHistoryIds, setCompareHistoryIds] = useState<number[]>([]);
     const [requestError, setRequestError] = useState('');
+    const [cvTemplateModalOpen, setCvTemplateModalOpen] = useState(false);
 
     const csrfToken = (): string =>
         (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
@@ -2108,37 +2119,26 @@ export default function AiAssistantIndex({
                                                             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                                                                 <FileText className="h-8 w-8 shrink-0 text-[#1674D1]" />
                                                                 <div className="min-w-0 flex-1">
-                                                                    <h3 className="text-base font-extrabold text-[#102B4B]">
-                                                                        Gunakan
-                                                                        Template
-                                                                        CV ATS
-                                                                    </h3>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <h3 className="text-base font-extrabold text-[#102B4B]">
+                                                                            Gunakan Template CV ATS
+                                                                        </h3>
+                                                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#E8F4FD] text-[#0F4C81]">
+                                                                            4 Pilihan Tema
+                                                                        </span>
+                                                                    </div>
                                                                     <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
-                                                                        Belum
-                                                                        punya CV
-                                                                        yang
-                                                                        ATS-friendly?
-                                                                        Gunakan
-                                                                        struktur
-                                                                        sederhana
-                                                                        yang
-                                                                        mudah
-                                                                        dibaca
-                                                                        sistem
-                                                                        ATS dan
-                                                                        sesuai
-                                                                        standar
-                                                                        industri.
+                                                                        Belum punya CV yang ATS-friendly? Gunakan 4 pilihan template teruji (Harvard, Minimalist, Executive, Compact) siap pakai dalam Word (.doc) atau cetak langsung ke PDF.
                                                                     </p>
                                                                 </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className="min-h-10 shrink-0 rounded-lg border border-[#1674D1] px-3 text-sm font-bold text-[#1674D1] hover:bg-white"
-                                                                >
-                                                                    Unduh
-                                                                    Template CV
-                                                                    ATS
-                                                                </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setCvTemplateModalOpen(true)}
+                                                                        className="min-h-10 shrink-0 rounded-lg bg-[#1674D1] px-4 text-sm font-bold text-white hover:bg-[#125EB0] transition-colors flex items-center gap-1.5 shadow-xs"
+                                                                    >
+                                                                        <Sparkles className="w-4 h-4" />
+                                                                        <span>Unduh Template CV ATS</span>
+                                                                    </button>
                                                             </div>
                                                         </div>
 
@@ -2610,30 +2610,36 @@ export default function AiAssistantIndex({
                                                         ))}
                                                     </ol>
                                                 </div>
+
+                                                <CvTemplateCard seeker={seeker} user={seeker?.user} />
                                             </>
                                         ) : (
-                                            <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
-                                                <h2 className="text-lg font-extrabold text-[#102B4B]">
-                                                    Sebelum mulai
-                                                </h2>
-                                                <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
-                                                    <li className="flex gap-2">
-                                                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
-                                                        Gunakan teks CV terbaru.
-                                                    </li>
-                                                    <li className="flex gap-2">
-                                                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
-                                                        Tambahkan pencapaian
-                                                        yang terukur.
-                                                    </li>
-                                                    <li className="flex gap-2">
-                                                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
-                                                        Masukkan skill yang
-                                                        relevan dengan posisi
-                                                        target.
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                            <>
+                                                <div className="rounded-2xl border border-[#DCEAF2] bg-white p-5 shadow-sm">
+                                                    <h2 className="text-lg font-extrabold text-[#102B4B]">
+                                                        Sebelum mulai
+                                                    </h2>
+                                                    <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
+                                                        <li className="flex gap-2">
+                                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
+                                                            Gunakan teks CV terbaru.
+                                                        </li>
+                                                        <li className="flex gap-2">
+                                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
+                                                            Tambahkan pencapaian
+                                                            yang terukur.
+                                                        </li>
+                                                        <li className="flex gap-2">
+                                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#12B981]" />
+                                                            Masukkan skill yang
+                                                            relevan dengan posisi
+                                                            target.
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <CvTemplateCard seeker={seeker} user={seeker?.user} />
+                                            </>
                                         )}
                                     </aside>
                                 </div>
@@ -3201,18 +3207,25 @@ export default function AiAssistantIndex({
                                                             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                                                                 <FileText className="h-8 w-8 shrink-0 text-[#1674D1]" />
                                                                 <div className="min-w-0 flex-1">
-                                                                    <h3 className="text-base font-extrabold text-[#102B4B]">
-                                                                        Gunakan Template CV ATS
-                                                                    </h3>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <h3 className="text-base font-extrabold text-[#102B4B]">
+                                                                            Gunakan Template CV ATS
+                                                                        </h3>
+                                                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#E8F4FD] text-[#0F4C81]">
+                                                                            4 Pilihan Tema
+                                                                        </span>
+                                                                    </div>
                                                                     <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
-                                                                        Belum punya CV yang ATS-friendly? Gunakan struktur sederhana yang mudah dibaca sistem ATS dan sesuai standar industri.
+                                                                        Belum punya CV yang ATS-friendly? Gunakan 4 pilihan template teruji (Harvard, Minimalist, Executive, Compact) siap pakai dalam Word (.doc) atau cetak langsung ke PDF.
                                                                     </p>
                                                                 </div>
                                                                 <button
                                                                     type="button"
-                                                                    className="min-h-10 shrink-0 rounded-lg border border-[#1674D1] px-3 text-sm font-bold text-[#1674D1] hover:bg-white"
+                                                                    onClick={() => setCvTemplateModalOpen(true)}
+                                                                    className="min-h-10 shrink-0 rounded-lg bg-[#1674D1] px-4 text-sm font-bold text-white hover:bg-[#125EB0] transition-colors flex items-center gap-1.5 shadow-xs"
                                                                 >
-                                                                    Unduh Template CV ATS
+                                                                    <Sparkles className="w-4 h-4" />
+                                                                    <span>Unduh Template CV ATS</span>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -3492,6 +3505,14 @@ export default function AiAssistantIndex({
                     )}
                 </div>
             </div>
+
+            {/* Modal CV Template ATS */}
+            <CvTemplateModal
+                open={cvTemplateModalOpen}
+                onOpenChange={setCvTemplateModalOpen}
+                seeker={seeker}
+                user={seeker?.user}
+            />
         </AppLayout>
     );
 }

@@ -13,7 +13,7 @@ class VacancyModerationController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Vacancy::with(['companyProfile', 'accessibilities'])->withCount('applications');
+        $query = Vacancy::with(['companyProfile.user', 'accessibilities'])->withCount('applications');
 
         if ($status = $request->input('status')) {
             $query->where('status', $status);
@@ -22,7 +22,8 @@ class VacancyModerationController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhereHas('companyProfile', fn ($cq) => $cq->where('company_name', 'like', "%{$search}%"));
             });
         }
 

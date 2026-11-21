@@ -18,8 +18,10 @@ import {
     MapPin,
     RotateCcw,
     Search,
+    Sparkles,
     Volume2,
     VolumeX,
+    X,
 } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 
@@ -56,6 +58,7 @@ interface VacancyItem {
     time_ago?: string;
     company_profile?: CompanyItem | null;
     accessibilities: AccessibilityItem[];
+    is_profile_match?: boolean;
 }
 
 function parseSkillList(skills: unknown): string[] {
@@ -135,6 +138,23 @@ function parseRequirementsList(reqs: unknown): string[] {
     return [];
 }
 
+interface QuickKeywordItem {
+    label: string;
+    is_profile: boolean;
+    type: 'role' | 'skill' | 'trending';
+}
+
+interface ApplicantPreferences {
+    is_logged_in: boolean;
+    is_job_seeker: boolean;
+    candidate_name?: string | null;
+    job_title?: string | null;
+    profile_skills?: string[];
+    quick_keywords?: QuickKeywordItem[];
+    has_accommodations?: boolean;
+    matched_vacancies_count?: number;
+}
+
 interface Props {
     vacancies: {
         data: VacancyItem[];
@@ -149,11 +169,18 @@ interface Props {
         location?: string;
         experience_level?: string;
         only_favorites?: boolean;
+        recommended?: boolean;
     };
     savedVacancyIds?: number[];
+    applicantPreferences?: ApplicantPreferences;
 }
 
-export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: Props): ReactElement {
+export default function JobsIndex({
+    vacancies,
+    filters,
+    savedVacancyIds = [],
+    applicantPreferences,
+}: Props): ReactElement {
     const page = usePage();
     const auth = (page.props as any).auth;
     const [savedIds, setSavedIds] = useState<number[]>(savedVacancyIds);
@@ -167,6 +194,7 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
     );
     const [location, setLocation] = useState(filters.location ?? '');
     const [onlyFavorites, setOnlyFavorites] = useState(Boolean(filters.only_favorites));
+    const [isRecommended, setIsRecommended] = useState(Boolean(filters.recommended));
     const [speakingJobId, setSpeakingJobId] = useState<number | null>(null);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
@@ -175,6 +203,16 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
             setSavedIds(savedVacancyIds);
         }
     }, [savedVacancyIds]);
+
+    useEffect(() => {
+        setSearch(filters.search ?? '');
+        setWorkModel(filters.work_model ?? '');
+        setJobType(filters.job_type ?? '');
+        setAccessibility(filters.accessibility ?? '');
+        setLocation(filters.location ?? '');
+        setOnlyFavorites(Boolean(filters.only_favorites));
+        setIsRecommended(Boolean(filters.recommended));
+    }, [filters]);
 
     const handleToggleFavorite = (e: React.MouseEvent, vacancyId: number): void => {
         e.stopPropagation();
@@ -208,7 +246,19 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
         Boolean(workModel),
         Boolean(accessibility),
         Boolean(onlyFavorites),
+        Boolean(isRecommended),
     ].filter(Boolean).length;
+
+    // Quick filter helpers & preferences
+    const quickKeywords = applicantPreferences?.quick_keywords ?? [
+        { label: 'UI/UX Design', is_profile: false, type: 'trending' as const },
+        { label: 'Administrasi', is_profile: false, type: 'trending' as const },
+        { label: 'QA Tester', is_profile: false, type: 'trending' as const },
+        { label: 'Customer Service', is_profile: false, type: 'trending' as const },
+    ];
+    const matchedCount = applicantPreferences?.matched_vacancies_count ?? 0;
+    const applicantJobTitle = applicantPreferences?.job_title;
+    const hasActiveQuickFilters = Boolean(search || isRecommended || workModel);
 
     // Selected vacancy for right preview column (defaults to first item)
     const [selectedJob, setSelectedJob] = useState<VacancyItem | null>(
@@ -247,6 +297,7 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                 accessibility: accessibility || undefined,
                 location: location || undefined,
                 only_favorites: onlyFavorites ? true : undefined,
+                recommended: isRecommended ? true : undefined,
             },
             { preserveState: true },
         );
@@ -254,6 +305,92 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
 
     const resetFilters = (): void => {
         setSearch('');
+        setWorkModel('');
+        setJobType('');
+        setAccessibility('');
+        setLocation('');
+        setOnlyFavorites(false);
+        setIsRecommended(false);
+        router.get('/jobs');
+    };
+
+    const toggleRecommended = (): void => {
+        if (!auth?.user) {
+            router.visit('/login');
+            return;
+        }
+        const nextVal = !isRecommended;
+        setIsRecommended(nextVal);
+        router.get(
+            '/jobs',
+            {
+                search: search || undefined,
+                work_model: workModel || undefined,
+                job_type: jobType || undefined,
+                accessibility: accessibility || undefined,
+                location: location || undefined,
+                only_favorites: onlyFavorites ? true : undefined,
+                recommended: nextVal ? true : undefined,
+            },
+            { preserveState: true }
+        );
+    };
+
+    const handleKeywordClick = (keyword: string): void => {
+        if (search.toLowerCase() === keyword.toLowerCase()) {
+            setSearch('');
+            router.get(
+                '/jobs',
+                {
+                    search: undefined,
+                    work_model: workModel || undefined,
+                    job_type: jobType || undefined,
+                    accessibility: accessibility || undefined,
+                    location: location || undefined,
+                    only_favorites: onlyFavorites ? true : undefined,
+                    recommended: isRecommended ? true : undefined,
+                },
+                { preserveState: true }
+            );
+        } else {
+            setSearch(keyword);
+            router.get(
+                '/jobs',
+                {
+                    search: keyword,
+                    work_model: workModel || undefined,
+                    job_type: jobType || undefined,
+                    accessibility: accessibility || undefined,
+                    location: location || undefined,
+                    only_favorites: onlyFavorites ? true : undefined,
+                    recommended: isRecommended ? true : undefined,
+                },
+                { preserveState: true }
+            );
+        }
+    };
+
+    const handleWorkModelClick = (model: string): void => {
+        const nextModel = workModel === model ? '' : model;
+        setWorkModel(nextModel);
+        router.get(
+            '/jobs',
+            {
+                search: search || undefined,
+                work_model: nextModel || undefined,
+                job_type: jobType || undefined,
+                accessibility: accessibility || undefined,
+                location: location || undefined,
+                only_favorites: onlyFavorites ? true : undefined,
+                recommended: isRecommended ? true : undefined,
+            },
+            { preserveState: true }
+        );
+    };
+
+    const resetAllQuickFilters = (): void => {
+        setSearch('');
+        setIsRecommended(false);
         setWorkModel('');
         setJobType('');
         setAccessibility('');
@@ -378,6 +515,84 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                             }`}
                         >
                             <div className="min-h-0 space-y-5 overflow-hidden lg:overflow-visible">
+
+                        {/* 1. Rekomendasi Profil Pelamar */}
+                        <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-sky-50/50 to-blue-50/70 p-3.5 shadow-xs space-y-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-[#102B4B]">
+                                    <Sparkles className="h-4 w-4 text-amber-500 fill-amber-400" />
+                                    <span>Rekomendasi Profil</span>
+                                </div>
+                                {matchedCount > 0 && (
+                                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-800">
+                                        {matchedCount} Cocok
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-[#475569]">
+                                {applicantJobTitle
+                                    ? `Disesuaikan dengan ${applicantJobTitle} & profil akun Anda.`
+                                    : 'Disesuaikan dengan keahlian dan profil akun Anda.'}
+                            </p>
+                            <button
+                                type="button"
+                                onClick={toggleRecommended}
+                                className={`w-full flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-bold transition shadow-2xs cursor-pointer ${
+                                    isRecommended
+                                        ? 'bg-[#123B5D] text-white ring-2 ring-[#007F96]/40 shadow-sm'
+                                        : 'bg-white border border-amber-300 text-[#102B4B] hover:bg-amber-50 hover:border-[#007F96]'
+                                }`}
+                                title={auth?.user ? 'Filter lowongan sesuai profil dan keahlian Anda' : 'Masuk untuk melihat rekomendasi profil Anda'}
+                            >
+                                <Sparkles className={`h-3.5 w-3.5 ${isRecommended ? 'text-amber-300 fill-amber-300' : 'text-amber-500 fill-amber-400'}`} />
+                                <span>{isRecommended ? 'Rekomendasi Aktif' : 'Tampilkan Rekomendasi'}</span>
+                            </button>
+                        </div>
+
+                        {/* 2. Kata Kunci Sesuai Referensi & Profil Pelamar */}
+                        <div>
+                            <div className="mb-2 flex items-center justify-between">
+                                <span className="flex items-center gap-1.5 text-xs font-bold text-[#102B4B]">
+                                    <Search className="h-3.5 w-3.5 text-[#1674D1]" />
+                                    Kata Kunci Referensi
+                                </span>
+                                {search && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleKeywordClick(search)}
+                                        className="text-[10px] font-semibold text-rose-600 hover:underline cursor-pointer"
+                                    >
+                                        Hapus
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                                {quickKeywords.map((keywordItem) => {
+                                    const isSelected = search.toLowerCase() === keywordItem.label.toLowerCase();
+                                    return (
+                                        <button
+                                            key={keywordItem.label}
+                                            type="button"
+                                            onClick={() => handleKeywordClick(keywordItem.label)}
+                                            className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-medium transition cursor-pointer ${
+                                                isSelected
+                                                    ? 'bg-[#007F96] text-white font-bold shadow-2xs'
+                                                    : 'bg-[#F8FAFC] border border-[#E2E8F0] text-[#334155] hover:border-[#007F96] hover:bg-[#F0F9FB]'
+                                            }`}
+                                            title={keywordItem.is_profile ? 'Keahlian dari profil Anda' : 'Kata kunci populer'}
+                                        >
+                                            {keywordItem.is_profile && (
+                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" title="Keahlian dari profil Anda" />
+                                            )}
+                                            <span>{keywordItem.label}</span>
+                                            {isSelected && (
+                                                <X className="h-3 w-3 ml-0.5 opacity-80" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
 
                         {/* Lokasi */}
                         <div>
@@ -658,6 +873,25 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                             </button>
                         </form>
 
+                        {/* Banner Notifikasi saat Rekomendasi Profil Aktif */}
+                        {isRecommended && (
+                            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-amber-50/90 via-sky-50/80 to-blue-50/90 p-3 border border-amber-200/80 text-xs">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles className="h-4 w-4 text-amber-600 shrink-0 fill-amber-500" />
+                                    <span className="text-[#102B4B] font-medium">
+                                        Menampilkan lowongan yang dicocokkan dengan <strong>profil & keahlian Anda</strong> {applicantJobTitle ? `(${applicantJobTitle})` : ''}.
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={toggleRecommended}
+                                    className="shrink-0 text-xs font-bold text-[#1674D1] hover:underline cursor-pointer ml-2"
+                                >
+                                    Tampilkan Semua
+                                </button>
+                            </div>
+                        )}
+
                         {/* Count & Sorting Bar */}
                         <div className="flex items-center justify-between pt-1 text-xs">
                             <span className="font-bold text-[#102B4B]">
@@ -726,25 +960,32 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <Link
-                                                            href={`/jobs/${job.slug}`}
-                                                            onClick={(e) => {
-                                                                if (
-                                                                    typeof window !==
-                                                                        'undefined' &&
-                                                                    window.innerWidth >=
-                                                                        1024
-                                                                ) {
-                                                                    e.preventDefault();
-                                                                    setSelectedJob(
-                                                                        job,
-                                                                    );
-                                                                }
-                                                            }}
-                                                            className="line-clamp-1 text-sm font-bold text-[#102B4B] hover:text-[#007F96] sm:text-base"
-                                                        >
-                                                            {job.title}
-                                                        </Link>
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            <Link
+                                                                href={`/jobs/${job.slug}`}
+                                                                onClick={(e) => {
+                                                                    if (
+                                                                        typeof window !==
+                                                                            'undefined' &&
+                                                                        window.innerWidth >=
+                                                                            1024
+                                                                    ) {
+                                                                        e.preventDefault();
+                                                                        setSelectedJob(
+                                                                            job,
+                                                                        );
+                                                                    }
+                                                                }}
+                                                                className="line-clamp-1 text-sm font-bold text-[#102B4B] hover:text-[#007F96] sm:text-base"
+                                                            >
+                                                                {job.title}
+                                                            </Link>
+                                                            {job.is_featured && (
+                                                                <span className="inline-flex shrink-0 items-center rounded-md bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
+                                                                    ⭐ Unggulan
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="mt-0.5 text-xs text-[#64748B]">
                                                             {job.company_profile?.company_name || 'Perusahaan'}
                                                         </p>
@@ -823,6 +1064,12 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                                         <CheckCircle2 className="h-3 w-3 shrink-0" />
                                                         <span>Ramah Disabilitas</span>
                                                     </span>
+                                                    {job.is_profile_match && (
+                                                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-amber-50 border border-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                                                            <Sparkles className="h-3 w-3 shrink-0 text-amber-500 fill-amber-400" />
+                                                            <span>Sesuai Profil</span>
+                                                        </span>
+                                                    )}
                                                     {parseSkillList(job.skills_required)
                                                         .slice(0, 2)
                                                         .map((s, i) => (
@@ -900,10 +1147,23 @@ export default function JobsIndex({ vacancies, filters, savedVacancyIds = [] }: 
                                     <h2 className="text-xl font-extrabold text-[#102B4B]">
                                         {selectedJob.title}
                                     </h2>
-                                    <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#15803D]">
-                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                        Ramah Disabilitas
-                                    </span>
+                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center gap-1 rounded-md bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#15803D]">
+                                            <CheckCircle2 className="h-3.5 w-3.5" />
+                                            Ramah Disabilitas
+                                        </span>
+                                        {selectedJob.is_featured && (
+                                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-800 shadow-2xs">
+                                                ⭐ Lowongan Unggulan
+                                            </span>
+                                        )}
+                                        {selectedJob.is_profile_match && (
+                                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 border border-amber-200/80 px-2.5 py-1 text-xs font-bold text-amber-700">
+                                                <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
+                                                Sesuai Profil Anda
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Detail Pekerjaan */}

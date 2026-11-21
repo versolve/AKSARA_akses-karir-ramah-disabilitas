@@ -190,18 +190,18 @@ export default function CandidatesIndex({
     const renderAccessibilityIcon = (disabilityStr: string): ReactElement => {
         const lower = disabilityStr.toLowerCase();
         if (lower.includes('kursi roda') || lower.includes('fisik') || lower.includes('daksa')) {
-            return <Accessibility className="h-3.5 w-3.5 text-[#1769E0] shrink-0" />;
+            return <Accessibility className="h-3.5 w-3.5 text-[#1769E0] dark:text-[#38BDF8] shrink-0" />;
         }
         if (lower.includes('rungu') || lower.includes('telinga') || lower.includes('wicara')) {
-            return <Ear className="h-3.5 w-3.5 text-purple-600 shrink-0" />;
+            return <Ear className="h-3.5 w-3.5 text-purple-600 dark:text-purple-300 shrink-0" />;
         }
         if (lower.includes('netra') || lower.includes('mata') || lower.includes('vision') || lower.includes('buta')) {
-            return <EyeOff className="h-3.5 w-3.5 text-amber-600 shrink-0" />;
+            return <EyeOff className="h-3.5 w-3.5 text-amber-600 dark:text-amber-300 shrink-0" />;
         }
         if (lower.includes('neuro') || lower.includes('autis') || lower.includes('adhd') || lower.includes('mental')) {
-            return <Brain className="h-3.5 w-3.5 text-emerald-600 shrink-0" />;
+            return <Brain className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-300 shrink-0" />;
         }
-        return <Accessibility className="h-3.5 w-3.5 text-slate-400 shrink-0" />;
+        return <Accessibility className="h-3.5 w-3.5 text-slate-400 dark:text-slate-300 shrink-0" />;
     };
 
     // Calculate dynamic SVG circle stroke dashes for Realtime Donut Chart
@@ -231,10 +231,10 @@ export default function CandidatesIndex({
             <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                         Kandidat
                     </h1>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+                    <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium dark:text-slate-300">
                         Kelola seluruh kandidat yang melamar pekerjaan di perusahaan Anda.
                     </p>
                 </div>
@@ -242,88 +242,88 @@ export default function CandidatesIndex({
                 {/* 4 Stat Cards Row (100% Realtime dari Database) */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Card 1: Total Kandidat */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#071336]">
                         <div className="flex items-center justify-between">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#1769E0]">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#1769E0] dark:bg-blue-950/60 dark:text-[#38BDF8]">
                                 <Users className="h-6 w-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                                 <TrendingUp className="h-3 w-3" />
                                 {stats.total_growth}
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-xs font-semibold text-slate-500">Total Kandidat</p>
-                            <p className="mt-1 text-2xl font-black text-[#102B4B]">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">Total Kandidat</p>
+                            <p className="mt-1 text-2xl font-black text-[#102B4B] dark:text-white">
                                 {stats.total_candidates.toLocaleString('id-ID')}
                             </p>
-                            <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                            <p className="mt-1 text-[11px] text-slate-400 font-medium dark:text-slate-400">
                                 Dari periode sebelumnya
                             </p>
                         </div>
                     </div>
 
                     {/* Card 2: CV Diterima */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#071336]">
                         <div className="flex items-center justify-between">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                                 <FileText className="h-6 w-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                                 <TrendingUp className="h-3 w-3" />
                                 {stats.cv_growth}
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-xs font-semibold text-slate-500">CV Diterima</p>
-                            <p className="mt-1 text-2xl font-black text-[#102B4B]">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">CV Diterima</p>
+                            <p className="mt-1 text-2xl font-black text-[#102B4B] dark:text-white">
                                 {stats.cv_received.toLocaleString('id-ID')}
                             </p>
-                            <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                            <p className="mt-1 text-[11px] text-slate-400 font-medium dark:text-slate-400">
                                 Dari periode sebelumnya
                             </p>
                         </div>
                     </div>
 
                     {/* Card 3: Dalam Proses */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#071336]">
                         <div className="flex items-center justify-between">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-300">
                                 <UserCheck className="h-6 w-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                                 <TrendingUp className="h-3 w-3" />
                                 {stats.in_process_growth}
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-xs font-semibold text-slate-500">Dalam Proses</p>
-                            <p className="mt-1 text-2xl font-black text-[#102B4B]">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">Dalam Proses</p>
+                            <p className="mt-1 text-2xl font-black text-[#102B4B] dark:text-white">
                                 {stats.in_process.toLocaleString('id-ID')}
                             </p>
-                            <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                            <p className="mt-1 text-[11px] text-slate-400 font-medium dark:text-slate-400">
                                 Dari periode sebelumnya
                             </p>
                         </div>
                     </div>
 
                     {/* Card 4: Lulus Seleksi */}
-                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-[#071336]">
                         <div className="flex items-center justify-between">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
                                 <CheckCircle2 className="h-6 w-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                                 <TrendingUp className="h-3 w-3" />
                                 {stats.passed_growth}
                             </span>
                         </div>
                         <div className="mt-4">
-                            <p className="text-xs font-semibold text-slate-500">Lulus Seleksi</p>
-                            <p className="mt-1 text-2xl font-black text-[#102B4B]">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">Lulus Seleksi</p>
+                            <p className="mt-1 text-2xl font-black text-[#102B4B] dark:text-white">
                                 {stats.passed.toLocaleString('id-ID')}
                             </p>
-                            <p className="mt-1 text-[11px] text-slate-400 font-medium">
+                            <p className="mt-1 text-[11px] text-slate-400 font-medium dark:text-slate-400">
                                 Dari periode sebelumnya
                             </p>
                         </div>
@@ -346,7 +346,7 @@ export default function CandidatesIndex({
                         </div>
 
                         {/* Search and Filters Bar (Clean, Responsive, No Weird Outlines) */}
-                        <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                        <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#071336]">
                             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                 {/* Search Bar */}
                                 <form
@@ -360,7 +360,7 @@ export default function CandidatesIndex({
                                         onChange={(e) => setSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
                                         placeholder="Cari nama kandidat, posisi, atau keahlian..."
-                                        className="h-10 w-full rounded-xl border border-slate-200 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
+                                        className="h-10 w-full rounded-xl border border-slate-200 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0] dark:border-white/10 dark:bg-[#050E2E] dark:text-white dark:placeholder:text-slate-400"
                                     />
                                 </form>
 
@@ -370,7 +370,7 @@ export default function CandidatesIndex({
                                     <select
                                         value={vacancyFilter}
                                         onChange={(e) => handleFilterChange('vacancy', e.target.value)}
-                                        className="h-10 max-w-[180px] truncate rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
+                                        className="h-10 max-w-[180px] truncate rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0] dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-200"
                                     >
                                         <option value="all">Semua Lowongan</option>
                                         {vacancies.map((v) => (
@@ -384,7 +384,7 @@ export default function CandidatesIndex({
                                     <select
                                         value={statusFilter}
                                         onChange={(e) => handleFilterChange('status', e.target.value)}
-                                        className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
+                                        className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0] dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-200"
                                     >
                                         <option value="all">Semua Status</option>
                                         <option value="dalam_proses">Dalam Proses</option>
@@ -397,7 +397,7 @@ export default function CandidatesIndex({
                                     <select
                                         value={disabilityFilter}
                                         onChange={(e) => handleFilterChange('disability', e.target.value)}
-                                        className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0]"
+                                        className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:border-[#1769E0] focus:outline-none focus:ring-1 focus:ring-[#1769E0] dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-200"
                                     >
                                         <option value="all">Semua Disabilitas</option>
                                         <option value="fisik">Disabilitas Fisik (Kursi Roda)</option>
@@ -411,7 +411,7 @@ export default function CandidatesIndex({
                                         <button
                                             type="button"
                                             onClick={resetFilters}
-                                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+                                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                                             title="Reset Filter"
                                         >
                                             <X className="h-4 w-4" />
@@ -422,17 +422,17 @@ export default function CandidatesIndex({
                         </div>
 
                         {/* Candidate Table Card */}
-                        <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+                        <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden dark:border-white/10 dark:bg-[#071336]">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-semibold text-slate-500">
+                                        <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-semibold text-slate-500 dark:border-white/10 dark:bg-[#050E2E] dark:text-slate-200">
                                             <th className="w-10 py-3.5 pl-4 pr-2">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedIds.length === candidates.length && candidates.length > 0}
                                                     onChange={toggleSelectAll}
-                                                    className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-[#1769E0]"
+                                                    className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-[#1769E0] dark:border-white/20 dark:bg-[#050E2E]"
                                                 />
                                             </th>
                                             <th className="py-3.5 px-3 min-w-[190px]">Nama Kandidat</th>
@@ -443,15 +443,15 @@ export default function CandidatesIndex({
                                             <th className="py-3.5 px-3 min-w-[180px] text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 text-xs">
+                                    <tbody className="divide-y divide-slate-100 text-xs dark:divide-white/10">
                                         {candidates.length > 0 ? (
                                             candidates.map((c, index) => {
                                                 const isSelected = selectedIds.includes(c.id);
                                                 return (
                                                     <tr
                                                         key={c.id}
-                                                        className={`transition hover:bg-slate-50/70 ${
-                                                            isSelected ? 'bg-blue-50/30' : ''
+                                                        className={`transition hover:bg-slate-50/70 dark:hover:bg-[#0E2254] ${
+                                                            isSelected ? 'bg-blue-50/30 dark:bg-[#0B2256]' : ''
                                                         }`}
                                                     >
                                                         {/* Checkbox */}
@@ -460,7 +460,7 @@ export default function CandidatesIndex({
                                                                 type="checkbox"
                                                                 checked={isSelected}
                                                                 onChange={() => toggleSelectOne(c.id)}
-                                                                className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-[#1769E0]"
+                                                                className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-[#1769E0] dark:border-white/20 dark:bg-[#050E2E]"
                                                             />
                                                         </td>
 
@@ -489,20 +489,21 @@ export default function CandidatesIndex({
                                                                 <div className="min-w-0">
                                                                     <Link
                                                                         href={`/company/candidates/${c.id}`}
-                                                                        className="font-bold text-[#102B4B] hover:text-[#1769E0] hover:underline"
+                                                                        title={c.name}
+                                                                        className="font-bold text-[#102B4B] hover:text-[#1769E0] hover:underline dark:text-white dark:hover:text-[#38BDF8]"
                                                                     >
                                                                         {c.name}
                                                                     </Link>
-                                                                    <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-slate-500">
-                                                                        <GraduationCap className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                                                        <span className="truncate max-w-[180px]">{c.education}</span>
+                                                                    <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-300">
+                                                                        <GraduationCap className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 shrink-0" />
+                                                                        <span className="truncate max-w-[180px]" title={c.education}>{c.education}</span>
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                         </td>
 
                                                         {/* Posisi Dilamar */}
-                                                        <td className="py-4 px-3 font-semibold text-slate-800">
+                                                        <td className="py-4 px-3 font-semibold text-slate-800 dark:text-slate-200">
                                                             <div className="truncate max-w-[200px]" title={c.applied_position}>
                                                                 {c.applied_position}
                                                             </div>
@@ -515,25 +516,25 @@ export default function CandidatesIndex({
                                                                     {c.skills.map((skill, sIdx) => (
                                                                         <span
                                                                             key={sIdx}
-                                                                            className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-[#1769E0]"
+                                                                            className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-[#1769E0] dark:bg-blue-950/60 dark:text-[#38BDF8]"
                                                                         >
                                                                             {skill}
                                                                         </span>
                                                                     ))}
                                                                     {c.skills_more_count > 0 && (
-                                                                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                                                                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                                                             +{c.skills_more_count}
                                                                         </span>
                                                                     )}
                                                                 </div>
                                                             ) : (
-                                                                <span className="text-[11px] text-slate-400 italic">-</span>
+                                                                <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">-</span>
                                                             )}
                                                         </td>
 
                                                         {/* Accessibility Profile */}
                                                         <td className="py-4 px-3">
-                                                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700">
+                                                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 dark:text-slate-200">
                                                                 {renderAccessibilityIcon(c.disability_type)}
                                                                 <span className="truncate max-w-[150px]" title={c.disability_type}>
                                                                     {c.disability_type}
@@ -556,10 +557,10 @@ export default function CandidatesIndex({
                                                                 {/* Tombol Utama: Lihat Detail Profil */}
                                                                 <Link
                                                                     href={`/company/candidates/${c.id}`}
-                                                                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-[#1769E0] hover:bg-[#1769E0] hover:text-white transition shadow-sm border border-blue-100 group whitespace-nowrap"
+                                                                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-[#1769E0] hover:bg-[#1769E0] hover:text-white transition shadow-sm border border-blue-100 dark:bg-blue-950/60 dark:text-[#38BDF8] dark:border-blue-900/50 dark:hover:bg-[#1769E0] dark:hover:text-white group whitespace-nowrap"
                                                                     title="Lihat Detail Profil Kandidat"
                                                                 >
-                                                                    <FileText className="h-3.5 w-3.5 text-[#1769E0] group-hover:text-white" />
+                                                                    <FileText className="h-3.5 w-3.5 text-[#1769E0] group-hover:text-white dark:text-[#38BDF8]" />
                                                                     <span>Lihat Detail Profil</span>
                                                                 </Link>
 
@@ -737,6 +738,7 @@ export default function CandidatesIndex({
                                             fill="transparent"
                                             stroke="#EEF2F6"
                                             strokeWidth="14"
+                                            className="stroke-[#EEF2F6] dark:stroke-[#1E2B4D]"
                                         />
 
                                         {totalCount > 0 && (
@@ -797,10 +799,10 @@ export default function CandidatesIndex({
                                         )}
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                        <p className="text-xl font-extrabold text-[#102B4B]">
+                                        <p className="text-xl font-extrabold text-[#102B4B] dark:text-white">
                                             {totalCount.toLocaleString('id-ID')}
                                         </p>
-                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                        <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
                                             Total Kandidat
                                         </p>
                                     </div>
@@ -811,9 +813,9 @@ export default function CandidatesIndex({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
-                                            <span className="text-slate-600">Dalam Proses</span>
+                                            <span className="text-slate-600 dark:text-slate-300">Dalam Proses</span>
                                         </div>
-                                        <span className="text-slate-900">
+                                        <span className="text-slate-900 dark:text-white">
                                             {stats.distribution.in_process} ({stats.distribution.in_process_pct}%)
                                         </span>
                                     </div>
@@ -821,9 +823,9 @@ export default function CandidatesIndex({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                                            <span className="text-slate-600">Lulus Seleksi</span>
+                                            <span className="text-slate-600 dark:text-slate-300">Lulus Seleksi</span>
                                         </div>
-                                        <span className="text-slate-900">
+                                        <span className="text-slate-900 dark:text-white">
                                             {stats.distribution.passed} ({stats.distribution.passed_pct}%)
                                         </span>
                                     </div>
@@ -831,9 +833,9 @@ export default function CandidatesIndex({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                                            <span className="text-slate-600">Seleksi Admin</span>
+                                            <span className="text-slate-600 dark:text-slate-300">Seleksi Admin</span>
                                         </div>
-                                        <span className="text-slate-900">
+                                        <span className="text-slate-900 dark:text-white">
                                             {stats.distribution.admin_review} ({stats.distribution.admin_review_pct}%)
                                         </span>
                                     </div>
@@ -841,9 +843,9 @@ export default function CandidatesIndex({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
-                                            <span className="text-slate-600">Ditolak / Batal</span>
+                                            <span className="text-slate-600 dark:text-slate-300">Ditolak / Batal</span>
                                         </div>
-                                        <span className="text-slate-900">
+                                        <span className="text-slate-900 dark:text-white">
                                             {stats.distribution.rejected} ({stats.distribution.rejected_pct}%)
                                         </span>
                                     </div>
@@ -852,14 +854,14 @@ export default function CandidatesIndex({
                         </div>
 
                         {/* Card 2: Aktivitas Kandidat Terbaru (Realtime) */}
-                        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#071336]">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-sm font-bold text-[#102B4B]">
+                                <h3 className="text-sm font-bold text-[#102B4B] dark:text-white">
                                     Aktivitas Kandidat Terbaru
                                 </h3>
                                 <Link
                                     href="/company/applications"
-                                    className="text-xs font-bold text-[#1769E0] hover:underline"
+                                    className="text-xs font-bold text-[#1769E0] hover:underline dark:text-[#38BDF8]"
                                 >
                                     Lihat Semua
                                 </Link>
@@ -869,27 +871,27 @@ export default function CandidatesIndex({
                                 {recentActivities.length > 0 ? (
                                     recentActivities.map((act) => (
                                         <div key={act.id} className="flex items-start gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#1769E0]">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#1769E0] dark:bg-blue-950/60 dark:text-[#38BDF8]">
                                                 {act.type === 'hired' ? (
-                                                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                                 ) : act.type === 'reviewed' ? (
-                                                    <FileText className="h-4 w-4 text-[#1769E0]" />
+                                                    <FileText className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />
                                                 ) : (
-                                                    <User className="h-4 w-4 text-[#1769E0]" />
+                                                    <User className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />
                                                 )}
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-xs font-semibold text-slate-800 leading-snug">
+                                                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
                                                     {act.text}
                                                 </p>
-                                                <p className="mt-0.5 text-[11px] font-medium text-slate-400">
+                                                <p className="mt-0.5 text-[11px] font-medium text-slate-400 dark:text-slate-400">
                                                     {act.time}
                                                 </p>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-6 text-center text-xs font-semibold text-slate-400">
+                                    <div className="py-6 text-center text-xs font-semibold text-slate-400 dark:text-slate-500">
                                         Belum ada aktivitas kandidat terbaru.
                                     </div>
                                 )}
@@ -906,19 +908,19 @@ export default function CandidatesIndex({
                     onClick={() => setQuickViewCandidate(null)}
                 >
                     <div
-                        className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95"
+                        className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 dark:border-white/10 dark:bg-[#071336]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/70">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/70 dark:border-white/10 dark:bg-[#050E2E]">
                             <div className="flex items-center gap-2">
-                                <FileText className="h-5 w-5 text-[#1769E0]" />
-                                <h3 className="text-base font-extrabold text-[#102B4B]">Detail Profil Kandidat</h3>
+                                <FileText className="h-5 w-5 text-[#1769E0] dark:text-[#38BDF8]" />
+                                <h3 className="text-base font-extrabold text-[#102B4B] dark:text-white">Detail Profil Kandidat</h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setQuickViewCandidate(null)}
-                                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition dark:hover:bg-white/10 dark:hover:text-white"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -928,7 +930,7 @@ export default function CandidatesIndex({
                         <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
                             {/* Profile Overview */}
                             <div className="flex items-center gap-4">
-                                <div className="relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm">
+                                <div className="relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm dark:border-white/20">
                                     {quickViewCandidate.avatar ? (
                                         <img
                                             src={quickViewCandidate.avatar}
@@ -946,9 +948,9 @@ export default function CandidatesIndex({
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-lg font-black text-[#102B4B]">{quickViewCandidate.name}</h4>
-                                    <p className="text-xs font-semibold text-slate-600 mt-0.5">{quickViewCandidate.education}</p>
-                                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                    <h4 className="text-lg font-black text-[#102B4B] dark:text-white">{quickViewCandidate.name}</h4>
+                                    <p className="text-xs font-semibold text-slate-600 mt-0.5 dark:text-slate-300">{quickViewCandidate.education}</p>
+                                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                                         {quickViewCandidate.email && (
                                             <span className="flex items-center gap-1">
                                                 <Mail className="h-3.5 w-3.5 text-slate-400" />
@@ -973,9 +975,9 @@ export default function CandidatesIndex({
 
                             {/* Bio / Ringkasan Diri */}
                             {quickViewCandidate.bio && (
-                                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
-                                    <span className="text-xs font-bold text-[#102B4B] block mb-1">Ringkasan Profil Diri:</span>
-                                    <p className="text-xs text-slate-600 leading-relaxed italic">
+                                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-4 dark:border-blue-900/50 dark:bg-blue-950/40">
+                                    <span className="text-xs font-bold text-[#102B4B] block mb-1 dark:text-white">Ringkasan Profil Diri:</span>
+                                    <p className="text-xs text-slate-600 leading-relaxed italic dark:text-slate-300">
                                         "{quickViewCandidate.bio}"
                                     </p>
                                 </div>
@@ -983,31 +985,31 @@ export default function CandidatesIndex({
 
                             {/* Details Grid */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                                <div className="rounded-2xl border border-slate-100 p-4 space-y-2.5 bg-slate-50/40">
-                                    <span className="font-bold text-slate-700 block">Informasi Lamaran</span>
+                                <div className="rounded-2xl border border-slate-100 p-4 space-y-2.5 bg-slate-50/40 dark:border-white/10 dark:bg-[#050E2E]">
+                                    <span className="font-bold text-slate-700 block dark:text-white">Informasi Lamaran</span>
                                     <div className="flex justify-between">
-                                        <span className="text-slate-500">Posisi:</span>
-                                        <span className="font-bold text-slate-800">{quickViewCandidate.applied_position}</span>
+                                        <span className="text-slate-500 dark:text-slate-400">Posisi:</span>
+                                        <span className="font-bold text-slate-800 dark:text-slate-200">{quickViewCandidate.applied_position}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-slate-500">Tanggal Melamar:</span>
-                                        <span className="font-semibold text-slate-700">{quickViewCandidate.applied_at || '-'}</span>
+                                        <span className="text-slate-500 dark:text-slate-400">Tanggal Melamar:</span>
+                                        <span className="font-semibold text-slate-700 dark:text-slate-300">{quickViewCandidate.applied_at || '-'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-slate-500">Status:</span>
+                                        <span className="text-slate-500 dark:text-slate-400">Status:</span>
                                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold ${quickViewCandidate.status_color}`}>
                                             {quickViewCandidate.status_label}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-100 p-4 space-y-2.5 bg-slate-50/40">
-                                    <span className="font-bold text-slate-700 block">Accessibility Profile</span>
-                                    <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                                <div className="rounded-2xl border border-slate-100 p-4 space-y-2.5 bg-slate-50/40 dark:border-white/10 dark:bg-[#050E2E]">
+                                    <span className="font-bold text-slate-700 block dark:text-white">Accessibility Profile</span>
+                                    <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200">
                                         {renderAccessibilityIcon(quickViewCandidate.disability_type)}
                                         <span>{quickViewCandidate.disability_type}</span>
                                     </div>
-                                    <p className="text-[11px] text-slate-500 mt-1">
+                                    <p className="text-[11px] text-slate-500 mt-1 dark:text-slate-400">
                                         Kandidat telah terverifikasi dan memenuhi standar inklusivitas Profabel.
                                     </p>
                                 </div>
@@ -1016,10 +1018,10 @@ export default function CandidatesIndex({
                             {/* Skills */}
                             {quickViewCandidate.all_skills && quickViewCandidate.all_skills.length > 0 && (
                                 <div>
-                                    <span className="text-xs font-bold text-slate-700 block mb-2">Keahlian & Kemampuan:</span>
+                                    <span className="text-xs font-bold text-slate-700 block mb-2 dark:text-white">Keahlian & Kemampuan:</span>
                                     <div className="flex flex-wrap gap-1.5">
                                         {quickViewCandidate.all_skills.map((s, idx) => (
-                                            <span key={idx} className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-[#1769E0]">
+                                            <span key={idx} className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-[#1769E0] dark:bg-blue-950/60 dark:text-[#38BDF8]">
                                                 {s}
                                             </span>
                                         ))}
@@ -1029,11 +1031,11 @@ export default function CandidatesIndex({
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/70">
+                        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/70 dark:border-white/10 dark:bg-[#050E2E]">
                             <button
                                 type="button"
                                 onClick={() => setQuickViewCandidate(null)}
-                                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+                                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition dark:border-white/10 dark:bg-[#071336] dark:text-slate-300 dark:hover:bg-white/10"
                             >
                                 Tutup
                             </button>
@@ -1043,9 +1045,9 @@ export default function CandidatesIndex({
                                         href={quickViewCandidate.cv_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition"
+                                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition dark:border-white/10 dark:bg-[#071336] dark:text-slate-200 dark:hover:bg-white/10"
                                     >
-                                        <Download className="h-3.5 w-3.5 text-purple-600" />
+                                        <Download className="h-3.5 w-3.5 text-purple-600 dark:text-purple-300" />
                                         <span>Unduh CV</span>
                                     </a>
                                 )}

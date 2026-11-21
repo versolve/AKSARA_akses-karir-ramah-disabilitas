@@ -43,4 +43,43 @@ class NotificationController extends Controller
 
         return back()->with('status', 'Notifikasi berhasil dihapus.');
     }
+
+    /**
+     * Collect recent notifications for the seeker to display in the mini dropdown.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function collectSeekerNotifications(\App\Models\User $user): array
+    {
+        try {
+            $notifications = [];
+            foreach ($user->notifications()->latest()->take(10)->get() as $dbNotif) {
+                $data = is_array($dbNotif->data) ? $dbNotif->data : json_decode($dbNotif->data ?? '[]', true);
+                $status = $data['status'] ?? null;
+                $title = $data['title'] ?? match ($status) {
+                    'interview' => 'Undangan Wawancara',
+                    'hired' => 'Lamaran Diterima',
+                    'rejected' => 'Lamaran Ditolak',
+                    'reviewed' => 'Lamaran Sedang Ditinjau',
+                    default => $data['vacancy_title'] ?? 'Pembaruan Lamaran',
+                };
+
+                $notifications[] = [
+                    'id' => (string) $dbNotif->id,
+                    'title' => $title,
+                    'company_name' => $data['company_name'] ?? 'Profabel',
+                    'message' => $data['message'] ?? $data['notes'] ?? ($data['vacancy_title'] ? "Untuk posisi {$data['vacancy_title']}..." : 'Ada pembaruan status lamaran Anda.'),
+                    'status' => $status,
+                    'link' => $data['link'] ?? "/app/notifications?id={$dbNotif->id}",
+                    'created_at' => $dbNotif->created_at->toIso8601String(),
+                    'time_ago' => $dbNotif->created_at->diffForHumans(),
+                    'is_read' => $dbNotif->read_at !== null,
+                ];
+            }
+
+            return $notifications;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
 }

@@ -135,7 +135,32 @@ class FortifyServiceProvider extends ServiceProvider
         /* @end-chisel-registration */
 
         /* @chisel-2fa */
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
+        Fortify::twoFactorChallengeView(function (Request $request) {
+            $user = null;
+            if ($request->session()->has('login.id')) {
+                $user = User::find($request->session()->get('login.id'));
+            }
+
+            // Auto-kirim kode 2FA ke email saat halaman tantangan terbuka jika belum ada atau sudah kedaluwarsa
+            if ($user && (empty($user->verification_code) || ($user->verification_code_expires_at && now()->gt($user->verification_code_expires_at)))) {
+                $user->sendTwoFactorEmailCode();
+            }
+
+            // Masking email untuk keamanan tampilan di antarmuka
+            $maskedEmail = null;
+            if ($user) {
+                $parts = explode('@', $user->email);
+                $name = $parts[0];
+                $domain = $parts[1] ?? '';
+                $maskedName = substr($name, 0, 1) . str_repeat('*', max(3, strlen($name) - 2)) . (strlen($name) > 1 ? substr($name, -1) : '');
+                $maskedEmail = "{$maskedName}@{$domain}";
+            }
+
+            return Inertia::render('auth/two-factor-challenge', [
+                'userEmail' => $maskedEmail,
+                'status' => $request->session()->get('status'),
+            ]);
+        });
         /* @end-chisel-2fa */
 
         /* @chisel-password-confirmation */

@@ -96,6 +96,9 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($company->logo_path);
             }
             $validated['logo_path'] = $request->file('logo')->store('company_logos', 'public');
+            $request->user()->update([
+                'avatar' => '/storage/' . $validated['logo_path'],
+            ]);
         }
 
         unset($validated['logo']);

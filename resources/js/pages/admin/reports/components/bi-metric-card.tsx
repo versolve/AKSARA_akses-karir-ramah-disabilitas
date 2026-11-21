@@ -37,7 +37,7 @@ export function BiMetricCard({
     const toneStyle = toneMap[tone] || toneMap.blue;
 
     return (
-        <article className="flex min-w-0 flex-col justify-between rounded-2xl border border-[#E2EAF3] bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] transition hover:shadow-md">
+        <article className="flex min-w-0 flex-col justify-between rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-4 sm:p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)] transition hover:shadow-md">
             <div className="min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-xs font-semibold text-slate-500">{title}</span>
@@ -70,7 +70,7 @@ export function BiMetricCard({
             </div>
 
             {(splitLeft || splitRight) && (
-                <div className="mt-3.5 flex flex-wrap items-center justify-between gap-1.5 border-t border-slate-100 pt-2.5 text-[11px]">
+                <div className="mt-3.5 flex flex-wrap items-center justify-between gap-1.5 border-t border-slate-100 dark:border-[#1E2B4D] pt-2.5 text-[11px]">
                     {splitLeft && (
                         <div className="flex min-w-0 items-center gap-1">
                             <span className="truncate text-slate-400">{splitLeft.label}</span>

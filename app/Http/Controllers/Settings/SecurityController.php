@@ -65,6 +65,16 @@ class SecurityController extends Controller
             'password' => $request->password,
         ]);
 
+        // Kirim email peringatan keamanan pembaruan password
+        try {
+            $request->user()->notify(new \App\Notifications\AccountSecurityAlertNotification('password_updated', [
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email peringatan keamanan update password: " . $e->getMessage());
+        }
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 
         return back();

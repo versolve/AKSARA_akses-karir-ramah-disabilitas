@@ -195,10 +195,10 @@ export default function CompanyReportsIndex({
             <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
                 {/* Header Title & Subtitle */}
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B]">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#102B4B] dark:text-white">
                         Laporan
                     </h1>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+                    <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                         Buat, kelola, dan unduh dokumen laporan rekrutmen perusahaan.
                     </p>
                 </div>
@@ -206,12 +206,12 @@ export default function CompanyReportsIndex({
                 {/* Top Grid: Buat Laporan Baru (Left) & Jenis Laporan Cards (Right) */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
                     {/* LEFT CARD: Buat Laporan Baru (5 Cols) */}
-                    <div className="lg:col-span-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div className="lg:col-span-5 rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm">
                         <div className="flex items-center gap-2.5 mb-5">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#1769E0]">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]">
                                 <FileEdit className="h-5 w-5" />
                             </div>
-                            <h2 className="text-base font-extrabold text-[#102B4B]">
+                            <h2 className="text-base font-extrabold text-[#102B4B] dark:text-white">
                                 Buat Laporan Baru
                             </h2>
                         </div>
@@ -219,14 +219,14 @@ export default function CompanyReportsIndex({
                         <form onSubmit={handleCreateReport} className="space-y-4">
                             {/* Jenis Laporan Dropdown */}
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-700">
+                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
                                     Jenis Laporan
                                 </label>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#1769E0]"
+                                            className="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-[#1769E0]"
                                         >
                                             <div className="flex items-center gap-2.5 truncate">
                                                 <Layers className="h-4 w-4 text-slate-400" />
@@ -235,19 +235,19 @@ export default function CompanyReportsIndex({
                                             <ChevronDown className="h-4 w-4 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" className="w-[340px] rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl">
+                                    <DropdownMenuContent align="start" className="w-[340px] rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-1.5 shadow-xl">
                                         {reportTypes.map((t) => (
                                             <DropdownMenuItem
                                                 key={t.id}
                                                 onClick={() => handleSelectType(t.id)}
                                                 className={`flex cursor-pointer items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-bold transition ${
                                                     selectedType === t.id
-                                                        ? 'bg-blue-50 text-[#1769E0]'
-                                                        : 'text-slate-700 hover:bg-slate-50'
+                                                        ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                                 }`}
                                             >
                                                 <span>{t.title}</span>
-                                                {selectedType === t.id && <Check className="h-4 w-4 text-[#1769E0]" />}
+                                                {selectedType === t.id && <Check className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />}
                                             </DropdownMenuItem>
                                         ))}
                                     </DropdownMenuContent>
@@ -256,14 +256,14 @@ export default function CompanyReportsIndex({
 
                             {/* Periode Laporan Dropdown */}
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-700">
+                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
                                     Periode Laporan
                                 </label>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#1769E0]"
+                                            className="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-[#1769E0]"
                                         >
                                             <div className="flex items-center gap-2.5 truncate">
                                                 <Calendar className="h-4 w-4 text-slate-400" />
@@ -272,7 +272,7 @@ export default function CompanyReportsIndex({
                                             <ChevronDown className="h-4 w-4 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" className="w-[340px] rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl">
+                                    <DropdownMenuContent align="start" className="w-[340px] rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-1.5 shadow-xl">
                                         {periodPresets.map((p) => {
                                             const isSelected = selectedPeriod === p.id && !customPeriodLabel;
                                             return (
@@ -286,21 +286,21 @@ export default function CompanyReportsIndex({
                                                     }}
                                                     className={`flex cursor-pointer items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-bold transition ${
                                                         isSelected
-                                                            ? 'bg-blue-50 text-[#1769E0]'
-                                                            : 'text-slate-700 hover:bg-slate-50'
+                                                            ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
+                                                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5'
                                                     }`}
                                                 >
                                                     <span>{p.label}</span>
-                                                    {isSelected && <Check className="h-4 w-4 text-[#1769E0]" />}
+                                                    {isSelected && <Check className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />}
                                                 </DropdownMenuItem>
                                             );
                                         })}
-                                        <div className="my-1 border-t border-slate-100" />
+                                        <div className="my-1 border-t border-slate-100 dark:border-white/10" />
                                         <DropdownMenuItem
                                             onClick={() => setCalendarModalOpen(true)}
-                                            className="flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-[#1769E0] transition"
+                                            className="flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-[#1769E0] dark:hover:text-[#38BDF8] transition"
                                         >
-                                            <CalendarDays className="h-4 w-4 text-[#1769E0]" />
+                                            <CalendarDays className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />
                                             <span>Pilih Rentang Kalender...</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -309,7 +309,7 @@ export default function CompanyReportsIndex({
 
                             {/* Format File Segmented Radio Cards */}
                             <div className="space-y-1.5 pt-1">
-                                <label className="text-xs font-bold text-slate-700">
+                                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
                                     Format File
                                 </label>
                                 <div className="grid grid-cols-2 gap-3">
@@ -319,15 +319,15 @@ export default function CompanyReportsIndex({
                                         onClick={() => setSelectedFormat('pdf')}
                                         className={`flex items-center gap-3 rounded-2xl p-3 border text-left transition cursor-pointer ${
                                             selectedFormat === 'pdf'
-                                                ? 'border-[#1769E0] bg-blue-50/40 ring-2 ring-[#1769E0]/20'
-                                                : 'border-slate-200 bg-white hover:bg-slate-50'
+                                                ? 'border-[#1769E0] dark:border-blue-500 bg-blue-50/40 dark:bg-blue-950/60 ring-2 ring-[#1769E0]/20 dark:ring-blue-500/30'
+                                                : 'border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] hover:bg-slate-50 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         <div
                                             className={`flex h-4 w-4 items-center justify-center rounded-full border transition ${
                                                 selectedFormat === 'pdf'
-                                                    ? 'border-[#1769E0] bg-[#1769E0]'
-                                                    : 'border-slate-300 bg-white'
+                                                    ? 'border-[#1769E0] dark:border-blue-500 bg-[#1769E0] dark:bg-blue-500'
+                                                    : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#050E2E]'
                                             }`}
                                         >
                                             {selectedFormat === 'pdf' && (
@@ -335,10 +335,10 @@ export default function CompanyReportsIndex({
                                             )}
                                         </div>
                                         {/* Red PDF Icon badge */}
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50">
                                             <FileText className="h-4 w-4" />
                                         </div>
-                                        <span className="text-xs font-extrabold text-slate-800">
+                                        <span className="text-xs font-extrabold text-slate-800 dark:text-white">
                                             PDF
                                         </span>
                                     </button>
@@ -349,15 +349,15 @@ export default function CompanyReportsIndex({
                                         onClick={() => setSelectedFormat('excel')}
                                         className={`flex items-center gap-3 rounded-2xl p-3 border text-left transition cursor-pointer ${
                                             selectedFormat === 'excel'
-                                                ? 'border-[#1769E0] bg-blue-50/40 ring-2 ring-[#1769E0]/20'
-                                                : 'border-slate-200 bg-white hover:bg-slate-50'
+                                                ? 'border-[#1769E0] dark:border-blue-500 bg-blue-50/40 dark:bg-blue-950/60 ring-2 ring-[#1769E0]/20 dark:ring-blue-500/30'
+                                                : 'border-slate-200 dark:border-white/10 bg-white dark:bg-[#050E2E] hover:bg-slate-50 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         <div
                                             className={`flex h-4 w-4 items-center justify-center rounded-full border transition ${
                                                 selectedFormat === 'excel'
-                                                    ? 'border-[#1769E0] bg-[#1769E0]'
-                                                    : 'border-slate-300 bg-white'
+                                                    ? 'border-[#1769E0] dark:border-blue-500 bg-[#1769E0] dark:bg-blue-500'
+                                                    : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#050E2E]'
                                             }`}
                                         >
                                             {selectedFormat === 'excel' && (
@@ -365,10 +365,10 @@ export default function CompanyReportsIndex({
                                             )}
                                         </div>
                                         {/* Green Excel Icon badge */}
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50">
                                             <FileSpreadsheet className="h-4 w-4" />
                                         </div>
-                                        <span className="text-xs font-extrabold text-slate-800">
+                                        <span className="text-xs font-extrabold text-slate-800 dark:text-white">
                                             Excel
                                         </span>
                                     </button>
@@ -390,11 +390,11 @@ export default function CompanyReportsIndex({
                     </div>
 
                     {/* RIGHT CARD: Jenis Laporan Cards (7 Cols) */}
-                    <div className="lg:col-span-7 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div className="lg:col-span-7 rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm">
                         <div>
                             <div className="flex items-center gap-2">
-                                <Layers className="h-5 w-5 text-[#1769E0]" />
-                                <h2 className="text-base font-extrabold text-[#102B4B]">
+                                <Layers className="h-5 w-5 text-[#1769E0] dark:text-[#38BDF8]" />
+                                <h2 className="text-base font-extrabold text-[#102B4B] dark:text-white">
                                     Jenis Laporan
                                 </h2>
                             </div>
@@ -410,18 +410,18 @@ export default function CompanyReportsIndex({
                                 onClick={() => handleSelectType('rekap_lowongan')}
                                 className={`rounded-2xl p-5 border transition cursor-pointer flex flex-col justify-between ${
                                     selectedType === 'rekap_lowongan'
-                                        ? 'bg-blue-50/70 border-[#1769E0] ring-2 ring-[#1769E0]/20'
-                                        : 'bg-blue-50/40 border-blue-100/60 hover:bg-blue-50/80 hover:border-blue-200'
+                                        ? 'bg-blue-50/70 dark:bg-blue-950/60 border-[#1769E0] dark:border-blue-500 ring-2 ring-[#1769E0]/20'
+                                        : 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-100/60 dark:border-white/10 hover:bg-blue-50/80 dark:hover:bg-blue-950/40 hover:border-blue-200 dark:hover:border-blue-500/50'
                                 }`}
                             >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-[#1769E0]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/60 text-[#1769E0] dark:text-[#38BDF8]">
                                     <Briefcase className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <h3 className="text-sm font-extrabold text-slate-900">
+                                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
                                         Rekap Lowongan
                                     </h3>
-                                    <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 font-medium leading-relaxed">
                                         Daftar lowongan dan status publikasinya.
                                     </p>
                                 </div>
@@ -432,18 +432,18 @@ export default function CompanyReportsIndex({
                                 onClick={() => handleSelectType('rekap_lamaran')}
                                 className={`rounded-2xl p-5 border transition cursor-pointer flex flex-col justify-between ${
                                     selectedType === 'rekap_lamaran'
-                                        ? 'bg-purple-50/70 border-purple-500 ring-2 ring-purple-500/20'
-                                        : 'bg-purple-50/40 border-purple-100/60 hover:bg-purple-50/80 hover:border-purple-200'
+                                        ? 'bg-purple-50/70 dark:bg-purple-950/60 border-purple-500 dark:border-purple-400 ring-2 ring-purple-500/20'
+                                        : 'bg-purple-50/40 dark:bg-purple-950/20 border-purple-100/60 dark:border-white/10 hover:bg-purple-50/80 dark:hover:bg-purple-950/40 hover:border-purple-200 dark:hover:border-purple-500/50'
                                 }`}
                             >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-100 text-purple-600">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-300">
                                     <FileText className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <h3 className="text-sm font-extrabold text-slate-900">
+                                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
                                         Rekap Lamaran
                                     </h3>
-                                    <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 font-medium leading-relaxed">
                                         Daftar kandidat dan status lamarannya.
                                     </p>
                                 </div>
@@ -454,18 +454,18 @@ export default function CompanyReportsIndex({
                                 onClick={() => handleSelectType('hasil_seleksi')}
                                 className={`rounded-2xl p-5 border transition cursor-pointer flex flex-col justify-between ${
                                     selectedType === 'hasil_seleksi'
-                                        ? 'bg-emerald-50/70 border-emerald-500 ring-2 ring-emerald-500/20'
-                                        : 'bg-emerald-50/40 border-emerald-100/60 hover:bg-emerald-50/80 hover:border-emerald-200'
+                                        ? 'bg-emerald-50/70 dark:bg-emerald-950/60 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-500/20'
+                                        : 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-100/60 dark:border-white/10 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/40 hover:border-emerald-200 dark:hover:border-emerald-500/50'
                                 }`}
                             >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300">
                                     <UserCheck className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <h3 className="text-sm font-extrabold text-slate-900">
+                                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
                                         Hasil Seleksi
                                     </h3>
-                                    <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 font-medium leading-relaxed">
                                         Daftar kandidat diterima dan ditolak.
                                     </p>
                                 </div>
@@ -476,18 +476,18 @@ export default function CompanyReportsIndex({
                                 onClick={() => handleSelectType('aktivitas_rekrutmen')}
                                 className={`rounded-2xl p-5 border transition cursor-pointer flex flex-col justify-between ${
                                     selectedType === 'aktivitas_rekrutmen'
-                                        ? 'bg-amber-50/70 border-amber-500 ring-2 ring-amber-500/20'
-                                        : 'bg-amber-50/40 border-amber-100/60 hover:bg-amber-50/80 hover:border-amber-200'
+                                        ? 'bg-amber-50/70 dark:bg-amber-950/60 border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/20'
+                                        : 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-100/60 dark:border-white/10 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 hover:border-amber-200 dark:hover:border-amber-500/50'
                                 }`}
                             >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-300">
                                     <Activity className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <h3 className="text-sm font-extrabold text-slate-900">
+                                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
                                         Aktivitas Rekrutmen
                                     </h3>
-                                    <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 font-medium leading-relaxed">
                                         Riwayat kegiatan dan perubahan proses rekrutmen.
                                     </p>
                                 </div>
@@ -497,12 +497,12 @@ export default function CompanyReportsIndex({
                 </div>
 
                 {/* BOTTOM CARD: Riwayat Laporan Table */}
-                <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-sm">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4">
                         <div>
                             <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-[#1769E0]" />
-                                <h2 className="text-base font-extrabold text-[#102B4B]">
+                                <Clock className="h-5 w-5 text-[#1769E0] dark:text-[#38BDF8]" />
+                                <h2 className="text-base font-extrabold text-[#102B4B] dark:text-white">
                                     Riwayat Laporan
                                 </h2>
                             </div>
@@ -519,7 +519,7 @@ export default function CompanyReportsIndex({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari nama laporan..."
-                                className="h-10 pl-10 pr-4 rounded-xl text-xs bg-slate-50/50 border-slate-200 focus:bg-white"
+                                className="h-10 pl-10 pr-4 rounded-xl text-xs bg-slate-50/50 dark:bg-[#050E2E] border-slate-200 dark:border-white/10 text-slate-800 dark:text-white focus:bg-white dark:focus:bg-[#050E2E]"
                             />
                         </div>
                     </div>
@@ -528,7 +528,7 @@ export default function CompanyReportsIndex({
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50/60 font-bold text-slate-500">
+                                <tr className="border-b border-slate-100 dark:border-white/10 bg-slate-50/60 dark:bg-[#050E2E] font-bold text-slate-500 dark:text-slate-300">
                                     <th className="py-3.5 px-4">Nama Laporan</th>
                                     <th className="py-3.5 px-4 text-center">Jenis Laporan</th>
                                     <th className="py-3.5 px-4 text-center">Periode</th>
@@ -538,10 +538,10 @@ export default function CompanyReportsIndex({
                                     <th className="py-3.5 px-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 font-medium">
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/10 font-medium">
                                 {filteredReports.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="py-10 text-center text-slate-400 text-xs">
+                                        <td colSpan={7} className="py-10 text-center text-slate-400 dark:text-slate-500 text-xs">
                                             {searchQuery
                                                 ? `Tidak ada laporan yang cocok dengan pencarian "${searchQuery}".`
                                                 : 'Belum ada riwayat laporan yang dibuat.'}
@@ -549,20 +549,20 @@ export default function CompanyReportsIndex({
                                     </tr>
                                 ) : (
                                     filteredReports.map((report) => (
-                                        <tr key={report.id} className="hover:bg-slate-50/70 transition">
+                                        <tr key={report.id} className="hover:bg-slate-50/70 dark:hover:bg-white/5 transition">
                                             {/* Nama Laporan with Icon */}
                                             <td className="py-3.5 px-4">
                                                 <div className="flex items-center gap-3">
                                                     {report.format === 'pdf' ? (
-                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50">
                                                             <FileText className="h-4 w-4" />
                                                         </div>
                                                     ) : (
-                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50">
                                                             <FileSpreadsheet className="h-4 w-4" />
                                                         </div>
                                                     )}
-                                                    <span className="font-bold text-slate-800">
+                                                    <span className="font-bold text-slate-800 dark:text-white">
                                                         {report.name}
                                                     </span>
                                                 </div>
@@ -573,12 +573,12 @@ export default function CompanyReportsIndex({
                                                 <span
                                                     className={`inline-block rounded-xl px-3 py-1 text-xs font-bold ${
                                                         report.type === 'rekap_lowongan'
-                                                            ? 'bg-blue-50 text-[#1769E0]'
+                                                            ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1769E0] dark:text-[#38BDF8]'
                                                             : report.type === 'rekap_lamaran'
-                                                            ? 'bg-purple-50 text-purple-600'
+                                                            ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300'
                                                             : report.type === 'hasil_seleksi'
-                                                            ? 'bg-emerald-50 text-emerald-600'
-                                                            : 'bg-amber-50 text-amber-600'
+                                                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300'
+                                                            : 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300'
                                                     }`}
                                                 >
                                                     {report.type_label}
@@ -586,7 +586,7 @@ export default function CompanyReportsIndex({
                                             </td>
 
                                             {/* Periode */}
-                                            <td className="py-3.5 px-4 text-center text-slate-600 font-semibold whitespace-nowrap">
+                                            <td className="py-3.5 px-4 text-center text-slate-600 dark:text-slate-300 font-semibold whitespace-nowrap">
                                                 {report.period_label}
                                             </td>
 
@@ -595,8 +595,8 @@ export default function CompanyReportsIndex({
                                                 <span
                                                     className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-extrabold uppercase ${
                                                         report.format === 'pdf'
-                                                            ? 'bg-rose-50 text-rose-600'
-                                                            : 'bg-emerald-50 text-emerald-600'
+                                                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
+                                                            : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
                                                     }`}
                                                 >
                                                     {report.format}
@@ -604,13 +604,13 @@ export default function CompanyReportsIndex({
                                             </td>
 
                                             {/* Tanggal Dibuat */}
-                                            <td className="py-3.5 px-4 text-center text-slate-500 whitespace-nowrap font-semibold">
+                                            <td className="py-3.5 px-4 text-center text-slate-500 dark:text-slate-400 whitespace-nowrap font-semibold">
                                                 {report.created_at_label}
                                             </td>
 
                                             {/* Status Badge */}
                                             <td className="py-3.5 px-4 text-center">
-                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50">
                                                     <CheckCircle2 className="h-3.5 w-3.5" />
                                                     <span>Selesai</span>
                                                 </span>

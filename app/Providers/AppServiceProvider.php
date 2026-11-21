@@ -30,6 +30,35 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerSecurityEventListeners();
+    }
+
+    /**
+     * Register security event listeners for 2FA status changes.
+     */
+    protected function registerSecurityEventListeners(): void
+    {
+        \Illuminate\Support\Facades\Event::listen(\Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed::class, function ($event) {
+            try {
+                $event->user?->notify(new \App\Notifications\AccountSecurityAlertNotification('two_factor_enabled', [
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Gagal mengirim email peringatan 2FA enabled: " . $e->getMessage());
+            }
+        });
+
+        \Illuminate\Support\Facades\Event::listen(\Laravel\Fortify\Events\TwoFactorAuthenticationDisabled::class, function ($event) {
+            try {
+                $event->user?->notify(new \App\Notifications\AccountSecurityAlertNotification('two_factor_disabled', [
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Gagal mengirim email peringatan 2FA disabled: " . $e->getMessage());
+            }
+        });
     }
 
     /**

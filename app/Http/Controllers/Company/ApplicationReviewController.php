@@ -397,13 +397,22 @@ class ApplicationReviewController extends Controller
         $applicantUser = $application->jobSeekerProfile?->user;
         if ($applicantUser) {
             try {
-                $applicantUser->notify(
-                    new \App\Notifications\ApplicationStatusChanged(
-                        $application,
-                        $validated['status'],
-                        $validated['status_notes'] ?? null
-                    )
-                );
+                if ($validated['status'] === 'interview') {
+                    $applicantUser->notify(
+                        new \App\Notifications\InterviewInvitationNotification(
+                            $application,
+                            $validated['status_notes'] ?? null
+                        )
+                    );
+                } else {
+                    $applicantUser->notify(
+                        new \App\Notifications\ApplicationStatusChanged(
+                            $application,
+                            $validated['status'],
+                            $validated['status_notes'] ?? null
+                        )
+                    );
+                }
             } catch (\Throwable $e) {
                 // Continue if notification fails
             }

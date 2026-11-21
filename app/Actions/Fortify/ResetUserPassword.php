@@ -25,5 +25,15 @@ class ResetUserPassword implements ResetsUserPasswords
         $user->forceFill([
             'password' => $input['password'],
         ])->save();
+
+        // Kirim email peringatan keamanan reset password
+        try {
+            $user->notify(new \App\Notifications\AccountSecurityAlertNotification('password_reset', [
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email peringatan reset password: " . $e->getMessage());
+        }
     }
 }

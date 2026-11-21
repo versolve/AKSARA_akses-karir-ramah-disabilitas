@@ -364,7 +364,8 @@ class CandidateController extends Controller
         if ($cvPath && !\Illuminate\Support\Facades\Storage::disk('public')->exists($cvPath) && $profile?->cv_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->cv_path)) {
             $cvPath = $profile->cv_path;
         }
-        $cvFilename = $cvPath ? basename($cvPath) : 'Dokumen_CV.pdf';
+        $cvExt = $cvPath ? pathinfo($cvPath, PATHINFO_EXTENSION) : 'pdf';
+        $cvFilename = $cvPath ? 'Curriculum_Vitae_' . \Illuminate\Support\Str::slug($name, '_') . '.' . ($cvExt ?: 'pdf') : 'Dokumen_CV.pdf';
         $cvUrl = $cvPath ? asset('storage/' . $cvPath) : null;
 
         // Parse Real Educations
@@ -563,13 +564,26 @@ class CandidateController extends Controller
         // Notify job seeker
         $applicantUser = $application->jobSeekerProfile?->user;
         if ($applicantUser) {
-            $applicantUser->notify(
-                new \App\Notifications\ApplicationStatusChanged(
-                    $application,
-                    $validated['status'],
-                    $application->status_notes
-                )
-            );
+            try {
+                if ($validated['status'] === 'interview') {
+                    $applicantUser->notify(
+                        new \App\Notifications\InterviewInvitationNotification(
+                            $application,
+                            $application->status_notes
+                        )
+                    );
+                } else {
+                    $applicantUser->notify(
+                        new \App\Notifications\ApplicationStatusChanged(
+                            $application,
+                            $validated['status'],
+                            $application->status_notes
+                        )
+                    );
+                }
+            } catch (\Throwable $e) {
+                // Continue if notification fails
+            }
         }
 
         $msg = $validated['status'] === 'rejected'

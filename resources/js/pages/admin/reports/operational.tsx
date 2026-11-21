@@ -635,15 +635,15 @@ export default function ReportingIndex({
                 {cards.map((c) => (
                     <div
                         key={c.label}
-                        className="flex items-center gap-3.5 rounded-2xl border border-slate-100 bg-[#FBFDFF] p-4.5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]"
+                        className="flex items-center gap-3.5 rounded-2xl border border-slate-100 dark:border-white/10 bg-[#FBFDFF] dark:bg-[#050E2E] p-4.5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]"
                     >
                         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${c.iconBg}`}>
                             <c.icon className={`h-5 w-5 ${c.iconColor}`} />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-xs font-semibold text-slate-500">{c.label}</p>
+                            <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{c.label}</p>
                             <div className="mt-0.5 flex items-center gap-2">
-                                <span className="text-xl sm:text-2xl font-black text-[#101B4D]">
+                                <span className="text-xl sm:text-2xl font-black text-[#101B4D] dark:text-white">
                                     {numberFormat.format(c.value)}
                                 </span>
                                 <span
@@ -928,11 +928,11 @@ export default function ReportingIndex({
         const perPage = activeData.pagination?.per_page ?? 10;
 
         return (
-            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-2xl border border-slate-100 dark:border-[#1E2B4D] bg-white dark:bg-[#050E2E] shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left text-xs">
                         {/* Table Head */}
-                        <thead className="bg-[#F8FBFF] border-b border-slate-100 text-[11px] font-extrabold text-slate-600">
+                        <thead className="bg-[#F8FBFF] dark:bg-[#050E2E] border-b border-slate-100 dark:border-[#1E2B4D] text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                             {currentTab === 'users' && (
                                 <tr>
                                     <th className="px-5 py-4 w-12 text-slate-500">No</th>
@@ -990,7 +990,7 @@ export default function ReportingIndex({
                         </thead>
 
                         {/* Table Body */}
-                        <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#1E2B4D] text-slate-700 dark:text-slate-300 font-medium">
                             {dataItems.length === 0 ? (
                                 <tr>
                                     <td colSpan={11} className="py-12 text-center text-slate-400 text-xs">
@@ -1006,7 +1006,7 @@ export default function ReportingIndex({
                                             <tr
                                                 key={item.id}
                                                 onClick={() => setDetailUser(item)}
-                                                className="hover:bg-blue-50/30 transition-colors cursor-pointer"
+                                                className="hover:bg-slate-50 dark:hover:bg-[#0E2254] transition-colors cursor-pointer"
                                             >
                                                 <td className="px-5 py-4 text-slate-400 font-bold">{rowNum}</td>
                                                 <td className="px-5 py-4">
@@ -1151,7 +1151,7 @@ export default function ReportingIndex({
                                             <tr
                                                 key={item.id}
                                                 onClick={() => setDetailCompany(item)}
-                                                className="hover:bg-blue-50/30 transition-colors cursor-pointer"
+                                                className="hover:bg-slate-50 dark:hover:bg-[#0E2254] transition-colors cursor-pointer"
                                             >
                                                 <td className="px-5 py-4 text-slate-400 font-bold">{rowNum}</td>
                                                 <td className="px-5 py-4">
@@ -1337,7 +1337,7 @@ export default function ReportingIndex({
 
                                     if (currentTab === 'vacancies') {
                                         return (
-                                            <tr key={item.id} className="hover:bg-blue-50/20 transition-colors">
+                                            <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-[#0E2254] transition-colors">
                                                 <td className="px-5 py-4 text-slate-400 font-bold">{rowNum}</td>
                                                 <td className="px-5 py-4 font-bold text-[#101B4D] truncate max-w-[200px]">
                                                     {item.title}
@@ -1414,7 +1414,7 @@ export default function ReportingIndex({
 
                                     // Lamaran Tab
                                     return (
-                                        <tr key={item.id} className="hover:bg-blue-50/20 transition-colors">
+                                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-[#0E2254] transition-colors">
                                             <td className="px-5 py-4 text-slate-400 font-bold">{rowNum}</td>
                                             <td className="px-5 py-4">
                                                 <div className="flex items-center gap-2.5">
@@ -1573,18 +1573,18 @@ export default function ReportingIndex({
         <AdminLayout>
             <Head title="Laporan - Profabel" />
 
-            <div className="min-h-screen bg-[#F4F8FC] px-4 py-6 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-[#F4F8FC] dark:bg-[#020B3C] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl space-y-6">
                     {/* Header */}
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#101B4D]">Laporan</h1>
-                        <p className="text-xs sm:text-sm font-medium text-slate-500">
+                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#101B4D] dark:text-white">Laporan</h1>
+                        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
                             Lihat dan unduh data hasil operasional platform sesuai kebutuhan.
                         </p>
                     </div>
 
                     {/* Segmented Top Tabs */}
-                    <div className="flex overflow-x-auto border-b border-slate-200">
+                    <div className="flex overflow-x-auto border-b border-slate-200 dark:border-white/10">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
@@ -1592,41 +1592,41 @@ export default function ReportingIndex({
                                 onClick={() => handleTabChange(tab.id)}
                                 className={`relative shrink-0 px-6 py-3.5 text-sm font-bold transition-all ${
                                     currentTab === tab.id
-                                        ? 'text-[#1769E0]'
-                                        : 'text-slate-500 hover:text-slate-800'
+                                        ? 'text-[#1769E0] dark:text-[#38BDF8]'
+                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                                 }`}
                             >
                                 {tab.label}
                                 {currentTab === tab.id && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1769E0]" />
+                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1769E0] dark:bg-[#38BDF8]" />
                                 )}
                             </button>
                         ))}
                     </div>
 
                     {/* Main White Card Container */}
-                    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_2px_16px_rgba(23,105,224,0.03)] space-y-6">
+                    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#071336] p-6 shadow-[0_2px_16px_rgba(23,105,224,0.03)] space-y-6">
                         {/* Card Top: Title & Export Buttons */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
-                                <h2 className="text-lg sm:text-xl font-black text-[#101B4D]">{cardHeader.title}</h2>
-                                <p className="mt-0.5 text-xs text-slate-500 font-medium">{cardHeader.subtitle}</p>
+                                <h2 className="text-lg sm:text-xl font-black text-[#101B4D] dark:text-white">{cardHeader.title}</h2>
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 font-medium">{cardHeader.subtitle}</p>
                             </div>
 
                             <div className="flex items-center gap-3 shrink-0">
                                 <button
                                     type="button"
                                     onClick={handleExportPdf}
-                                    className="flex items-center gap-2 rounded-xl border border-rose-300 bg-white px-4 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-50 shadow-sm"
+                                    className="flex items-center gap-2 rounded-xl border border-rose-300 dark:border-rose-900/50 bg-white dark:bg-[#050E2E] px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 transition hover:bg-rose-50 dark:hover:bg-rose-950/30 shadow-sm"
                                 >
-                                    <Download className="h-4 w-4 text-rose-600" />
+                                    <Download className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                                     Export PDF
                                 </button>
 
                                 <a
                                     href={`/admin/reporting/export?tab=${currentTab}&from=${filters.from}&to=${filters.to}`}
                                     download
-                                    className="flex items-center gap-2 rounded-xl border border-emerald-400 bg-white px-4 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 shadow-sm"
+                                    className="flex items-center gap-2 rounded-xl border border-emerald-400 dark:border-emerald-800/50 bg-white dark:bg-[#050E2E] px-4 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-50 dark:hover:bg-emerald-950/30 shadow-sm"
                                 >
                                     <div className="flex h-4 w-4 items-center justify-center rounded bg-emerald-600 text-[10px] font-black text-white">
                                         X

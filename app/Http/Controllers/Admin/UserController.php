@@ -208,6 +208,16 @@ class UserController extends Controller
             }
         });
 
+        // Kirim notifikasi email dan in-app ke pemilik akun perusahaan
+        try {
+            $companyOwner = $company->relationLoaded('user') ? $company->user : $company->user()->first();
+            if ($companyOwner) {
+                $companyOwner->notify(new \App\Notifications\CompanyVerificationStatusChanged($company, (bool) $validated['is_approved']));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim notifikasi status verifikasi perusahaan: " . $e->getMessage());
+        }
+
         $statusMsg = $validated['is_approved'] ? 'Perusahaan berhasil diverifikasi.' : 'Status verifikasi perusahaan dicabut.';
 
         return back()->with('status', $statusMsg);

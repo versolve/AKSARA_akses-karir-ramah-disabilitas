@@ -38,6 +38,7 @@ Route::prefix('app')
         Route::post('/ai/cv-review', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'cvReview'])->name('app.ai.cv-review');
         Route::get('/ai/history', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'listAiHistory']);
         Route::delete('/ai/history/{history}', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'deleteAiHistory']);
+        Route::get('/ai/cv-template/download', [\App\Http\Controllers\Seeker\AiCareerAssistantController::class, 'downloadCvTemplate'])->name('app.ai.cv-template.download');
 
         // Lowongan Favorit / Saved Vacancies
         Route::get('/favorites', [\App\Http\Controllers\Seeker\FavoriteVacancyController::class, 'index'])->name('app.favorites.index');
@@ -152,5 +153,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
     Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
 });
+
+Route::post('/two-factor-challenge/resend', function (\Illuminate\Http\Request $request) {
+    if (! $request->session()->has('login.id')) {
+        return redirect()->route('login');
+    }
+
+    $user = \App\Models\User::find($request->session()->get('login.id'));
+    if ($user) {
+        $user->sendTwoFactorEmailCode();
+    }
+
+    return back()->with('status', 'Kode verifikasi 2 langkah baru telah dikirimkan ke email Anda.');
+})->middleware(['throttle:5,1'])->name('two-factor.resend-email');
 
 require __DIR__.'/settings.php';

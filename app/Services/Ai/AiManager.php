@@ -9,7 +9,7 @@ class AiManager extends Manager
 {
     public function getDefaultDriver(): string
     {
-        return 'configured';
+        return $this->config->get('ai.default', 'configured');
     }
 
     protected function createConfiguredDriver(): AiProviderInterface
@@ -19,14 +19,14 @@ class AiManager extends Manager
 
     protected function createGeminiDriver(): AiProviderInterface
     {
-        $config = $this->config->get('ai.providers.gemini', []);
+        // Seluruh pemanggilan AI dialihkan ke ConfiguredAiProvider agar terpusat dan termonitoring oleh Admin
+        return new ConfiguredAiProvider();
+    }
 
-        return new GeminiAiProvider(
-            apiKey: (string) ($config['api_key'] ?? ''),
-            model: (string) ($config['model'] ?? 'gemini-1.5-flash'),
-            baseUrl: (string) ($config['base_url'] ?? 'https://generativelanguage.googleapis.com/v1beta'),
-            timeout: (int) ($config['timeout'] ?? 15)
-        );
+    protected function createOpenAiDriver(): AiProviderInterface
+    {
+        // Seluruh pemanggilan AI dialihkan ke ConfiguredAiProvider agar terpusat dan termonitoring oleh Admin
+        return new ConfiguredAiProvider();
     }
 
     protected function createMockDriver(): AiProviderInterface

@@ -392,10 +392,10 @@ export default function AdminActivityLogsIndex({
                 <History className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-[#102B4B] tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-[#102B4B] dark:text-white tracking-tight">
                   Audit Log Aktivitas & Kepatuhan Sistem
                 </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Rekam jejak komprehensif mutasi data, aksi administratif, dan akses keamanan platform secara presisi.
                 </p>
               </div>
@@ -672,10 +672,10 @@ export default function AdminActivityLogsIndex({
         </div>
 
         {/* 4. Tabel Log Aktivitas Advance */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <div className="bg-white dark:bg-[#050E2E] rounded-2xl border border-slate-200/90 dark:border-[#1E2B4D] shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[1000px]">
-              <thead className="bg-[#F8FBFE] text-slate-600 border-b border-slate-200 font-semibold text-[11px] tracking-wide">
+              <thead className="bg-[#F8FBFE] dark:bg-[#050E2E] text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-[#1E2B4D] font-extrabold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4 w-44">Waktu & Tanggal</th>
                   <th className="py-3 px-4 min-w-[200px]">Aktor / Pengguna</th>
@@ -685,16 +685,16 @@ export default function AdminActivityLogsIndex({
                   <th className="py-3 px-4 text-center w-32">Inspeksi Diff</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#1E2B4D]">
                 {logs.data.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-16 text-center text-slate-400">
                       <div className="flex flex-col items-center justify-center max-w-md mx-auto">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#050E2E] flex items-center justify-center text-slate-400 mb-3">
                           <History className="w-6 h-6" />
                         </div>
-                        <h4 className="text-sm font-bold text-slate-700">Tidak Ada Log Aktivitas Ditemukan</h4>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <h4 className="text-sm font-bold text-slate-700 dark:text-white">Tidak Ada Log Aktivitas Ditemukan</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                           {hasActiveFilters
                             ? 'Tidak ada rekaman aktivitas yang sesuai dengan parameter filter Anda saat ini.'
                             : 'Belum ada rekaman log audit yang tercatat di database.'}
@@ -705,7 +705,7 @@ export default function AdminActivityLogsIndex({
                             variant="outline"
                             size="sm"
                             onClick={handleResetFilters}
-                            className="mt-3 text-xs font-semibold rounded-xl"
+                            className="mt-3 text-xs font-semibold rounded-xl dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
                           >
                             Hapus Semua Filter
                           </Button>
@@ -717,11 +717,11 @@ export default function AdminActivityLogsIndex({
                   logs.data.map((log) => (
                     <tr
                       key={log.id}
-                      className="hover:bg-blue-50/30 transition-colors group"
+                      className="hover:bg-slate-50 dark:hover:bg-[#0E2254] transition-colors group"
                     >
                       {/* 1. Waktu */}
                       <td className="py-3.5 px-4 align-top whitespace-nowrap">
-                        <div className="font-mono text-slate-800 font-bold text-xs">
+                        <div className="font-mono text-slate-800 dark:text-white font-bold text-xs">
                           {log.created_at_formatted?.split(',')[1] || log.created_at_human}
                         </div>
                         <div className="text-[11px] text-slate-400 mt-0.5">
@@ -735,14 +735,14 @@ export default function AdminActivityLogsIndex({
                       {/* 2. Aktor / Pengguna */}
                       <td className="py-3.5 px-4 align-top">
                         <div className="flex items-start gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#050E2E] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center shrink-0">
                             {log.actor_name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <div className="font-bold text-slate-800 dark:text-white text-xs flex items-center gap-1.5">
                               <span>{log.actor_name}</span>
                               {log.actor_role && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-blue-50 text-blue-700 border border-blue-200 capitalize">
+                                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-[#38BDF8] dark:border-blue-800/40 capitalize">
                                   {log.actor_role}
                                 </span>
                               )}
@@ -828,11 +828,11 @@ export default function AdminActivityLogsIndex({
 
           {/* Pagination Footer */}
           {logs.total > 0 && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-t border-slate-200 bg-[#FAFBFD] text-xs text-slate-600">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-t border-slate-200 dark:border-white/10 bg-[#FAFBFD] dark:bg-[#050E2E] text-xs text-slate-600 dark:text-slate-400">
               <div>
-                Menampilkan <span className="font-bold text-slate-800">{logs.from || 0}</span> sampai{' '}
-                <span className="font-bold text-slate-800">{logs.to || 0}</span> dari{' '}
-                <span className="font-bold text-slate-800">{logs.total.toLocaleString('id-ID')}</span> log aktivitas
+                Menampilkan <span className="font-bold text-slate-800 dark:text-white">{logs.from || 0}</span> sampai{' '}
+                <span className="font-bold text-slate-800 dark:text-white">{logs.to || 0}</span> dari{' '}
+                <span className="font-bold text-slate-800 dark:text-white">{logs.total.toLocaleString('id-ID')}</span> log aktivitas
               </div>
 
               {logs.last_page > 1 && (
@@ -855,8 +855,8 @@ export default function AdminActivityLogsIndex({
                           link.active
                             ? 'bg-[#1769E0] text-white shadow-2xs'
                             : !link.url
-                            ? 'text-slate-300 cursor-not-allowed'
-                            : 'text-slate-600 hover:bg-slate-200/70 bg-white border border-slate-200'
+                            ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 bg-white dark:bg-[#071336] border border-slate-200 dark:border-white/10'
                         }`}
                       >
                         {isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : link.label}

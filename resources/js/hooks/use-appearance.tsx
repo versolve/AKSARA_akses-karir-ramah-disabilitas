@@ -42,6 +42,17 @@ const applyTheme = (appearance: Appearance): void => {
 
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+    if (typeof window !== 'undefined' && document.body) {
+        const isHighContrast = localStorage.getItem('profabel-high-contrast') === 'true';
+        if (isHighContrast) {
+            document.body.classList.add('high-contrast');
+            document.body.setAttribute('data-contrast-theme', isDark ? 'dark' : 'light');
+        } else {
+            document.body.classList.remove('high-contrast');
+            document.body.removeAttribute('data-contrast-theme');
+        }
+    }
 };
 
 const subscribe = (callback: () => void) => {
@@ -58,8 +69,14 @@ export function initializeTheme(): void {
     }
 
     if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'light');
-        setCookie('appearance', 'light');
+        const cookieMatch = document.cookie.match(/(?:^|; )appearance=([^;]*)/);
+        const cookieVal = cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+        if (cookieVal) {
+            localStorage.setItem('appearance', cookieVal);
+        } else {
+            localStorage.setItem('appearance', 'light');
+            setCookie('appearance', 'light');
+        }
     }
 
     currentAppearance = getStoredAppearance();

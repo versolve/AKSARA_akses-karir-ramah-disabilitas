@@ -34,14 +34,14 @@ export default function AdminLayout({
     };
 
     return (
-        <div className="min-h-screen min-w-full bg-[#F5F9FF]">
+        <div className="min-h-screen min-w-full bg-[#F5F9FF] dark:bg-[#020B3C]">
             <AdminHeader
                 onMenuClick={toggleSidebar}
                 menuExpanded={mobileOpen}
             />
             <div className="flex min-h-[calc(100vh-72px)]">
                 <aside
-                    className={`sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 self-start overflow-hidden border-r border-[#E2E8F0] bg-white transition-[width] duration-200 lg:block ${
+                    className={`sticky top-[72px] hidden h-[calc(100vh-72px)] shrink-0 self-start overflow-hidden border-r border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-[#071336] transition-[width] duration-200 lg:block ${
                         desktopCollapsed ? 'w-[72px]' : 'w-64'
                     }`}
                 >
@@ -57,7 +57,7 @@ export default function AdminLayout({
                     />
                 )}
                 <aside
-                    className={`fixed bottom-0 left-0 top-[72px] z-40 w-[min(84vw,280px)] bg-white shadow-2xl transition-transform duration-200 lg:hidden ${
+                    className={`fixed bottom-0 left-0 top-[72px] z-40 w-[min(84vw,280px)] bg-white dark:bg-[#071336] shadow-2xl transition-transform duration-200 lg:hidden ${
                         mobileOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
                     aria-hidden={!mobileOpen}

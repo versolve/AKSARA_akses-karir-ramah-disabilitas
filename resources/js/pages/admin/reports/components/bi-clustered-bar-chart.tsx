@@ -72,7 +72,7 @@ export function BiClusteredBarChart({
     };
 
     return (
-        <div className="rounded-2xl border border-[#E2EAF3] bg-white p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
+        <div className="rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
             {/* Header */}
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-sm font-extrabold text-[#101B4D]">{title}</h3>

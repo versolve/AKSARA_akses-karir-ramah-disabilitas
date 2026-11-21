@@ -3,6 +3,7 @@ import CompanyLayout from '@/layouts/company-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { ApplicationChatModal } from '@/components/chat/ApplicationChatModal';
 import {
+    ArrowRight,
     Briefcase,
     Calendar,
     Check,
@@ -744,11 +745,11 @@ export default function CompanyApplicationsIndex({
                 </div>
 
                 {/* Table Card */}
-                <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+                <div className="rounded-2xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336] shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-semibold text-slate-500">
+                                <tr className="border-b border-slate-100 dark:border-white/10 bg-slate-50/60 dark:bg-[#050E2E] text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                     <th className="w-10 py-3.5 pl-4 pr-2">
                                         <input
                                             type="checkbox"
@@ -757,7 +758,7 @@ export default function CompanyApplicationsIndex({
                                                 appList.length > 0
                                             }
                                             onChange={toggleSelectAll}
-                                            className="h-4 w-4 rounded border-slate-300 text-[#1769E0] focus:ring-[#1769E0]"
+                                            className="h-4 w-4 rounded border-slate-300 dark:border-white/20 dark:bg-[#050E2E] text-[#1769E0] focus:ring-[#1769E0]"
                                         />
                                     </th>
                                     <th className="py-3.5 px-3 min-w-[200px]">Kandidat</th>
@@ -797,7 +798,7 @@ export default function CompanyApplicationsIndex({
                                     <th className="py-3.5 px-3 w-20 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 text-xs">
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-xs">
                                 {appList.length > 0 ? (
                                     appList.map((app) => {
                                         const isSelected = selectedIds.includes(app.id);
@@ -806,8 +807,8 @@ export default function CompanyApplicationsIndex({
                                         return (
                                             <tr
                                                 key={app.id}
-                                                className={`transition hover:bg-slate-50/70 ${
-                                                    isSelected ? 'bg-blue-50/30' : ''
+                                                className={`transition hover:bg-slate-50/70 dark:hover:bg-[#0E2254] ${
+                                                    isSelected ? 'bg-blue-50/30 dark:bg-[#0B2256]' : ''
                                                 }`}
                                             >
                                                 {/* Checkbox */}
@@ -849,12 +850,13 @@ export default function CompanyApplicationsIndex({
                                                                     setDrawerTab('detail');
                                                                 }}
                                                                 className="font-bold text-[#102B4B] hover:text-[#1769E0] hover:underline text-left truncate max-w-[180px] block cursor-pointer"
+                                                                title={app.candidate?.name ?? 'Kandidat'}
                                                             >
                                                                 {app.candidate?.name ?? 'Kandidat'}
                                                             </button>
                                                             <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-slate-500">
                                                                 <GraduationCap className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                                                <span className="truncate max-w-[180px]">
+                                                                <span className="truncate max-w-[180px]" title={app.candidate?.education || '-'}>
                                                                     {app.candidate?.education || '-'}
                                                                 </span>
                                                             </p>

@@ -168,11 +168,34 @@ class ApplicationMessageController extends Controller
             'body' => ['required', 'string', 'max:2000'],
         ]);
 
-        $application->messages()->create([
+        $chatMessage = $application->messages()->create([
             'sender_id' => $request->user()->id,
             'body' => $validated['body'],
             'is_read' => false,
         ]);
+
+        // Kirim notifikasi email ke pihak lawan bicara (pelamar atau perusahaan)
+        try {
+            $sender = $request->user();
+            $recipient = null;
+
+            $applicantUser = $application->jobSeekerProfile?->user;
+            $companyUser = $application->vacancy?->companyProfile?->user;
+
+            if ($sender->id === $applicantUser?->id) {
+                // Jika pengirim adalah pelamar, notifikasi dikirim ke HR/Perusahaan
+                $recipient = $companyUser;
+            } elseif ($sender->id === $companyUser?->id) {
+                // Jika pengirim adalah perusahaan, notifikasi dikirim ke Pelamar
+                $recipient = $applicantUser;
+            }
+
+            if ($recipient) {
+                $recipient->notify(new \App\Notifications\NewChatMessageReceived($application, $chatMessage, $sender));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim notifikasi email pesan baru: " . $e->getMessage());
+        }
 
         return back()->with('status', 'Pesan berhasil dikirim.');
     }

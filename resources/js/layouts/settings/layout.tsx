@@ -50,15 +50,15 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
               : 'Admin Sistem';
 
     return (
-        <div className="space-y-6 py-6 sm:py-8">
+        <div className="space-y-6 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
             <Head title="Pengaturan Akun - Profabel" />
 
             {/* Header Pengaturan */}
             <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-[#102B4B] sm:text-3xl">
+                <h1 className="text-2xl font-extrabold tracking-tight text-[#102B4B] sm:text-3xl dark:text-white">
                     Pengaturan Akun
                 </h1>
-                <p className="mt-1 text-xs text-[#64748B] sm:text-sm">
+                <p className="mt-1 text-xs text-[#64748B] sm:text-sm dark:text-slate-400">
                     Kelola data identitas, keamanan sandi, dan preferensi akun Profabel Anda.
                 </p>
             </div>
@@ -68,9 +68,9 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 {/* Kolom Kiri: Navigasi & Info Mini User (4 cols) */}
                 <div className="space-y-4 lg:col-span-4">
                     {/* Mini Card User Info */}
-                    <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-xs">
+                    <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-xs dark:border-white/10 dark:bg-[#071336]">
                         <div className="flex items-center gap-3.5">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#123B5D] text-base font-extrabold text-white shadow-xs">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#123B5D] text-base font-extrabold text-white shadow-xs dark:bg-[#1D64EC]">
                                 {user?.avatar ? (
                                     <img
                                         src={user.avatar}
@@ -82,13 +82,13 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 )}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="truncate text-sm font-bold text-[#102B4B]">
+                                <h3 className="truncate text-sm font-bold text-[#102B4B] dark:text-white">
                                     {user?.name}
                                 </h3>
-                                <p className="truncate text-xs text-[#64748B]">
+                                <p className="truncate text-xs text-[#64748B] dark:text-slate-400">
                                     {user?.email}
                                 </p>
-                                <span className="mt-1 inline-block rounded-md bg-[#EBF5FA] px-2 py-0.5 text-[10px] font-bold text-[#007F96]">
+                                <span className="mt-1 inline-block rounded-md bg-[#EBF5FA] px-2 py-0.5 text-[10px] font-bold text-[#007F96] dark:bg-blue-950/60 dark:text-[#38BDF8]">
                                     {roleLabel}
                                 </span>
                             </div>
@@ -96,10 +96,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
                         {/* Quick Link ke profil kerja spesifik role */}
                         {user?.role === 'pelamar' && (
-                            <div className="mt-4 border-t border-[#F1F5F9] pt-3">
+                            <div className="mt-4 border-t border-[#F1F5F9] pt-3 dark:border-white/10">
                                 <Link
                                     href="/app/profile"
-                                    className="flex items-center justify-between text-xs font-semibold text-[#1674D1] transition hover:text-[#0C2742]"
+                                    className="flex items-center justify-between text-xs font-semibold text-[#1674D1] transition hover:text-[#0C2742] dark:text-[#38BDF8] dark:hover:text-blue-300"
                                 >
                                     <span>Lihat Profil Karier Pelamar</span>
                                     <ArrowRight className="h-3.5 w-3.5" />
@@ -107,10 +107,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             </div>
                         )}
                         {user?.role === 'perusahaan' && (
-                            <div className="mt-4 border-t border-[#F1F5F9] pt-3">
+                            <div className="mt-4 border-t border-[#F1F5F9] pt-3 dark:border-white/10">
                                 <Link
                                     href="/company/profile"
-                                    className="flex items-center justify-between text-xs font-semibold text-[#1674D1] transition hover:text-[#0C2742]"
+                                    className="flex items-center justify-between text-xs font-semibold text-[#1674D1] transition hover:text-[#0C2742] dark:text-[#38BDF8] dark:hover:text-blue-300"
                                 >
                                     <span>Lihat Profil Perusahaan</span>
                                     <ArrowRight className="h-3.5 w-3.5" />
@@ -120,7 +120,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                     </div>
 
                     {/* Navigation Sidebar Card */}
-                    <div className="rounded-3xl border border-[#E2E8F0] bg-white p-3 shadow-xs">
+                    <div className="rounded-3xl border border-[#E2E8F0] bg-white p-3 shadow-xs dark:border-white/10 dark:bg-[#071336]">
                         <nav className="flex flex-col space-y-1.5" aria-label="Menu Pengaturan">
                             {sidebarNavItems.map((item, index) => {
                                 const active = isCurrentOrParentUrl(item.href);
@@ -131,15 +131,15 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                         href={item.href}
                                         className={`flex items-center gap-3.5 rounded-2xl p-3 text-xs transition sm:text-sm ${
                                             active
-                                                ? 'bg-[#EBF5FA] font-bold text-[#123B5D] shadow-2xs'
-                                                : 'font-medium text-[#64748B] hover:bg-slate-50 hover:text-[#102B4B]'
+                                                ? 'bg-[#EBF5FA] font-bold text-[#123B5D] shadow-2xs dark:bg-[#0D2352] dark:text-white'
+                                                : 'font-medium text-[#64748B] hover:bg-slate-50 hover:text-[#102B4B] dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
                                         }`}
                                     >
                                         <div
                                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
                                                 active
-                                                    ? 'bg-white text-[#007F96] shadow-xs'
-                                                    : 'bg-slate-100 text-slate-500'
+                                                    ? 'bg-white text-[#007F96] shadow-xs dark:bg-[#071336] dark:text-[#38BDF8]'
+                                                    : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                                             }`}
                                         >
                                             <Icon className="h-4 w-4" />
@@ -148,7 +148,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                             <div className="truncate font-bold">
                                                 {item.title}
                                             </div>
-                                            <div className="truncate text-[11px] text-[#94A3B8]">
+                                            <div className="truncate text-[11px] text-[#94A3B8] dark:text-slate-400">
                                                 {item.description}
                                             </div>
                                         </div>

@@ -46,7 +46,7 @@ class ProfileController extends Controller
                 'portfolio_url' => $profile->portfolio_url ?? '',
                 'cv_path' => $profile->cv_path,
                 'cv_url' => $profile->cv_path ? '/storage/' . $profile->cv_path : null,
-                'cv_name' => $profile->cv_path ? basename($profile->cv_path) : null,
+                'cv_name' => $profile->cv_path ? 'Curriculum Vitae (CV) - ' . ($user->name ?: 'Pelamar') . '.' . (pathinfo($profile->cv_path, PATHINFO_EXTENSION) ?: 'pdf') : null,
                 'cv_updated_at' => $profile->updated_at?->toIso8601String(),
                 'profile_completed_percentage' => $completeness['percentage'],
                 'profile_completeness' => $completeness,

@@ -134,6 +134,62 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * Generate and send a 6-digit Two-Factor (2FA) email code.
+     */
+    public function sendTwoFactorEmailCode(): string
+    {
+        $code = sprintf('%06d', random_int(100000, 999999));
+
+        $this->forceFill([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(10),
+        ])->save();
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\TwoFactorEmailCodeMail($this, $code));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email 2FA ke {$this->email}: " . $e->getMessage());
+        }
+
+        \Illuminate\Support\Facades\Log::info("Kode 2FA Profabel untuk [{$this->email}]: {$code}");
+
+        return $code;
+    }
+
+    /**
+     * Confirm the two factor authentication code.
+     * Supports both email OTP and Google Authenticator TOTP.
+     */
+    public function confirmTwoFactorAuth($code): bool
+    {
+        // 1. Validasi via kode OTP yang dikirimkan ke Email
+        if (!empty($this->verification_code) && trim($this->verification_code) === trim($code)) {
+            if ($this->verification_code_expires_at && now()->lte($this->verification_code_expires_at)) {
+                $this->forceFill([
+                    'verification_code' => null,
+                    'verification_code_expires_at' => null,
+                ])->save();
+
+                return true;
+            }
+        }
+
+        // 2. Validasi via Google Authenticator app TOTP (jika ada secret)
+        if (!empty($this->two_factor_secret)) {
+            try {
+                $provider = app(\Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider::class);
+                if ($provider->verify(decrypt($this->two_factor_secret), $code)) {
+                    return true;
+                }
+            } catch (\Throwable $e) {
+                // Ignore decryption failure if any
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if user is a job seeker (pelamar)
      */
     public function isPelamar(): bool
@@ -168,6 +224,37 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'admin' => '/admin/dashboard',
             default => '/',
         };
+    }
+
+    /**
+     * Get user avatar or fallback to company logo if user is a company account.
+     */
+    public function getAvatarAttribute($value): ?string
+    {
+        if ($value) {
+            if (str_starts_with($value, 'http')) {
+                return $value;
+            }
+            if (str_starts_with($value, '/storage/')) {
+                return asset(ltrim($value, '/'));
+            }
+            return asset('storage/' . ltrim($value, '/'));
+        }
+
+        if ($this->role === 'perusahaan') {
+            $company = $this->relationLoaded('companyProfile')
+                ? $this->companyProfile
+                : $this->companyProfile()->first();
+
+            if ($company && $company->logo_path) {
+                if (str_starts_with($company->logo_path, 'http')) {
+                    return $company->logo_path;
+                }
+                return asset('storage/' . ltrim($company->logo_path, '/'));
+            }
+        }
+
+        return null;
     }
 
     public function jobSeekerProfile(): \Illuminate\Database\Eloquent\Relations\HasOne

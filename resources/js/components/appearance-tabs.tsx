@@ -22,24 +22,24 @@ export default function AppearanceToggleTab({
             icon: Sun,
             label: 'Mode Terang',
             desc: 'Latar putih bersih dengan kontras tajam untuk kenyamanan siang hari.',
-            iconBg: 'bg-amber-100',
-            iconColor: 'text-amber-600',
+            iconBg: 'bg-amber-100 dark:bg-amber-950/60',
+            iconColor: 'text-amber-600 dark:text-amber-400',
         },
         {
             value: 'dark',
             icon: Moon,
             label: 'Mode Gelap',
             desc: 'Latar gelap ramah mata untuk kenyamanan bekerja di ruangan redup.',
-            iconBg: 'bg-slate-800 text-white',
-            iconColor: 'text-indigo-300',
+            iconBg: 'bg-slate-800 text-white dark:bg-indigo-950 dark:text-indigo-300',
+            iconColor: 'text-indigo-300 dark:text-indigo-300',
         },
         {
             value: 'system',
             icon: Monitor,
             label: 'Otomatis (Sistem)',
             desc: 'Menyesuaikan otomatis dengan setelan tema sistem operasi perangkat Anda.',
-            iconBg: 'bg-[#EBF5FA]',
-            iconColor: 'text-[#007F96]',
+            iconBg: 'bg-[#EBF5FA] dark:bg-blue-950/60',
+            iconColor: 'text-[#007F96] dark:text-[#38BDF8]',
         },
     ];
 
@@ -56,8 +56,8 @@ export default function AppearanceToggleTab({
                             onClick={() => updateAppearance(value)}
                             className={`relative flex flex-col justify-between rounded-2xl border p-5 text-left transition-all ${
                                 isSelected
-                                    ? 'border-[#007F96] bg-[#F0F8FC] shadow-sm ring-2 ring-[#007F96]/20'
-                                    : 'border-[#E2E8F0] bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                                    ? 'border-[#007F96] bg-[#F0F8FC] shadow-sm ring-2 ring-[#007F96]/20 dark:border-[#38BDF8] dark:bg-[#0D2352] dark:ring-[#38BDF8]/20'
+                                    : 'border-[#E2E8F0] bg-white hover:border-slate-300 hover:bg-slate-50/60 dark:border-white/10 dark:bg-[#0B1736] dark:hover:border-slate-700 dark:hover:bg-[#0F1E42]'
                             }`}
                         >
                             <div>
@@ -68,16 +68,16 @@ export default function AppearanceToggleTab({
                                         <Icon className={`h-5 w-5 ${iconColor}`} />
                                     </div>
                                     {isSelected && (
-                                        <span className="flex items-center gap-1 text-xs font-bold text-[#007F96]">
+                                        <span className="flex items-center gap-1 text-xs font-bold text-[#007F96] dark:text-[#38BDF8]">
                                             <CheckCircle2 className="h-4 w-4" />
                                             <span>Aktif</span>
                                         </span>
                                     )}
                                 </div>
-                                <h3 className="mt-4 text-sm font-bold text-[#102B4B]">
+                                <h3 className="mt-4 text-sm font-bold text-[#102B4B] dark:text-white">
                                     {label}
                                 </h3>
-                                <p className="mt-1 text-xs leading-relaxed text-[#64748B]">
+                                <p className="mt-1 text-xs leading-relaxed text-[#64748B] dark:text-slate-400">
                                     {desc}
                                 </p>
                             </div>

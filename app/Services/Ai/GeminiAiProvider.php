@@ -19,7 +19,8 @@ class GeminiAiProvider implements AiProviderInterface
         private string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
         private int $timeout = 15,
         private float $temperature = 0.2,
-        private int $maxTokens = 1200
+        private int $maxTokens = 1200,
+        private bool $throwOnError = false
     ) {
         $this->fallback = new MockAiProvider();
     }
@@ -27,6 +28,9 @@ class GeminiAiProvider implements AiProviderInterface
     public function matchJob(JobSeekerProfile $seeker, Vacancy $vacancy): array
     {
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Google Gemini API Key belum diatur di Halaman Admin.');
+            }
             return $this->fallback->matchJob($seeker, $vacancy);
         }
 
@@ -78,8 +82,15 @@ PROMPT;
                     'summary' => (string) ($parsed['summary'] ?? ''),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons Gemini AI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
-            Log::warning('Gemini AI matchJob failed, falling back to MockAiProvider: ' . $e->getMessage());
+            Log::warning('Gemini AI matchJob failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $this->fallback->matchJob($seeker, $vacancy);
@@ -88,6 +99,9 @@ PROMPT;
     public function analyzeSkillGap(array $seekerSkills, array $vacancySkills): array
     {
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Google Gemini API Key belum diatur di Halaman Admin.');
+            }
             return $this->fallback->analyzeSkillGap($seekerSkills, $vacancySkills);
         }
 
@@ -122,8 +136,15 @@ PROMPT;
                     'learning_recommendations' => (array) ($parsed['learning_recommendations'] ?? []),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons Gemini AI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
             Log::warning('Gemini AI analyzeSkillGap failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $this->fallback->analyzeSkillGap($seekerSkills, $vacancySkills);
@@ -134,6 +155,9 @@ PROMPT;
         $fallbackResult = $this->fallback->reviewCvAts($cvText, $targetSkills);
 
         if (empty($this->apiKey)) {
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Google Gemini API Key belum diatur di Halaman Admin.');
+            }
             return $fallbackResult;
         }
 
@@ -190,8 +214,15 @@ PROMPT;
                     'accessibility_tips' => $this->stringsOrFallback($parsed['accessibility_tips'] ?? null, $fallbackResult['accessibility_tips'] ?? []),
                 ];
             }
+
+            if ($this->throwOnError) {
+                throw new \RuntimeException('Format respons Gemini AI tidak valid atau kosong.');
+            }
         } catch (Throwable $e) {
             Log::warning('Gemini AI reviewCvAts failed: ' . $e->getMessage());
+            if ($this->throwOnError) {
+                throw $e;
+            }
         }
 
         return $fallbackResult;

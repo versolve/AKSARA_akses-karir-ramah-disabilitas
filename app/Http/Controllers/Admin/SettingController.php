@@ -223,6 +223,16 @@ class SettingController extends Controller
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
         ]);
 
+        // Kirim email peringatan keamanan update password admin
+        try {
+            $request->user()->notify(new \App\Notifications\AccountSecurityAlertNotification('password_updated', [
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email peringatan update password admin: " . $e->getMessage());
+        }
+
         return back()->with('success', 'Password akun berhasil diperbarui.');
     }
 }

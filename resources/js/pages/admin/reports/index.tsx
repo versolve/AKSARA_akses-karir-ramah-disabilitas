@@ -133,15 +133,15 @@ export default function BusinessIntelligencePage({
         <AdminLayout>
             <Head title="Business Intelligence - Profabel Admin" />
 
-            <main className="min-h-full bg-[#F8FAFC] px-4 py-6 sm:px-6 lg:px-8">
+            <main className="min-h-full bg-[#F8FAFC] dark:bg-[#020B3C] px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-[1600px] space-y-6">
                     {/* Top Header */}
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                         <div>
-                            <h1 className="text-2xl font-extrabold tracking-tight text-[#101B4D] sm:text-3xl">
+                            <h1 className="text-2xl font-extrabold tracking-tight text-[#101B4D] dark:text-white sm:text-3xl">
                                 Business Intelligence
                             </h1>
-                            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
                                 Analisis data dan tren platform Profabel untuk mendukung pengambilan keputusan strategis.
                             </p>
                         </div>
@@ -149,7 +149,7 @@ export default function BusinessIntelligencePage({
                         {/* Top Filters & Export Action */}
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Unified Filter Widget */}
-                            <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+                            <div className="inline-flex items-center rounded-xl border border-slate-200 dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-1 shadow-sm">
                                 {/* Calendar Trigger Button */}
                                 <button
                                     type="button"
@@ -158,38 +158,38 @@ export default function BusinessIntelligencePage({
                                     className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${
                                         isCalendarActive
                                             ? 'bg-[#1769E0] text-white shadow-sm'
-                                            : 'text-slate-500 hover:bg-slate-100'
+                                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'
                                     }`}
                                 >
                                     <Calendar className="h-4 w-4" />
                                 </button>
 
-                                <div className="mx-1 h-5 w-[1px] bg-slate-200" />
+                                <div className="mx-1 h-5 w-[1px] bg-slate-200 dark:bg-white/10" />
 
                                 {/* Preset Dropdown */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button
                                             type="button"
-                                            className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-semibold text-[#101B4D] transition hover:bg-slate-50"
+                                            className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-semibold text-[#101B4D] dark:text-white transition hover:bg-slate-50 dark:hover:bg-white/10"
                                         >
                                             <span>{activePresetLabel}</span>
                                             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-52 rounded-xl p-1.5 shadow-xl">
+                                    <DropdownMenuContent align="end" className="w-52 rounded-xl p-1.5 shadow-xl border-slate-100 dark:border-white/10 bg-white dark:bg-[#071336]">
                                         {periodPresetOptions.map((opt) => {
                                             const isSelected = !isCalendarActive && (filters.period || 'this_year') === opt.value;
                                             return (
                                                 <DropdownMenuItem
                                                     key={opt.value}
                                                     onClick={() => handleSelectPreset(opt.value)}
-                                                    className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold"
+                                                    className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10"
                                                 >
-                                                    <span className={isSelected ? 'font-bold text-[#1769E0]' : 'text-slate-700'}>
+                                                    <span className={isSelected ? 'font-bold text-[#1769E0] dark:text-[#38BDF8]' : 'text-slate-700 dark:text-slate-200'}>
                                                         {opt.label}
                                                     </span>
-                                                    {isSelected && <Check className="h-4 w-4 text-[#1769E0]" />}
+                                                    {isSelected && <Check className="h-4 w-4 text-[#1769E0] dark:text-[#38BDF8]" />}
                                                 </DropdownMenuItem>
                                             );
                                         })}
@@ -209,7 +209,7 @@ export default function BusinessIntelligencePage({
                     </div>
 
                     {/* Navigation Tabs Bar */}
-                    <div className="flex overflow-x-auto rounded-2xl border border-[#E2EAF3] bg-white p-1.5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
+                    <div className="flex overflow-x-auto rounded-2xl border border-[#E2EAF3] dark:border-[#1E2B4D] bg-white dark:bg-[#071336] p-1.5 shadow-[0_2px_12px_rgba(23,105,224,0.03)]">
                         {tabItems.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = currentTab === tab.key;
@@ -229,8 +229,8 @@ export default function BusinessIntelligencePage({
                                     prefetch
                                     className={`flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-xs font-bold transition sm:flex-1 ${
                                         isActive
-                                            ? 'bg-[#EBF5FA] text-[#1769E0] shadow-sm'
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                            ? 'bg-[#EBF5FA] dark:bg-[#0B1E48] text-[#1769E0] dark:text-[#38BDF8] shadow-sm'
+                                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-white'
                                     }`}
                                 >
                                     <Icon className="h-4 w-4" />
